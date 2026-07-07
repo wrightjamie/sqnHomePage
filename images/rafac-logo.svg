@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 160">
+    <defs>
+        <style>
+            .blue { fill: #002F5F; }
+            .red { fill: #C60C30; }
+            .white { fill: #FFFFFF; }
+            .text-bold { font-family: 'Myriad Pro', Arial, sans-serif; font-weight: bold; }
+            .text-light { font-family: 'Myriad Pro', Arial, sans-serif; font-weight: 300; }
+        </style>
+    </defs>
+    
+    <!-- Roundel (1:2:3 ratio typically, left aligned) -->
+    <!-- Center at x=80, y=80 -->
+    <circle cx="80" cy="80" r="60" class="blue" />
+    <circle cx="80" cy="80" r="40" class="white" />
+    <circle cx="80" cy="80" r="20" class="red" />
+
+    <!-- Text (Left aligned, vertically stacked) -->
+    <!-- "ROYAL", "AIR FORCE", "AIR CADETS", "the next generation" -->
+    <text x="160" y="45" font-size="38" class="blue text-bold">ROYAL</text>
+    <text x="160" y="85" font-size="38" class="blue text-bold" letter-spacing="-1">AIR FORCE</text>
+    <text x="160" y="125" font-size="44" class="red text-bold" letter-spacing="-1">AIR CADETS</text>
+    <text x="160" y="150" font-size="24" class="blue text-light" letter-spacing="-0.5">the next generation</text>
+</svg>

@@ -1,0 +1,132 @@
+/* css/core.css */
+:root {
+    interpolate-size: allow-keywords;
+        /* RAF Brand Guidelines Colors */
+    /* Logotype */
+    --raf-logo-1: #C60C30;
+    --raf-logo-2: #002F5F;
+
+    /* Primary Navigation */
+    --raf-nav-1: #496C60;
+    --raf-nav-2: #5482AB;
+    --raf-nav-3: #51626F;
+
+    /* Accent Colours */
+    --raf-accent-1: #E98300;
+    --raf-accent-2: #FECB00;
+    --raf-accent-3: #0073CF;
+
+    /* Supporting Colours */
+    --raf-supp-1: #96A797;
+    --raf-supp-2: #879637;
+    --raf-supp-3: #90986B;
+    --raf-supp-4: #739ABC;
+    --raf-supp-5: #5E9CAE;
+    --raf-supp-6: #7D9AAA;
+    --raf-supp-7: #5E6A71;
+    --raf-supp-8: #89687C;
+    --raf-supp-9: #773141;
+
+    /* Legacy names kept for backwards compatibility */
+    --raf-deep-blue: var(--raf-logo-2);
+    --raf-light-blue: #5D8AA8; /* Keep original just in case */
+    --raf-accent-blue: #1378D7; /* Keep original just in case */
+    --raf-red: var(--raf-logo-1);
+    --raf-white: #FFFFFF;
+
+    /* Theme mappings */
+    --color-primary: var(--raf-deep-blue);
+    --color-secondary: var(--raf-light-blue);
+    --color-error: var(--raf-red);
+    --color-muted: #666666;
+    --color-bg: #f4f4f4;
+    --color-text: #333333;
+    
+    /* Spacing */
+    --space-xs: 0.3125rem; /* 5px */
+    --space-sm: 0.625rem;  /* 10px */
+    --space-md: 0.9375rem; /* 15px */
+    --space-lg: 1.25rem;   /* 20px */
+    
+    /* Typography */
+    --font-sm: 0.85rem;
+    --font-md: 1rem;
+    --font-lg: 1.2rem;
+    --font-heading: clamp(2rem, 5vw, 6rem);
+    --font-body: clamp(1rem, 2vw, 3rem);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+}
+
+/* Global Utility Classes */
+.flex-col {
+    display: flex;
+    flex-direction: column;
+}
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hidden { display: none !important; }
+
+/* Spacing Utilities */
+.m-0 { margin: 0 !important; }
+.mt-xs { margin-top: var(--space-xs); }
+.mt-sm { margin-top: var(--space-sm); }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+
+.mb-xs { margin-bottom: var(--space-xs); }
+.mb-sm { margin-bottom: var(--space-sm); }
+.mb-md { margin-bottom: var(--space-md); }
+.mb-lg { margin-bottom: var(--space-lg); }
+
+.ml-xs { margin-left: var(--space-xs); }
+.ml-sm { margin-left: var(--space-sm); }
+
+.mr-xs { margin-right: var(--space-xs); }
+.mr-sm { margin-right: var(--space-sm); }
+
+.p-0 { padding: 0 !important; }
+.p-xs { padding: var(--space-xs); }
+.p-sm { padding: var(--space-sm); }
+.p-md { padding: var(--space-md); }
+
+/* Layout Utilities */
+.w-100 { width: 100%; }
+.h-100 { height: 100%; }
+.flex-row { display: flex; flex-direction: row; }
+.flex-wrap { flex-wrap: wrap; }
+.justify-between { justify-content: space-between; }
+.justify-end { justify-content: flex-end; }
+.align-center { align-items: center; }
+.gap-xs { gap: var(--space-xs); }
+.gap-sm { gap: var(--space-sm); }
+.gap-md { gap: var(--space-md); }
+.gap-lg { gap: var(--space-lg); }
+.flex-1 { flex: 1; }
+
+/* Typography Utilities */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-left { text-align: left; }
+.font-bold { font-weight: bold; }
+.text-error { color: var(--color-error); }
+.text-muted { color: var(--color-muted); }
+.text-sm { font-size: var(--font-sm); }
+.text-md { font-size: var(--font-md); }
+.text-lg { font-size: var(--font-lg); }
+.font-normal { font-weight: normal; }
+.line-height-tight { line-height: 1.1; }

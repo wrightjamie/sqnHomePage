@@ -1,0 +1,9 @@
+/* css/pages/reset.css */
+body { background: #ffebee; color: var(--color-text); overflow: auto; display: flex; justify-content: center; align-items: center; min-height: 100vh;}
+.reset-box { background: white; padding: 40px; border-radius: 0.5rem; box-shadow: 0 0.25rem var(--space-md) rgba(0,0,0,0.1); max-width: 500px; width: 100%; border-top: var(--space-xs) solid var(--color-secondary); }
+h1 { color: var(--color-secondary); font-size: 2rem; margin-bottom: var(--space-lg); text-align: center;}
+p.warning { color: var(--color-secondary); font-weight: bold; text-align: center; margin-bottom: var(--space-lg); }
+input[type="text"] { width: 100%; padding: var(--space-sm); margin: var(--space-sm) 0; border: 1px solid #ccc; border-radius: 0.25rem; box-sizing: border-box; text-align: center;}
+button { background: var(--color-secondary); color: white; border: none; padding: 0.75rem; width: 100%; font-size: 1.1rem; border-radius: 0.25rem; cursor: pointer; margin-top: var(--space-md);}
+button:hover { background: #a10a22; }
+.message { margin-top: var(--space-lg); padding: var(--space-md); background: #fff0f0; border-left: 0.25rem solid var(--color-secondary); }

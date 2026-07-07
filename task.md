@@ -1,0 +1,3 @@
+- [x] Complete transition of API endpoints to jsonResponse/jsonError
+- [x] Refactor JS fetch logic to use apiFetch wrapper
+- [x] Refactor JS logic for Auth to use new Auth object

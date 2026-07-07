@@ -1,0 +1,210 @@
+/* css/pages/index.css */
+
+body {
+    overflow: hidden; /* Prevent scrolling on the display board */
+    height: 100vh;
+    width: 100vw;
+    background: var(--raf-nav-2);
+    color: var(--raf-red);
+}
+
+/* Display Container */
+#display-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#slide-viewer {
+    flex: 1;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 5% 10%;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.slide.active {
+    opacity: 1;
+    z-index: 10;
+}
+
+.slide h1 {
+    font-size: var(--font-heading);
+    margin-bottom: 2rem;
+    color: var(--raf-red);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.slide-content {
+    font-size: var(--font-body);
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.slide-content ul, .slide-content ol {
+    margin-left: 2em;
+    margin-bottom: 1em;
+}
+
+.slide-image-container {
+    flex: 1;
+    height: 100%;
+    min-height: 200px;
+    width: 90vw; /* Grow to 90vw as requested */
+    margin-top: var(--space-sm);
+}
+
+.slide-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Cover mode for art direction */
+    border-radius: 0.5rem;
+    box-shadow: 0 var(--space-sm) 2var(--space-xs) rgba(0,0,0,0.5);
+}
+
+/* Logo */
+#logo-container {
+    position: absolute;
+    bottom: var(--space-lg);
+    left: var(--space-lg);
+    width: 20vw;
+    max-width: 250px;
+    z-index: 40;
+    pointer-events: none;
+}
+#logo-container img {
+    width: 100%;
+    height: auto;
+}
+
+/* Swoosh Footer */
+#swoosh-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 15vh; /* Scale with viewport height */
+    z-index: 20;
+    pointer-events: none; /* Let clicks pass through */
+}
+
+#swoosh-footer svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.swoosh-inner { fill: var(--raf-supp-4); }
+.swoosh-dividing { fill: var(--color-secondary); }
+.swoosh-outer { fill: transparent; }
+
+/* Bottom Menu Bar for Active Slideshows */
+#slideshow-menu {
+    position: absolute;
+    bottom: var(--space-lg);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: var(--space-sm);
+    background: rgba(0,0,0,0.5);
+    padding: var(--space-sm);
+    border-radius: 30px;
+    z-index: 40;
+    transition: opacity 0.3s;
+}
+.slideshow-tab {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: 0.5rem var(--font-md);
+    border-radius: var(--space-lg);
+    background: rgba(255,255,255,0.1);
+    color: #ccc;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+    border: none;
+}
+.slideshow-tab:hover {
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
+.slideshow-tab.active {
+    background: rgba(255,255,255,0.9);
+    color: var(--color-text);
+    font-weight: bold;
+}
+.slideshow-tab .material-symbols-outlined {
+    font-size: 1.5rem;
+}
+
+
+/* Edit Mode Styles */
+.edit-marker {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    background: var(--color-secondary);
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    position: absolute;
+    top: -var(--space-sm);
+    right: -var(--space-sm);
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.2s;
+    box-shadow: 0 2px var(--space-xs) rgba(0,0,0,0.5);
+}
+.editable-container {
+    position: relative;
+    border: 1px dashed transparent;
+    transition: border 0.2s;
+}
+.editable-container:hover {
+    border: 1px dashed rgba(255,255,255,0.5);
+}
+.editable-container:hover .edit-marker {
+    opacity: 1;
+}
+
+.edit-toolbar {
+    position: absolute;
+    top: var(--space-lg);
+    right: var(--space-lg);
+    background: rgba(0,0,0,0.7);
+    padding: var(--space-sm);
+    border-radius: var(--space-sm);
+    display: flex;
+    gap: var(--space-sm);
+    z-index: 30;
+}
+
+.dummy-slide-btn {
+    padding: var(--space-lg) 40px;
+    font-size: 1.5rem;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--space-sm);
+    cursor: pointer;
+    transition: transform 0.2s;
+    margin: var(--space-sm);
+}
+.dummy-slide-btn:hover { transform: scale(1.05); }

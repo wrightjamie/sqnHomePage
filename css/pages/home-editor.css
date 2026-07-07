@@ -1,0 +1,319 @@
+:root {
+  --editor-width: clamp(400px, calc(100vw - 1400px - 4rem), 800px);
+}
+
+body.edit-mode-active {
+  padding-right: var(--editor-width); /* Space for sidebar */
+}
+
+body.edit-mode-active .container {
+  padding-left: 3rem; /* Extra space for row controls */
+}
+
+body.edit-mode-active .row {
+  margin-top: 2.5rem; /* Extra vertical space above rows so toolbars aren't hidden */
+}
+
+.edit-toggle-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  cursor: pointer;
+  width: 40.5rem;
+  height: 40.5rem;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid transparent;
+  background: rgba(0, 47, 95, 0.4);
+  font-size: 1.5rem;
+}
+.edit-toggle-btn span { display: none; }
+.edit-toggle-btn:hover { 
+  background: rgba(0, 47, 95, 0.9); 
+  color: white; 
+}
+
+.next-bg-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: calc(2rem + 60px);
+  z-index: 1000;
+  cursor: pointer;
+  width: 40.5rem;
+  height: 40.5rem;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid transparent;
+  background: rgba(0, 47, 95, 0.4);
+  font-size: 1.5rem;
+}
+.next-bg-btn:hover { 
+  background: rgba(0, 47, 95, 0.9); 
+  color: white; 
+}
+
+.editor-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: var(--editor-width);
+  height: 100vh;
+  z-index: 900;
+  border-radius: 0;
+  border: none;
+  border-left: 1px solid var(--glass-border);
+  background: rgba(0, 20, 45, 0.95);
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  overflow-y: auto;
+}
+.editor-sidebar h3 { color: var(--raf-light-blue); margin-bottom: 0.5rem; }
+.editor-sidebar textarea {
+  flex-grow: 1;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #00ff00;
+  font-family: monospace;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  resize: none;
+  margin-bottom: 1rem;
+}
+#copy-config-btn, #dl-config-btn {
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: white;
+  border: 1px solid var(--raf-light-blue);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+#copy-config-btn:hover, #dl-config-btn:hover { background: var(--raf-light-blue); }
+
+/* On-Canvas Edit Controls */
+.edit-outline {
+  position: relative;
+  outline: 2px dashed rgba(255,255,255,0.3);
+  outline-offset: 0.25rem;
+}
+
+.edit-toolbar {
+  position: absolute;
+  background: rgba(0, 36, 125, 0.9);
+  backdrop-filter: blur(0.25rem);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 50;
+  opacity: 0; /* Hidden by default */
+  pointer-events: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 0.5rem rgba(0,0,0,0.3);
+  width: max-content; /* Prevent stretching */
+}
+.edit-outline:hover > .edit-toolbar {
+  z-index: 60;
+  opacity: 1;
+  pointer-events: auto;
+}
+.edit-toolbar span { font-weight: bold; color: var(--raf-light-blue); margin-right: 0.25rem; }
+.toolbar-btn-group { display: flex; gap: 0.25rem; }
+.toolbar-btn-group button {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.toolbar-btn-group button:hover { background: var(--raf-light-blue); color: #00247D; }
+
+.toolbar-column {
+  top: -0.25rem;
+  left: 0;
+  right: auto; 
+  transform: translateY(-100%);
+}
+.toolbar-widget {
+  top: 0.25rem;
+  right: 0.25rem;
+}
+.toolbar-row {
+  top: 50%;
+  left: -5rem;
+  transform: translateY(-50%) rotate(-90deg);
+  flex-direction: column;
+  padding: 0.5rem 0.25rem;
+}
+.add-row-btn {
+  width: 100%;
+  padding: 1rem;
+  margin-top: 2rem;
+  background: rgba(255,255,255,0.05);
+  border: 2px dashed rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.add-row-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: var(--raf-light-blue);
+  color: white;
+}
+
+.inline-edit-btn {
+  background: none;
+  border: none;
+  color: var(--raf-light-blue);
+  cursor: pointer;
+  margin-left: 0.5rem;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+.inline-edit-btn:hover { opacity: 1; }
+
+.weather-location .inline-edit-btn {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  opacity: 1;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  margin-left: 0.25rem;
+}
+.weather-location .inline-edit-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+.link-controls {
+  margin-left: auto;
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+.link-ctrl-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.link-ctrl-btn:hover:not(:disabled) { color: white; }
+.link-ctrl-btn.delete:hover { color: #ff4444; }
+
+.edit-link-mode { cursor: pointer !important; }
+
+/* Global Settings Form */
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--raf-light-blue);
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+/* Sidebar Tabs */
+.sidebar-tabs {
+  display: flex;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.sidebar-tab-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  position: relative;
+}
+
+.sidebar-tab-btn:hover {
+  color: white;
+}
+
+.sidebar-tab-btn.active {
+  color: var(--raf-light-blue);
+}
+
+.sidebar-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--raf-light-blue);
+}
+
+.sidebar-tab-content {
+  display: none;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.sidebar-tab-content.active {
+  display: flex;
+}

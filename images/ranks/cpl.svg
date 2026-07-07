@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg">
+    <!-- Epaulette background -->
+    <path d="M10,20 L50,0 L90,20 L90,150 L10,150 Z" fill="#00152b" stroke="#000" stroke-width="2"/>
+    
+    <path d="M20,60 L50,90 L80,60 L80,80 L50,110 L20,80 Z" fill="#6ba4d9" />
+    <path d="M20,30 L50,60 L80,30 L80,50 L50,80 L20,50 Z" fill="#6ba4d9" />
+
+</svg>

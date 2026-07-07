@@ -1,0 +1,197 @@
+/* css/pages/admin.css */
+/* Extra basic styling just for admin interface */
+body { background: #f0f0f0; color: var(--color-text); overflow-y: auto; overflow-x: hidden; width: 100%; }
+.admin-container { padding: var(--space-lg); max-width: 800px; margin: 0 auto; background: white; min-height: 100vh; }
+.hidden { display: none !important; }
+form { margin-bottom: var(--space-lg); }
+input, select, textarea { margin-bottom: var(--space-sm); display: block; width: 100%; padding: 0.5rem; box-sizing: border-box; }
+.set-item, .slide-item { padding: var(--space-sm); border: 1px solid #ccc; margin-bottom: var(--space-xs); display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; }
+.slide-item { margin-left: var(--space-lg); background: #fafafa; width: calc(100% - var(--space-lg)); }
+.slide-item div button, .set-item button { display: inline-flex; align-items: center; justify-content: center; width: auto; margin-bottom: 0; margin-left: var(--space-xs); }
+
+/* Fix Color Pickers */
+input[type="color"] { cursor: pointer !important; }
+input[type="color"]::-webkit-color-swatch { cursor: pointer !important; }
+input[type="color"]::-webkit-color-swatch-wrapper { cursor: pointer !important; }
+.edit-color, .edit-color * { cursor: pointer !important; }
+
+/* Input Group styling */
+.input-group {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    margin-bottom: var(--space-sm);
+}
+.input-group > * {
+    margin-bottom: 0 !important;
+    border-radius: 0;
+    border-right: none;
+    border: 1px solid #ccc;
+}
+.input-group > *:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    z-index: 1;
+}
+.input-group > *:first-child {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+}
+.input-group > *:last-child {
+    border-radius: 0 0.25rem 0.25rem 0;
+    border-right: 1px solid #ccc;
+}
+.input-group button {
+    background: var(--color-primary);
+    color: white;
+    border: 1px solid var(--color-primary);
+    border-right: 1px solid var(--color-primary); /* override */
+}
+.input-group button:hover {
+    background: #001f42;
+}
+
+/* Popover & Anchor styles */
+#icon-picker-btn {
+    anchor-name: --icon-btn;
+    width: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    margin-bottom: 0;
+}
+
+#icon-picker {
+    position-anchor: --icon-btn;
+    top: anchor(bottom);
+    left: anchor(left);
+    margin: var(--space-xs) 0 0 0; /* spacing from button */
+    padding: var(--space-sm);
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    background: white;
+    box-shadow: 0 0.25rem var(--space-md) rgba(0,0,0,0.15);
+    max-height: 250px;
+    overflow-y: auto;
+}
+.icon-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--space-sm);
+}
+/* Fallback for browsers without anchor support */
+@supports not (position-anchor: --icon-btn) {
+    #icon-picker { top: auto; left: auto; margin: auto; }
+}
+
+.icon-label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background 0.2s;
+}
+.icon-label:hover { background: #f0f0f0; }
+.icon-radio { display: none; }
+.icon-radio:checked + .icon-label { background: var(--color-primary); color: white; }
+
+/* Tabs Styling */
+.tabs { display: flex; border-bottom: 2px solid #ccc; margin-bottom: var(--space-lg); }
+.tab-btn, .sub-tab-btn {
+    background: none; border: none; padding: var(--space-sm) var(--space-lg); margin: 0;
+    border-bottom: 2px solid transparent; margin-bottom: -2px; 
+    border-radius: 0.5rem 0.5rem 0 0;
+    font-weight: bold; color: var(--color-muted); cursor: pointer;
+    transition: all 0.3s ease;
+}
+.tab-btn:hover, .sub-tab-btn:hover { 
+    background: rgba(0, 36, 125, 0.05); 
+    border-bottom-color: rgba(0, 36, 125, 0.3); 
+    color: var(--color-primary); 
+}
+.tab-btn.active, .sub-tab-btn.active { 
+    background: rgba(0, 36, 125, 0.1); 
+    border-bottom-color: var(--color-primary); 
+    color: var(--color-primary); 
+}
+
+/* Admin Image Gallery */
+.admin-gallery-item-container {
+    position: relative;
+    width: 100%;
+    height: 150px;
+    border-radius: var(--space-xs);
+    overflow: hidden;
+    box-shadow: 0 2px var(--space-xs) rgba(0,0,0,0.1);
+}
+.admin-gallery-item {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.admin-delete-overlay {
+    position: absolute;
+    top: var(--space-xs);
+    right: var(--space-xs);
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.1s;
+}
+.admin-gallery-item-container:hover .admin-delete-overlay {
+    opacity: 1;
+}
+.admin-delete-overlay:hover {
+    transform: scale(1.1);
+}
+
+/* JS injected component classes */
+.drag-handle {
+    cursor: grab;
+    color: #888;
+}
+
+.btn-remove-item {
+    color: var(--color-secondary, red);
+    border-color: transparent;
+}
+
+.color-swatch {
+    width: var(--space-lg);
+    height: var(--space-lg);
+    border: 1px solid #000;
+    position: relative;
+    cursor: pointer;
+}
+
+.rank-svg-lg {
+    width: 40px;
+    height: 60px;
+    object-fit: contain;
+    margin-bottom: var(--space-xs);
+}
+
+.rank-svg-sm {
+    width: var(--space-lg);
+    height: 30px;
+    object-fit: contain;
+    margin-right: var(--space-sm);
+}
+
+.clickable-rank {
+    font-weight: bold;
+    margin-right: var(--space-xs);
+    cursor: pointer;
+}
