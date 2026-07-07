@@ -119,9 +119,9 @@ require_once 'api/config.php';
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/utils.js?v=<?= time() ?>"></script>
+    <script src="js/api.js?v=<?= time() ?>"></script>
+    <script src="js/auth.js?v=<?= time() ?>"></script>
+    <script src="js/app.js?v=<?= time() ?>"></script>
 </body>
 </html>

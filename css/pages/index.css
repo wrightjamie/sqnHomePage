@@ -72,7 +72,7 @@ body {
     height: 100%;
     object-fit: cover; /* Cover mode for art direction */
     border-radius: 0.5rem;
-    box-shadow: 0 var(--space-sm) 2var(--space-xs) rgba(0,0,0,0.5);
+    box-shadow: 0 var(--space-sm) var(--space-xs) rgba(0,0,0,0.5);
 }
 
 /* Logo */
