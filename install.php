@@ -58,6 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isInstalled) {
             title TEXT DEFAULT '',
             description TEXT DEFAULT '',
             tags TEXT DEFAULT '[]',
+            focus_x INTEGER DEFAULT 50,
+            focus_y INTEGER DEFAULT 50,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )");
 
