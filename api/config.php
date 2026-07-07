@@ -27,6 +27,10 @@ if (!file_exists($session_dir)) {
     mkdir($session_dir, 0755, true);
 }
 session_save_path($session_dir);
+session_set_cookie_params([
+    'path' => '/',
+    'samesite' => 'Lax'
+]);
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

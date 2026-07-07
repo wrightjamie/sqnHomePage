@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once 'api/config.php';
 $isLoggedIn = isset($_SESSION['user_id']);
 ?>
 <!DOCTYPE html>
