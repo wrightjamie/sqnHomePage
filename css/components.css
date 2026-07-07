@@ -40,6 +40,7 @@
 
 .modal-content {
     background: var(--color-bg);
+    color: var(--color-text); /* Force dark text regardless of body theme */
     padding: var(--space-lg);
     border-radius: var(--space-sm);
     box-shadow: 0 var(--space-xs) var(--space-lg) rgba(0,0,0,0.5);
