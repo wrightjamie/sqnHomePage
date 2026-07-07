@@ -4,8 +4,8 @@ body {
     overflow: hidden; /* Prevent scrolling on the display board */
     height: 100vh;
     width: 100vw;
-    background: var(--raf-nav-2);
-    color: var(--raf-red);
+    background: var(--colour-background);
+    color: var(--colour-text);
 }
 
 /* Display Container */
@@ -43,7 +43,7 @@ body {
 .slide h1 {
     font-size: var(--font-heading);
     margin-bottom: 2rem;
-    color: var(--raf-red);
+    color: var(--colour-heading);
     text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
@@ -97,7 +97,7 @@ body {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 15vh; /* Scale with viewport height */
+    height: 40vh; /* Scaled up for accurate path */
     z-index: 20;
     pointer-events: none; /* Let clicks pass through */
 }
@@ -108,8 +108,8 @@ body {
     height: 100%;
 }
 
-.swoosh-inner { fill: var(--raf-supp-4); }
-.swoosh-dividing { fill: var(--color-secondary); }
+.swoosh-inner { fill: var(--colour-footer); }
+.swoosh-dividing { fill: var(--colour-divider); }
 .swoosh-outer { fill: transparent; }
 
 /* Bottom Menu Bar for Active Slideshows */
@@ -208,3 +208,16 @@ body {
     margin: var(--space-sm);
 }
 .dummy-slide-btn:hover { transform: scale(1.05); }
+
+
+.accent {
+    color: var(--colour-accent);
+    font-weight: bold;
+}
+
+.swoosh-heading-text {
+    color: var(--colour-swoosh-text);
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: bold;
+}

@@ -53,11 +53,13 @@ require_once 'api/config.php';
     <!-- Brand Swoosh Footer -->
     <div id="swoosh-footer">
         <!-- Outer, Dividing, Inner curves matching RAF brand guidelines -->
-        <svg viewBox="0 0 100 20" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,0 Q60,10 100,0 L100,20 L0,20 Z" class="swoosh-inner" />
-            <path d="M0,2 Q60,12 100,2 L100,0 Q60,10 0,0 Z" class="swoosh-dividing" />
-            <path d="M0,20 L0,2 Q60,12 100,2 L100,20 Z" class="swoosh-outer" />
+        <svg viewBox="0 0 1000 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="swoosh-dividing" d="M 0,240 C 300,280 600,230 1000,100 L 1000,130 C 600,260 300,310 0,270 Z"></path>
+            <path class="swoosh-inner" d="M 0,270 C 300,310 600,260 1000,130 L 1000,300 L 0,300 Z"></path>
         </svg>
+        <div style="position: absolute; bottom: 30px; right: 50px; text-align: right; pointer-events: none; z-index: 30;">
+            <h2 class="swoosh-heading-text" id="live-swoosh-heading"></h2>
+        </div>
     </div>
 
     <!-- Modals -->

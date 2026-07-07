@@ -27,6 +27,15 @@
     --raf-supp-8: #89687C;
     --raf-supp-9: #773141;
 
+    /* Theme Colours (Selected via Tester) */
+    --colour-background: var(--raf-logo-2);
+    --colour-divider: var(--raf-white);
+    --colour-footer: var(--raf-nav-2);
+    --colour-heading: var(--raf-logo-1);
+    --colour-text: var(--raf-white);
+    --colour-accent: var(--raf-accent-2);
+    --colour-swoosh-text: var(--raf-logo-2);
+
     /* Legacy names kept for backwards compatibility */
     --raf-deep-blue: var(--raf-logo-2);
     --raf-light-blue: #5D8AA8; /* Keep original just in case */
