@@ -3,7 +3,7 @@
  * Automatically unpacks the {success: true, data: ...} PHP wrapper.
  */
 async function apiFetch(endpoint, method = 'GET', bodyObj = null) {
-    const options = { method };
+    const options = { method, credentials: 'include' };
     if (bodyObj) {
         if (bodyObj instanceof FormData) {
             options.body = bodyObj;

@@ -209,5 +209,18 @@ if ($action === 'list') {
     jsonResponse(['count' => $generatedCount, 'debug' => $debug]);
 }
 
+if ($action === 'set_focus') {
+    $id = $data['id'] ?? null;
+    $focusX = $data['focus_x'] ?? 50;
+    $focusY = $data['focus_y'] ?? 50;
+    
+    if (!$id) jsonError('Missing id');
+    
+    $stmt = $pdo->prepare("UPDATE images SET focus_x = ?, focus_y = ? WHERE id = ?");
+    $stmt->execute([$focusX, $focusY, $id]);
+    
+    jsonResponse(['updated' => true]);
+}
+
 jsonError('Invalid action');
 ?>
