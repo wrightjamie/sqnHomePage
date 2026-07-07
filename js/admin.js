@@ -40,8 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     async function checkAuth() {
-        const res = await fetch('api/auth.php?action=status');
-        const data = await res.json();
+        const data = await apiFetch('api/auth.php?action=status');
         if (data.logged_in) {
             loginSection.classList.add('hidden');
             adminSection.classList.remove('hidden');
@@ -60,12 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         
-        const res = await fetch('api/auth.php?action=login', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({username, password})
-        });
-        const data = await res.json();
+        const data = await apiFetch('api/auth.php?action=login', 'POST', {username, password});
         if (data.success) {
             checkAuth();
         } else {
@@ -75,14 +69,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Logout
     btnLogout.addEventListener('click', async () => {
-        await fetch('api/auth.php?action=logout');
+        await apiFetch('api/auth.php?action=logout');
         checkAuth();
     });
 
     // Load Slide Sets
     async function loadSets() {
-        const res = await fetch('api/slides.php?action=list_sets');
-        const data = await res.json();
+        const data = await apiFetch('api/slides.php?action=list_sets');
         
         setsList.innerHTML = '';
         slideSetSelect.innerHTML = '<option value="">Select a Set...</option>';
@@ -109,11 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Set Active Set (exposed to window for onclick)
     window.setActiveSet = async (id) => {
-        await fetch('api/slides.php?action=set_active', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({set_id: id})
-        });
+        await apiFetch('api/slides.php?action=set_active', 'POST', {set_id: id});
         loadSets();
     };
 
@@ -132,11 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = document.getElementById('new-set-name').value;
         const icon = document.querySelector('input[name="new-set-icon"]:checked').value;
         
-        await fetch('api/slides.php?action=create_set', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name, icon})
-        });
+        await apiFetch('api/slides.php?action=create_set', 'POST', {name, icon});
         document.getElementById('new-set-name').value = '';
         // Reset icon
         document.getElementById('icon-folder').checked = true;
@@ -153,8 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        const res = await fetch(`api/slides.php?action=list_slides&set_id=${setId}`);
-        const data = await res.json();
+        const data = await apiFetch(`api/slides.php?action=list_slides&set_id=${setId}`);
         
         slidesList.innerHTML = '';
         if (data.success && data.slides) {
@@ -180,11 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             window.currentSetSlides = data.slides;
             setupDragAndDrop(slidesList, async (newOrder) => {
-                await fetch('api/slides.php?action=reorder_slides', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ordered_ids: newOrder})
-                });
+                await apiFetch('api/slides.php?action=reorder_slides', 'POST', {ordered_ids: newOrder});
                 slideSetSelect.dispatchEvent(new Event('change'));
             });
         }
@@ -192,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.deleteSlide = async (id) => {
         if(confirm("Are you sure?")) {
-            await fetch(`api/slides.php?action=delete_slide&id=${id}`, {method: 'DELETE'});
+            await apiFetch(`api/slides.php?action=delete_slide&id=${id}`, 'DELETE');
             // trigger change event to reload
             slideSetSelect.dispatchEvent(new Event('change'));
         }
@@ -269,10 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (editId) formData.append('slide_id', editId);
 
-        await fetch(`api/slides.php?action=${action}`, {
-            method: 'POST',
-            body: formData
-        });
+        await apiFetch(`api/slides.php?action=${action}`, 'POST', formData);
 
         resetSlideForm();
         
@@ -329,8 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let reorderSetsIds = [];
 
     document.getElementById('btn-reorder-sets').addEventListener('click', async () => {
-        const res = await fetch('api/slides.php?action=list_sets');
-        const data = await res.json();
+        const data = await apiFetch('api/slides.php?action=list_sets');
         
         if (data.success && data.sets) {
             // Only reorder active sets? Actually, it's easier to order all sets or just active ones.
@@ -360,12 +336,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('btn-save-reorder-sets').addEventListener('click', async () => {
-        const res = await fetch('api/slides.php?action=reorder_sets', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ ordered_ids: reorderSetsIds })
-        });
-        if ((await res.json()).success) {
+        const data = await apiFetch('api/slides.php?action=reorder_sets', 'POST', { ordered_ids: reorderSetsIds });
+        if (data.success) {
             reorderSetsModal.classList.add('hidden');
             loadSets(); // Refresh sets list
         }
@@ -394,8 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tag: tagFilter
         });
         
-        const res = await fetch(`api/images.php?${params.toString()}`);
-        const data = await res.json();
+        const data = await apiFetch(`api/images.php?${params.toString()}`);
         
         if (!data.success) return;
         
@@ -430,8 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let allAvailableTags = [];
     
     async function loadTags() {
-        const res = await fetch('api/images.php?action=get_tags');
-        const data = await res.json();
+        const data = await apiFetch('api/images.php?action=get_tags');
         if (data.success) {
             allAvailableTags = data.tags;
             renderAdminTagFilter();
@@ -486,13 +456,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const title = document.getElementById('metadata-title').value;
         const description = document.getElementById('metadata-description').value;
         
-        const res = await fetch('api/images.php?action=update_metadata', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({id, title, description, tags: currentTags})
-        });
+        const data = await apiFetch('api/images.php?action=update_metadata', 'POST', {id, title, description, tags: currentTags});
         
-        if ((await res.json()).success) {
+        if (data.success) {
             metadataModal.classList.add('hidden');
             loadAdminGallery(adminPagination.currentPage);
             loadTags(); // refresh available tags
@@ -572,8 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.deleteAdminImage = async (filename) => {
         if (!confirm(`Are you sure you want to permanently delete ${filename}?`)) return;
         
-        const res = await fetch(`api/images.php?action=delete&filename=${encodeURIComponent(filename)}`);
-        const data = await res.json();
+        const data = await apiFetch(`api/images.php?action=delete&filename=${encodeURIComponent(filename)}`);
         if (data.success) {
             loadAdminGallery(adminPagination.currentPage);
         } else {
@@ -587,8 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnRegenThumbs.disabled = true;
         
         try {
-            const res = await fetch('api/images.php?action=regenerate_all');
-            const data = await res.json();
+            const data = await apiFetch('api/images.php?action=regenerate_all');
             
             if (data.success) {
                 if (data.debug && !data.debug.gd_loaded) {
@@ -730,10 +694,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('tags', JSON.stringify(uploadTags));
 
         try {
-            const res = await fetch('api/images.php?action=upload', {
-                method: 'POST',
-                body: formData
-            });
+            const res = await apiFetch('api/images.php?action=upload', 'POST', formData);
             const data = await res.json();
             if (data.success) {
                 uploadModal.classList.add('hidden');
