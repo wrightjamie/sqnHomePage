@@ -22,6 +22,11 @@ try {
 }
 
 // Start session
+$session_dir = $data_dir . '/sessions';
+if (!file_exists($session_dir)) {
+    mkdir($session_dir, 0755, true);
+}
+session_save_path($session_dir);
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
