@@ -466,7 +466,7 @@ async function fetchGallery() {
     const data = await apiFetch(`api/images.php?action=list&page=${galleryPage}`);
     
     const grid = document.getElementById('gallery-grid');
-    if (data.success && data.images) {
+    if (data && data.images) {
         galleryImagesCache = data.images;
         grid.innerHTML = data.images.map(img => `
             <div class="gallery-img-container" onclick="openFocusSelector('${img.id}')">
