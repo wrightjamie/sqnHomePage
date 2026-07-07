@@ -104,7 +104,7 @@ require_once 'api/config.php';
                 <h3 class="mb-sm">Set Image Focus Point</h3>
                 <p class="mb-md">Click on the image to set its central focus point. This prevents important details from being cropped out on the display board.</p>
                 <div id="focus-preview-container" style="position: relative; display: inline-block; cursor: crosshair; max-width: 100%; border: 1px solid var(--color-muted);">
-                    <img id="focus-preview-img" src="" style="display: block; max-width: 100%; max-height: 50vh; object-fit: contain;">
+                    <img id="focus-preview-img" src="" style="display: block; max-width: 100%; max-height: 50vh; width: auto; height: auto;">
                     <div id="focus-reticle" style="position: absolute; width: 20px; height: 20px; border: 2px solid var(--raf-red); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; box-shadow: 0 0 0 2px white;"></div>
                 </div>
                 <div class="flex-row justify-between align-center mt-md">

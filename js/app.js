@@ -469,8 +469,11 @@ async function fetchGallery() {
     if (data && data.images) {
         galleryImagesCache = data.images;
         grid.innerHTML = data.images.map(img => `
-            <div class="gallery-img-container" onclick="openFocusSelector('${img.id}')">
-                <img src="${img.thumb_url}" class="gallery-img-item" title="${img.filename}">
+            <div class="gallery-img-container" style="position: relative;">
+                <img src="${img.thumb_url}" class="gallery-img-item" title="${img.filename}" onclick="selectGalleryImage('${img.url}', ${img.focus_x || 50}, ${img.focus_y || 50})">
+                <button class="focus-target-btn" onclick="openFocusSelector('${img.id}')" title="Set Focus Point">
+                    <span class="material-symbols-outlined" style="font-size: 20px;">center_focus_strong</span>
+                </button>
             </div>
         `).join('');
     }

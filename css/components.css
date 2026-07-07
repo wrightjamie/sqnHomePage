@@ -336,3 +336,29 @@
     background: rgba(255,255,255,0.2);
 }
 .expandable-menu-items button span { font-size: 30px; }
+
+
+/* Focus Target Button */
+.focus-target-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.2s;
+}
+.gallery-img-container:hover .focus-target-btn {
+    opacity: 1;
+}
+.focus-target-btn:hover {
+    background: var(--raf-red);
+}

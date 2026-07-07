@@ -64,7 +64,6 @@ body {
     flex: 1;
     height: 100%;
     min-height: 200px;
-    width: 90vw; /* Grow to 90vw as requested */
     margin-top: var(--space-sm);
 }
 
