@@ -20,6 +20,11 @@ const loginModal = document.getElementById('login-modal');
 const galleryModal = document.getElementById('gallery-modal');
 const reorderModal = document.getElementById('reorder-modal');
 
+function closeAllModals() {
+    [loginModal, galleryModal, reorderModal].forEach(m => {
+        if (m) m.classList.add('hidden');
+    });
+}
 
 
 // --- Edit Mode & Authentication ---
