@@ -289,7 +289,12 @@ btnLoginTrigger.addEventListener('click', () => {
     Auth.showModal();
 });
 
+btnLogout.addEventListener('click', () => {
+    Auth.logout();
+});
+
 // Load slides on start
+checkAuthStatus();
 loadActiveSet();
 
 
@@ -532,24 +537,8 @@ function handleSwipe() {
     if (touchEndX > touchStartX + threshold) prevSlide();
 }
 
-async function checkInitialAuth() {
-    Auth.init();
-    try {
-        const res = await Auth.checkStatus();
-        if (res.authenticated) {
-            if(btnEditMode) btnEditMode.style.display = 'flex';
-            if(btnLogout) btnLogout.style.display = 'flex';
-            const linkAdmin = document.getElementById('link-admin');
-            if(linkAdmin) linkAdmin.style.display = 'flex';
-        }
-    } catch(e) {
-        console.error('Auth check error', e);
-    }
-}
-
 // Initial load
-checkInitialAuth();
-loadActiveSet();
+checkAuthStatus();
 
 let currentFocusImageId = null;
 let currentFocusX = 50;
