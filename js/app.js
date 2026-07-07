@@ -508,7 +508,8 @@ document.getElementById('gallery-file-input').addEventListener('change', async (
     const resultData = await res.json();
     if(resultData.success) {
         await loadActiveSet();
-        closeAllModals();
+        galleryModal.classList.add('hidden');
+        galleryTargetSlideId = null;
     } else {
         alert(resultData.error || 'Upload failed');
     }
