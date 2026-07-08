@@ -9,7 +9,9 @@ body {
 }
 
 :root {
-    --sidebar-width: 25vw;
+    --sidebar-width: 5rem;
+    --swoosh-width: 5rem;
+    --slide-padding-offset: 3rem;
 }
 
 /* Display Container */
@@ -33,7 +35,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    padding: 5% 5% 5% calc(var(--sidebar-width) + 2vw);
+    padding: 5% 5% 5% calc(var(--sidebar-width) + var(--swoosh-width) + var(--slide-padding-offset));
     justify-content: center;
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
@@ -99,7 +101,6 @@ body {
     position: absolute;
     inset: 0 auto 0 0;
     width: var(--sidebar-width);
-    height: 100vh;
     background-color: var(--colour-footer);
     z-index: 20;
     pointer-events: none; /* Let clicks pass through */
@@ -110,7 +111,7 @@ body {
     left: 100%;
     top: 0;
     display: block;
-    width: 5vw;
+    width: var(--swoosh-width);
     height: 100%;
 }
 
