@@ -158,14 +158,14 @@ function buildEditorDOM() {
         <div class="form-group" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-shrink: 0;">
             <label style="margin: 0;">Background Images</label>
-            <button id="add-bg-btn" style="background: rgba(0, 47, 95, 0.4); border: 0.0625rem dashed var(--raf-light-blue); color: var(--raf-light-blue); cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.25rem; transition: background 0.2s;" onmouseover="this.style.background='rgba(0, 47, 95, 0.8)'" onmouseout="this.style.background='rgba(0, 47, 95, 0.4)'"><i class="ph ph-plus"></i> Add from Gallery</button>
+            <button id="add-bg-btn" type="button" class="btn btn-primary" style="width: auto; margin: 0; padding: 0.25rem 0.5rem; font-size: 0.85rem;"><span class="material-symbols-outlined" style="font-size: 1rem;">add</span> Add from Gallery</button>
           </div>
           <div id="bg-list-container" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; margin-top: 0.625rem; flex: 1; overflow-y: auto; padding-right: 0.5rem;"></div>
         </div>
       </div>
       
       <div style="margin-top: 1rem;">
-        <button id="save-config-btn" class="glass-panel" style="width: 100%; padding: 0.625rem; font-weight: bold; background: rgba(0, 100, 200, 0.6);"><i class="ph ph-floppy-disk"></i> Save Configuration</button>
+        <button id="save-config-btn" class="btn btn-primary" type="button" style="width: 100%;"><span class="material-symbols-outlined">save</span> Save Configuration</button>
       </div>
     </div>
   `;
