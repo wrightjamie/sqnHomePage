@@ -121,16 +121,14 @@ body {
 
 .swoosh-sidebar-text {
     position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
+    left: 0.5rem;
+    bottom: 0.5rem;
     writing-mode: vertical-rl;
     color: var(--colour-swoosh-text);
     font-size: 3.5rem;
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    opacity: 0.8;
 }
 
 /* Bottom Menu Bar for Active Slideshows */
