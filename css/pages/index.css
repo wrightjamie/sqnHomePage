@@ -118,11 +118,12 @@ body {
     position: absolute;
     left: 1rem;
     top: 50%;
-    transform: translateY(-50%) rotate(180deg);
+    transform: translateY(-50%);
     writing-mode: vertical-rl;
     color: var(--colour-swoosh-text);
     font-size: 2.5rem;
-    font-weight: bold;
+    font-weight: 900;
+    font-variant: small-caps;
     letter-spacing: 0.1em;
     opacity: 0.8;
 }
