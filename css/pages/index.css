@@ -121,9 +121,9 @@ body {
     transform: translateY(-50%);
     writing-mode: vertical-rl;
     color: var(--colour-swoosh-text);
-    font-size: 2.5rem;
+    font-size: 3.5rem;
     font-weight: 900;
-    font-variant: small-caps;
+    text-transform: uppercase;
     letter-spacing: 0.1em;
     opacity: 0.8;
 }
