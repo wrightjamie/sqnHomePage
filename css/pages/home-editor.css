@@ -165,6 +165,10 @@ body.edit-mode-active .row {
   flex-direction: column;
   padding: 0.5rem 0.25rem;
 }
+.toolbar-row button i {
+  transform: rotate(90deg);
+  display: inline-block;
+}
 .add-row-btn {
   width: 100%;
   padding: 1rem;
