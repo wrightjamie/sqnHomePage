@@ -122,6 +122,7 @@ body {
     position: absolute;
     left: var(--space-md);
     bottom: var(--space-sm);
+    margin: 0;
     writing-mode: vertical-rl;
     color: var(--colour-swoosh-text);
     font-size: 3.5rem;

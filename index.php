@@ -57,7 +57,7 @@ require_once 'api/config.php';
             <img src="images/rafac-logo.svg" alt="RAF Air Cadets">
         </div>
 
-        <div class="swoosh-sidebar-text">2459 Squadron</div>
+        <h1 class="swoosh-sidebar-text">2459 Squadron</h1>
     </header>
 
     <!-- Modals -->
