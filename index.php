@@ -17,11 +17,6 @@ require_once 'api/config.php';
 </head>
 <body>
     <div id="display-container" class="flex-col">
-        <!-- Logo Top Right -->
-        <div id="logo-container">
-            <img src="images/rafac-logo.svg" alt="RAF Air Cadets">
-        </div>
-
         <!-- Slides will be rendered here -->
         <div id="slide-viewer"></div>
         
@@ -50,17 +45,20 @@ require_once 'api/config.php';
         </div>
     </div>
     
-    <!-- Brand Swoosh Footer -->
-    <div id="swoosh-footer">
-        <!-- Outer, Dividing, Inner curves matching RAF brand guidelines -->
-        <svg viewBox="0 0 1000 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path class="swoosh-dividing" d="M 0,240 C 300,280 600,230 1000,100 L 1000,130 C 600,260 300,310 0,270 Z"></path>
-            <path class="swoosh-inner" d="M 0,270 C 300,310 600,260 1000,130 L 1000,300 L 0,300 Z"></path>
+    <!-- Brand Swoosh Sidebar -->
+    <header id="swoosh-sidebar">
+        <svg viewBox="0 0 300 1000" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="swoosh-dividing" d="M 200,0 C 70,400 20,700 60,1000 L 30,1000 C -10,700 40,400 170,0 Z"></path>
+            <path class="swoosh-inner" d="M 170,0 C 40,400 -10,700 30,1000 L 0,1000 L 0,0 Z"></path>
         </svg>
-        <div style="position: absolute; bottom: 30px; right: 50px; text-align: right; pointer-events: none; z-index: 30;">
-            <h2 class="swoosh-heading-text" id="live-swoosh-heading"></h2>
+        
+        <!-- Logo Top Left -->
+        <div id="logo-container">
+            <img src="images/rafac-logo.svg" alt="RAF Air Cadets">
         </div>
-    </div>
+
+        <div class="swoosh-sidebar-text">2459 Squadron</div>
+    </header>
 
     <!-- Modals -->
     <?php include 'components/login_modal.php'; ?>

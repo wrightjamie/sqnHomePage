@@ -8,6 +8,10 @@ body {
     color: var(--colour-text);
 }
 
+:root {
+    --sidebar-width: 25vw;
+}
+
 /* Display Container */
 #display-container {
     position: relative;
@@ -29,7 +33,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    padding: 5% 10%;
+    padding: 5% 5% 5% calc(var(--sidebar-width) + 2vw);
     justify-content: center;
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
@@ -78,9 +82,9 @@ body {
 /* Logo */
 #logo-container {
     position: absolute;
-    bottom: var(--space-lg);
+    top: var(--space-lg);
     left: var(--space-lg);
-    width: 20vw;
+    width: 15vw;
     max-width: 250px;
     z-index: 40;
     pointer-events: none;
@@ -90,18 +94,17 @@ body {
     height: auto;
 }
 
-/* Swoosh Footer */
-#swoosh-footer {
+/* Swoosh Sidebar */
+#swoosh-sidebar {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 40vh; /* Scaled up for accurate path */
+    inset: 0 auto 0 0;
+    width: var(--sidebar-width);
+    height: 100vh;
     z-index: 20;
     pointer-events: none; /* Let clicks pass through */
 }
 
-#swoosh-footer svg {
+#swoosh-sidebar svg {
     display: block;
     width: 100%;
     height: 100%;
@@ -110,6 +113,19 @@ body {
 .swoosh-inner { fill: var(--colour-footer); }
 .swoosh-dividing { fill: var(--colour-divider); }
 .swoosh-outer { fill: transparent; }
+
+.swoosh-sidebar-text {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%) rotate(180deg);
+    writing-mode: vertical-rl;
+    color: var(--colour-swoosh-text);
+    font-size: 2.5rem;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    opacity: 0.8;
+}
 
 /* Bottom Menu Bar for Active Slideshows */
 #slideshow-menu {
