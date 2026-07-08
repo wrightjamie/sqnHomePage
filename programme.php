@@ -17,7 +17,7 @@ require_once 'api/config.php';
     <div class="programme-container">
         <div class="month-header">
             <div class="logos">
-                <img src="images/rafac-logo.svg" alt="ATC Crest" class="header-logo" id="logo-left">
+                <img src="images/rafac-logo-dark.svg" alt="ATC Crest" class="header-logo" id="logo-left">
             </div>
             <div>
                 <div class="no-print flex-center gap-sm mb-xs">
@@ -27,7 +27,7 @@ require_once 'api/config.php';
                 <h1 id="month-title">Training Programme</h1>
             </div>
             <div class="logos">
-                <img src="images/rafac-logo.svg" alt="RAFAC Logo" class="header-logo">
+                <img src="images/rafac-logo-dark.svg" alt="RAFAC Logo" class="header-logo">
             </div>
         </div>
         
