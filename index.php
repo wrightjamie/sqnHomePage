@@ -47,9 +47,9 @@ require_once 'api/config.php';
     
     <!-- Brand Swoosh Sidebar -->
     <header id="swoosh-sidebar">
-        <svg viewBox="0 0 300 1000" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path class="swoosh-dividing" d="M 200,0 C 70,400 20,700 60,1000 L 30,1000 C -10,700 40,400 170,0 Z"></path>
-            <path class="swoosh-inner" d="M 170,0 C 40,400 -10,700 30,1000 L 0,1000 L 0,0 Z"></path>
+        <svg viewBox="0 0 45 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="swoosh-inner" d="M0 0C12.8 35.4 40.6 163.2 26.9 300L0 300 0 0Z"></path>
+            <path class="swoosh-dividing" d="M0 0C12.8 35.4 40.6 163.2 26.9 300L41.1 300C44.4 200.6 41 112.8 4.1 0L0 0Z"></path>
         </svg>
         
         <!-- Logo Top Left -->
