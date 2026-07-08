@@ -903,9 +903,7 @@ function renderSearchContent(panel, node) {
   
   panel.innerHTML = `
     <div class="search-box" style="position: relative; width: 100%;">
-      <div style="position: absolute; left: 1rem; color: rgba(255,255,255,0.5); display: flex; align-items: center; font-size: 1.25rem;">
-        <i class="ph ph-magnifying-glass"></i>
-      </div>
+      <i class="ph ph-magnifying-glass search-icon"></i>
       <input type="text" id="search-input-${node.id || Math.random().toString(36).substr(2,9)}" class="search-input" placeholder="Search Google..." />
     </div>
   `;
