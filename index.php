@@ -48,8 +48,8 @@ require_once 'api/config.php';
     <!-- Brand Swoosh Sidebar -->
     <header id="swoosh-sidebar">
         <svg viewBox="0 0 45 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path class="swoosh-inner" d="M0 0C12.8 35.4 40.6 163.2 26.9 300L0 300 0 0Z"></path>
-            <path class="swoosh-dividing" d="M0 0C12.8 35.4 40.6 163.2 26.9 300L41.1 300C44.4 200.6 41 112.8 4.1 0L0 0Z"></path>
+            <path class="swoosh-inner" d="M0 0v300H3.9c-3.3-99.4.1-187.2 37-300Z"></path>
+            <path class="swoosh-dividing" d="M45 0C32.2 35.4 4.4 163.2 18.1 300H3.9c-3.3-99.4.1-187.2 37-300H45Z"></path>
         </svg>
         
         <!-- Logo Top Left -->
