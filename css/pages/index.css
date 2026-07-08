@@ -9,7 +9,7 @@ body {
 }
 
 :root {
-    --sidebar-width: 5rem;
+    --sidebar-width: 6rem;
     --swoosh-width: 5rem;
     --slide-padding-offset: 3rem;
 }
@@ -85,9 +85,8 @@ body {
 #logo-container {
     position: absolute;
     top: var(--space-lg);
-    left: var(--space-lg);
-    width: 15vw;
-    max-width: 250px;
+    left: var(--space-sm);
+    width: 8rem;
     z-index: 40;
     pointer-events: none;
 }
@@ -121,8 +120,8 @@ body {
 
 .swoosh-sidebar-text {
     position: absolute;
-    left: 0.5rem;
-    bottom: 0.5rem;
+    left: var(--space-md);
+    bottom: var(--space-sm);
     writing-mode: vertical-rl;
     color: var(--colour-swoosh-text);
     font-size: 3.5rem;
