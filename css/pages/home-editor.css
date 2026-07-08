@@ -169,6 +169,9 @@ body.edit-mode-active .row {
   transform: rotate(90deg);
   display: inline-block;
 }
+.toolbar-row .toolbar-btn-group {
+  flex-direction: row-reverse;
+}
 .add-row-btn {
   width: 100%;
   padding: 1rem;
