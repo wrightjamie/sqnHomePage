@@ -56,42 +56,68 @@ if ($method === 'GET' && $action === 'night') {
     $mode = $_GET['mode'] ?? 'next';
     $targetDate = '';
     
+    // Always fetch config to know the parade days
+    $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'programme_config'");
+    $stmt->execute();
+    $configResult = $stmt->fetchColumn();
+    $paradeDays = [];
+    if ($configResult) {
+        $config = json_decode($configResult, true);
+        $paradeDays = $config['parade_nights'] ?? [];
+    }
+    
     if ($mode === 'specific') {
         $targetDate = $_GET['date'] ?? date('Y-m-d');
     } elseif ($mode === 'today') {
         $targetDate = date('Y-m-d');
     } else {
-        $targetDate = date('Y-m-d'); // Default
-        $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'programme_config'");
-        $stmt->execute();
-        $configResult = $stmt->fetchColumn();
-        if ($configResult) {
-            $config = json_decode($configResult, true);
-            $paradeDays = $config['parade_nights'] ?? [];
-            if (!empty($paradeDays)) {
-                for ($i = 1; $i <= 7; $i++) {
-                    $testDate = date('Y-m-d', strtotime("+$i days"));
-                    $dayOfWeek = date('l', strtotime($testDate));
-                    if (in_array($dayOfWeek, $paradeDays)) {
-                        $targetDate = $testDate;
-                        break;
-                    }
+        $targetDate = date('Y-m-d'); // Default fallback
+        if (!empty($paradeDays)) {
+            for ($i = 1; $i <= 7; $i++) {
+                $testDate = date('Y-m-d', strtotime("+$i days"));
+                $dayOfWeek = date('l', strtotime($testDate));
+                if (in_array($dayOfWeek, $paradeDays)) {
+                    $targetDate = $testDate;
+                    break;
                 }
+            }
+        }
+    }
+    
+    // Calculate prev and next dates relative to the targetDate
+    $prevDate = null;
+    $nextDate = null;
+    if (!empty($paradeDays)) {
+        for ($i = 1; $i <= 7; $i++) {
+            $testDate = date('Y-m-d', strtotime("$targetDate -$i days"));
+            if (in_array(date('l', strtotime($testDate)), $paradeDays)) {
+                $prevDate = $testDate;
+                break;
+            }
+        }
+        for ($i = 1; $i <= 7; $i++) {
+            $testDate = date('Y-m-d', strtotime("$targetDate +$i days"));
+            if (in_array(date('l', strtotime($testDate)), $paradeDays)) {
+                $nextDate = $testDate;
+                break;
             }
         }
     }
     
     $year = date('Y', strtotime($targetDate));
     $month = date('n', strtotime($targetDate));
-    $key = "programme_{$year}_{$month}";
     
     $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = ?");
-    $stmt->execute([$key]);
+    $stmt->execute(["programme_{$year}_{$month}"]);
     $monthResult = $stmt->fetchColumn();
     
     $nightData = null;
+    $monthNotes = [];
     if ($monthResult) {
         $monthData = json_decode($monthResult, true);
+        if (isset($monthData['month_comments'])) {
+            $monthNotes = $monthData['month_comments'];
+        }
         if (isset($monthData['parade_nights'])) {
             foreach ($monthData['parade_nights'] as $night) {
                 if (isset($night['date']) && $night['date'] === $targetDate) {
@@ -102,7 +128,7 @@ if ($method === 'GET' && $action === 'night') {
         }
     }
     
-    jsonResponse(['date' => $targetDate, 'night' => $nightData]);
+    jsonResponse(['date' => $targetDate, 'night' => $nightData, 'month_notes' => $monthNotes, 'prev_date' => $prevDate, 'next_date' => $nextDate]);
 }
 
 if ($method === 'GET' && $action === 'autocomplete') {

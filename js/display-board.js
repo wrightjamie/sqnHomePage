@@ -109,7 +109,7 @@ function renderSlide(slide) {
             content = `
                 <div class="slide-content" style="padding:2rem;">
                     ${titleHtml}
-                    <div class="programme-slide-container" id="prog-container-${slide.id}" data-slide-id="${slide.id}" data-mode="${data.mode || 'next'}" data-date="${data.specificDate || ''}">
+                    <div class="programme-slide-container" id="prog-container-${slide.id}" data-slide-id="${slide.id}" data-mode="${data.mode || 'next'}" data-date="${data.specificDate || ''}" data-orig-mode="${data.mode || 'next'}" data-orig-date="${data.specificDate || ''}">
                         <div style="display:flex; justify-content:center; align-items:center; height:100%;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size:3rem; color: #fff;">autorenew</span></div>
                     </div>
                 </div>`;
@@ -716,7 +716,7 @@ async function loadProgrammeSlidesData() {
         try {
             const data = await apiFetch(url);
             if (data && data.night) {
-                renderProgrammeNight(container, data.night, data.date);
+                renderProgrammeNight(container, data);
             } else {
                 container.innerHTML = `<div style="text-align:center; margin-top:2rem;"><h2>No Programme Found</h2><p>For date: ${data ? data.date : 'Unknown'}</p></div>`;
             }
@@ -726,7 +726,13 @@ async function loadProgrammeSlidesData() {
     }
 }
 
-function renderProgrammeNight(container, night, dateStr) {
+function renderProgrammeNight(container, data) {
+    const night = data.night;
+    const dateStr = data.date;
+    const prevDate = data.prev_date;
+    const nextDate = data.next_date;
+    const monthNotes = data.month_notes || [];
+
     const slideId = container.getAttribute('data-slide-id');
     const d = new Date(dateStr);
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -737,9 +743,49 @@ function renderProgrammeNight(container, night, dateStr) {
         editActionHtml = `<button class="btn-primary" style="margin-left:1rem;" onclick="openProgrammeSettings(${slideId})" title="Slide Settings"><span class="material-symbols-outlined">settings</span></button>`;
     }
     
-    let html = `<div style="margin-bottom:1.5rem; border-bottom:2px solid rgba(255,255,255,0.2); padding-bottom:1rem; display:flex; align-items:center; justify-content:flex-start;">
-        <h2 style="margin:0; font-size:2rem; color:var(--colour-heading);">${dateFormatted}</h2>
-        ${editActionHtml}
+    // Function to change the displayed date dynamically without saving to db
+    if (!window.shiftProgrammeSlideDate) {
+        window.shiftProgrammeSlideDate = function(btn, targetDate) {
+            const c = btn.closest('.programme-slide-container');
+            if (c) {
+                c.setAttribute('data-mode', 'specific');
+                c.setAttribute('data-date', targetDate);
+                window.loadProgrammeSlidesData();
+                
+                // Pause slideshow if not already paused
+                if (typeof isPaused !== 'undefined' && !isPaused) {
+                    togglePause();
+                    c.autoPaused = true;
+                }
+                
+                if (c.revertTimeout) clearTimeout(c.revertTimeout);
+                c.revertTimeout = setTimeout(() => {
+                    c.setAttribute('data-mode', c.getAttribute('data-orig-mode'));
+                    c.setAttribute('data-date', c.getAttribute('data-orig-date'));
+                    window.loadProgrammeSlidesData();
+                    
+                    // Resume if we auto-paused it
+                    if (c.autoPaused) {
+                        if (typeof isPaused !== 'undefined' && isPaused) togglePause();
+                        c.autoPaused = false;
+                    }
+                }, 30000); // Revert after 30 seconds
+            }
+        };
+    }
+
+    let prevBtnHtml = prevDate ? `<button onclick="window.shiftProgrammeSlideDate(this, '${prevDate}')" class="btn-secondary" style="background:rgba(255,255,255,0.2); border:none; color:white; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-right:1rem;" title="Previous Parade Night"><span class="material-symbols-outlined">chevron_left</span></button>` : '';
+    let nextBtnHtml = nextDate ? `<button onclick="window.shiftProgrammeSlideDate(this, '${nextDate}')" class="btn-secondary" style="background:rgba(255,255,255,0.2); border:none; color:white; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-left:1rem;" title="Next Parade Night"><span class="material-symbols-outlined">chevron_right</span></button>` : '';
+
+    let html = `<div style="margin-bottom:1.5rem; border-bottom:2px solid rgba(255,255,255,0.2); padding-bottom:1rem; display:flex; align-items:center; justify-content:center; position:relative;">
+        <div style="display:flex; align-items:center; position:absolute; left:0;">
+            ${prevBtnHtml}
+            ${nextBtnHtml}
+        </div>
+        <h2 style="margin:0; font-size:2rem; color:var(--colour-heading); text-align:center;">${dateFormatted}</h2>
+        <div style="position:absolute; right:0;">
+            ${editActionHtml}
+        </div>
     </div>`;
     
     html += `<div style="display:flex; flex-direction:column; gap:1.25rem;">`;
@@ -755,8 +801,16 @@ function renderProgrammeNight(container, night, dateStr) {
         </div>`;
     }
     
-    if (night.notes && night.notes.length > 0) {
-        const notesHtml = night.notes.filter(n => n.trim()).map(n => `<li style="margin-bottom:0.25rem;">${n}</li>`).join('');
+    if ((night.notes && night.notes.length > 0) || (monthNotes && monthNotes.length > 0)) {
+        let notesHtml = '';
+        if (night.notes && night.notes.length > 0) {
+            notesHtml += night.notes.filter(n => n.trim()).map(n => `<li style="margin-bottom:0.25rem;">${n}</li>`).join('');
+        }
+        if (monthNotes && monthNotes.length > 0) {
+            if (notesHtml) notesHtml += `<hr style="border-color:rgba(255,255,255,0.2); margin:0.5rem 0;">`;
+            notesHtml += monthNotes.filter(n => n.trim()).map(n => `<li style="margin-bottom:0.25rem; font-style:italic;">${n}</li>`).join('');
+        }
+
         if (notesHtml) {
             html += `
             <div style="flex:2; min-width:300px; background:rgba(0,0,0,0.4); padding:1rem; border-radius:0.5rem; border-left:4px solid var(--color-secondary);">
