@@ -10,7 +10,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
   <title>RAFAC Squadron Homepage</title>
   
   <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'><path fill='none' stroke='%2300247D' stroke-linecap='round' stroke-linejoin='round' stroke-width='16' d='M232,104A48.14,48.14,0,0,0,184,56H163.63a15.93,15.93,0,0,0-13.8,8L104,144H56a24,24,0,0,0,0,48h40L53.63,225.82a8,8,0,0,0,6.79,12.18h28L152,152h32A48.14,48.14,0,0,0,232,104Z'/><line fill='none' stroke='%2300247D' stroke-linecap='round' stroke-linejoin='round' stroke-width='16' x1='24' y1='112' x2='48' y2='112'/></svg>">
+  <link rel="icon" href="uploads/roundel.svg" type="image/svg+xml">
 
   <!-- Core & Components -->
   <link rel="stylesheet" href="css/core.css">
@@ -34,6 +34,8 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
   <!-- Interactive UI Layer -->
   <div id="bottom-right-controls">
+      <a href="index.php" class="menu-btn flex-center" title="Display Board"><span class="material-symbols-outlined">slideshow</span></a>
+      <a href="programme.php" class="menu-btn flex-center" title="Training Programme"><span class="material-symbols-outlined">calendar_month</span></a>
       <button id="btn-next-bg" class="menu-btn flex-center hidden" title="Next Background"><span class="material-symbols-outlined">image</span></button>
       <button id="btn-login-trigger" class="menu-btn flex-center" title="Login" <?php if($isLoggedIn) echo 'style="display:none;"'; ?>><span class="material-symbols-outlined">login</span></button>
       <button id="btn-edit-mode" class="menu-btn flex-center" title="Edit Mode" <?php if(!$isLoggedIn) echo 'style="display:none;"'; ?>><span class="material-symbols-outlined">edit</span></button>
@@ -71,6 +73,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
   <script src="js/utils.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/home-editor.js"></script>
   <script src="js/home.js"></script>
 </body>
 </html>

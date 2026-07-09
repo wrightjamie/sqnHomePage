@@ -27,6 +27,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const unifPopover = document.getElementById('uniform-popover');
     const notesPopover = document.getElementById('notes-popover');
     
+
+    // Expose state and functions for programme-editor.js
+    window.ProgState = {
+        get config() { return config; },
+        get programmeData() { return programmeData; },
+        get prevMonthData() { return prevMonthData; },
+        get nextMonthData() { return nextMonthData; },
+        get prevMonthFullData() { return prevMonthFullData; },
+        get nextMonthFullData() { return nextMonthFullData; },
+        get currY() { return currY; },
+        get currM() { return currM; },
+        get prevY() { return prevY; },
+        get prevM() { return prevM; },
+        get nextY() { return nextY; },
+        get nextM() { return nextM; },
+        get isEditMode() { return isEditMode; },
+        
+        // UI Elements
+        get monthNotesContainer() { return monthNotesContainer; },
+        get unifPopover() { return unifPopover; },
+        get notesPopover() { return notesPopover; },
+        get actPopover() { return actPopover; },
+        
+        // Functions
+        refreshRow: refreshRow,
+        autoSave: autoSave,
+        renderGrid: renderGrid,
+        updatePopularButtons: updatePopularButtons,
+        setupDragAndDrop: window.setupDragAndDrop // will be defined in editor.js
+    };
+
     // Init
     async function init() {
         config = await apiFetch('api/programme.php?action=config');
@@ -50,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             monthNotesContainer.addEventListener('click', (e) => {
                 if (!isEditMode) return;
-                openPopover(e, monthNotesContainer, programmeData, null, 'curr');
+                window.openNotesPopover(e, monthNotesContainer, programmeData, null, 'curr', 'month-notes');
             });
         }
     }
@@ -105,13 +136,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Activity Types
-        const typeSelect = document.getElementById('act-type');
-        typeSelect.innerHTML = '<option value="">Select Type...</option>';
+        const typeContainer = document.getElementById('act-type');
+        typeContainer.innerHTML = '';
         config.activity_types.forEach(t => {
-            const opt = document.createElement('option');
-            opt.value = t.name;
-            opt.textContent = t.name;
-            typeSelect.appendChild(opt);
+            const label = document.createElement('label');
+            label.className = 'radio-label-btn';
+            label.style.backgroundColor = t.color;
+            label.style.color = isLight(t.color) ? '#000' : '#fff';
+            label.style.color = `contrast-color(${t.color})`;
+            
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.name = 'act-type-radio';
+            radio.value = t.name;
+            radio.className = 'hidden';
+            
+            label.appendChild(radio);
+            label.appendChild(document.createTextNode(t.name));
+            typeContainer.appendChild(label);
         });
         
         // Instructors
@@ -418,7 +460,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 let monthType = 'curr';
                 if (tr.classList.contains('prev-month')) monthType = 'prev';
                 else if (tr.classList.contains('next-month')) monthType = 'next';
-                openPopover(e, cell, rowData, tr, monthType);
+                
+                const type = cell.dataset.type;
+                if (type === 'uniform') window.openUniformPopover(e, cell, rowData, tr, monthType);
+                else if (type === 'notes' || type === 'month-notes') window.openNotesPopover(e, cell, rowData, tr, monthType, type);
+                else if (type === 'activity') window.openActivityPopover(e, cell, rowData, tr, monthType);
+
             });
         });
         
@@ -476,229 +523,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Popover Logic
-    let currentEditCell = null;
-    let currentEditRowData = null;
-    let currentEditColIdx = null;
-    
-    function openPopover(e, cell, rowData, tr, monthType) {
-        const type = cell.dataset.type;
-        
-        if (currentEditCell) currentEditCell.classList.remove('active-anchor');
-        currentEditCell = cell;
-        currentEditCell.classList.add('active-anchor');
-        
-        currentEditRowData = rowData;
-        
-        let popover;
-        
-        if (type === 'uniform') {
-            popover = unifPopover;
-            const unifGrid = document.getElementById('unif-grid');
-            document.querySelectorAll('#unif-grid div').forEach(d => {
-                d.style.border = (d.title === rowData.uniform) ? '2px solid #000' : '2px solid transparent';
-            });
-            unifGrid.dataset.value = rowData.uniform || '';
-            
-            window.triggerUniformSave = () => {
-                rowData.uniform = unifGrid.dataset.value;
-                popover.hidePopover();
-                refreshRow(tr, rowData);
-                autoSave(monthType);
-            };
-        } else if (type === 'notes' || type === 'month-notes') {
-            popover = notesPopover;
-            let currentNotes = type === 'month-notes' ? (rowData.month_comments || []) : (rowData.notes || []);
-            document.getElementById('note-text').value = currentNotes.join('\n');
-            document.getElementById('btn-note-save').onclick = () => {
-                let lines = document.getElementById('note-text').value.split('\n').map(l => l.trim()).filter(l => l);
-                
-                if (type === 'month-notes') {
-                    rowData.month_comments = lines;
-                    monthNotesContainer.innerHTML = lines.filter(n => n).map(n => `• ${n}`).join('<br>') || '<em>No notes</em>';
-                } else {
-                    rowData.notes = lines;
-                    refreshRow(tr, rowData);
-                }
-                popover.hidePopover();
-                autoSave(monthType);
-            };
-        } else if (type === 'activity') {
-            popover = actPopover;
-            currentEditColIdx = parseInt(cell.dataset.col);
-            let clsName = config.classifications[currentEditColIdx];
-            let act = rowData.activities.find(a => a.classifications.includes(clsName));
-            
-            document.getElementById('act-name').value = act.name || '';
-            document.getElementById('act-type').value = act.activity_type || '';
-            document.getElementById('act-instructor').value = act.instructor || '';
-            
-            // Show/hide merge/split
-            const btnMerge = document.getElementById('btn-act-merge');
-            const btnSplit = document.getElementById('btn-act-split');
-            
-            btnMerge.style.display = (currentEditColIdx > 0) ? 'inline-block' : 'none';
-            btnSplit.style.display = (act.classifications.length > 1) ? 'inline-block' : 'none';
-            
-            btnMerge.onclick = () => {
-                let prevCls = config.classifications[currentEditColIdx - 1];
-                let prevAct = rowData.activities.find(a => a.classifications.includes(prevCls));
-                prevAct.classifications.push(...act.classifications);
-                rowData.activities = rowData.activities.filter(a => a !== act);
-                popover.hidePopover();
-                refreshRow(tr, rowData);
-                autoSave(monthType);
-            };
-            
-            btnSplit.onclick = () => {
-                let kept = act.classifications[0];
-                let dropped = act.classifications.slice(1);
-                act.classifications = [kept];
-                
-                dropped.forEach(d => {
-                    rowData.activities.push({ classifications: [d], activity_type: '', name: '', instructor: '' });
-                });
-                
-                popover.hidePopover();
-                refreshRow(tr, rowData);
-                autoSave(monthType);
-            };
-            
-            document.getElementById('btn-act-save').onclick = () => {
-                act.name = document.getElementById('act-name').value;
-                act.activity_type = document.getElementById('act-type').value;
-                act.instructor = document.getElementById('act-instructor').value;
-                popover.hidePopover();
-                refreshRow(tr, rowData);
-                autoSave(monthType);
-            };
-        }
-        
-        popover.showPopover();
-    }
     
     function refreshRow(tr, rowData) {
         let isCurrent = tr.classList.contains('current-month');
         let newTr = createRow(rowData, tr.className, tr.dataset.index);
         tr.replaceWith(newTr);
-        if (isCurrent) setupDragAndDrop();
+        if (isCurrent && window.setupDragAndDrop) window.setupDragAndDrop();
         updatePopularButtons();
     }
     
-    // Drag and Drop
-    function setupDragAndDrop() {
-        const rows = document.querySelectorAll('.prog-row');
-        const swapBtns = document.querySelectorAll('.btn-swap-row');
-        const copyBtns = document.querySelectorAll('.btn-copy-row');
-        const paddingRows = document.querySelectorAll('.padding-row');
-        
-        let dragSrcEl = null;
-        let dragMode = ''; // 'swap' or 'copy'
-        
-        function handleDragStart(e, mode) {
-            dragMode = mode;
-            dragSrcEl = e.target.closest('tr');
-            e.dataTransfer.effectAllowed = 'copyMove';
-            e.dataTransfer.setData('text/html', dragSrcEl.innerHTML);
-            dragSrcEl.style.opacity = '0.4';
-        }
-        
-        function handleDragOver(e) {
-            if (e.preventDefault) { e.preventDefault(); }
-            e.dataTransfer.dropEffect = 'move';
-            return false;
-        }
-        
-        function handleDragEnter(e) {
-            let tr = e.target.closest('tr');
-            if (tr) tr.classList.add('drag-over');
-        }
-        
-        function handleDragLeave(e) {
-            let tr = e.target.closest('tr');
-            if (tr) tr.classList.remove('drag-over');
-        }
-        
-        function handleDrop(e) {
-            if (e.stopPropagation) { e.stopPropagation(); }
-            let targetTr = e.target.closest('tr');
-            if (targetTr) targetTr.classList.remove('drag-over');
-            
-            if (dragSrcEl !== targetTr) {
-                let srcIdx = dragSrcEl.dataset.index;
-                let tgtIdx = targetTr.dataset.index;
-                
-                let srcData = null;
-                if (dragSrcEl.classList.contains('current-month')) srcData = programmeData.parade_nights[srcIdx];
-                else if (dragSrcEl.classList.contains('prev-month')) srcData = prevMonthData[srcIdx];
-                else if (dragSrcEl.classList.contains('next-month')) srcData = nextMonthData[srcIdx];
-                
-                let tgtData = null;
-                if (targetTr.classList.contains('current-month')) tgtData = programmeData.parade_nights[tgtIdx];
-                else if (targetTr.classList.contains('prev-month')) tgtData = prevMonthData[tgtIdx];
-                else if (targetTr.classList.contains('next-month')) tgtData = nextMonthData[tgtIdx];
-                
-                if (!srcData || !tgtData) return;
-                
-                let srcMonthType = 'curr';
-                if (dragSrcEl.classList.contains('prev-month')) srcMonthType = 'prev';
-                else if (dragSrcEl.classList.contains('next-month')) srcMonthType = 'next';
-                
-                let tgtMonthType = 'curr';
-                if (targetTr.classList.contains('prev-month')) tgtMonthType = 'prev';
-                else if (targetTr.classList.contains('next-month')) tgtMonthType = 'next';
-                
-                if (dragMode === 'swap') {
-                    // Swap contents
-                    let tempUniform = srcData.uniform;
-                    let tempNotes = srcData.notes;
-                    let tempActs = srcData.activities;
-                    
-                    srcData.uniform = tgtData.uniform;
-                    srcData.notes = tgtData.notes;
-                    srcData.activities = tgtData.activities;
-                    
-                    tgtData.uniform = tempUniform;
-                    tgtData.notes = tempNotes;
-                    tgtData.activities = tempActs;
-                    
-                    refreshRow(dragSrcEl, srcData);
-                    if (srcMonthType !== tgtMonthType) autoSave(srcMonthType);
-                } else if (dragMode === 'copy') {
-                    // Copy contents
-                    tgtData.uniform = srcData.uniform;
-                    tgtData.notes = JSON.parse(JSON.stringify(srcData.notes));
-                    tgtData.activities = JSON.parse(JSON.stringify(srcData.activities));
-                }
-                
-                refreshRow(targetTr, tgtData);
-                autoSave(tgtMonthType);
-            }
-            return false;
-        }
-        
-        function handleDragEnd(e) {
-            dragSrcEl.style.opacity = '1';
-        }
-        
-        swapBtns.forEach(btn => {
-            btn.draggable = true;
-            btn.addEventListener('dragstart', (e) => handleDragStart(e, 'swap'));
-            btn.addEventListener('dragend', handleDragEnd);
-        });
-        
-        copyBtns.forEach(btn => {
-            btn.draggable = true;
-            btn.addEventListener('dragstart', (e) => handleDragStart(e, 'copy'));
-            btn.addEventListener('dragend', handleDragEnd);
-        });
-        
-        rows.forEach(row => {
-            row.addEventListener('dragover', handleDragOver);
-            row.addEventListener('dragenter', handleDragEnter);
-            row.addEventListener('dragleave', handleDragLeave);
-            row.addEventListener('drop', handleDrop);
-        });
-    }
+    // Drag and Drop is now in programme-editor.js
     
     // Auto Save
     let saveTimeout = null;

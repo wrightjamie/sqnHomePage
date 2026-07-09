@@ -52,6 +52,59 @@ if ($method === 'GET' && $action === 'month') {
     }
 }
 
+if ($method === 'GET' && $action === 'night') {
+    $mode = $_GET['mode'] ?? 'next';
+    $targetDate = '';
+    
+    if ($mode === 'specific') {
+        $targetDate = $_GET['date'] ?? date('Y-m-d');
+    } elseif ($mode === 'today') {
+        $targetDate = date('Y-m-d');
+    } else {
+        $targetDate = date('Y-m-d'); // Default
+        $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'programme_config'");
+        $stmt->execute();
+        $configResult = $stmt->fetchColumn();
+        if ($configResult) {
+            $config = json_decode($configResult, true);
+            $paradeDays = $config['parade_nights'] ?? [];
+            if (!empty($paradeDays)) {
+                for ($i = 1; $i <= 7; $i++) {
+                    $testDate = date('Y-m-d', strtotime("+$i days"));
+                    $dayOfWeek = date('l', strtotime($testDate));
+                    if (in_array($dayOfWeek, $paradeDays)) {
+                        $targetDate = $testDate;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    $year = date('Y', strtotime($targetDate));
+    $month = date('n', strtotime($targetDate));
+    $key = "programme_{$year}_{$month}";
+    
+    $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = ?");
+    $stmt->execute([$key]);
+    $monthResult = $stmt->fetchColumn();
+    
+    $nightData = null;
+    if ($monthResult) {
+        $monthData = json_decode($monthResult, true);
+        if (isset($monthData['parade_nights'])) {
+            foreach ($monthData['parade_nights'] as $night) {
+                if (isset($night['date']) && $night['date'] === $targetDate) {
+                    $nightData = $night;
+                    break;
+                }
+            }
+        }
+    }
+    
+    jsonResponse(['date' => $targetDate, 'night' => $nightData]);
+}
+
 if ($method === 'GET' && $action === 'autocomplete') {
     $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'programme_autocomplete_cache'");
     $stmt->execute();
@@ -73,7 +126,7 @@ if ($method === 'POST' && $action === 'config') {
     $jsonConfig = json_encode($data);
     $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (`key`, `value`) VALUES ('programme_config', ?)");
     $stmt->execute([$jsonConfig]);
-    jsonResponse(['message' => 'Config saved']);
+    jsonResponse(['success' => true, 'message' => 'Config saved']);
 }
 
 if ($method === 'POST' && $action === 'month') {
@@ -164,7 +217,7 @@ if ($method === 'POST' && $action === 'month') {
     $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (`key`, `value`) VALUES ('programme_autocomplete_cache', ?)");
     $stmt->execute([json_encode($newCache)]);
     
-    jsonResponse(['message' => 'Month saved']);
+    jsonResponse(['success' => true, 'message' => 'Month saved']);
 }
 
 jsonError('Invalid action', 400);

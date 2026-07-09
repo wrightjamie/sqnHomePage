@@ -15,40 +15,57 @@ input[type="color"]::-webkit-color-swatch { cursor: pointer !important; }
 input[type="color"]::-webkit-color-swatch-wrapper { cursor: pointer !important; }
 .edit-color, .edit-color * { cursor: pointer !important; }
 
-/* Input Group styling */
+/* Input Group styling (matches .reorder-item) */
 .input-group {
     display: flex;
-    align-items: stretch;
+    align-items: center;
     width: 100%;
     margin-bottom: var(--space-sm);
+    background: #f0f0f0; 
+    padding: var(--space-sm); 
+    border-radius: var(--space-xs); 
+    gap: var(--space-xs);
+    box-sizing: border-box;
 }
 .input-group > * {
     margin-bottom: 0 !important;
-    border-radius: 0;
-    border-right: none;
-    border: 1px solid #ccc;
 }
-.input-group > *:focus {
+.input-group input[type="text"], .input-group select {
+    background: #fff;
+    color: var(--color-text);
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+    flex-grow: 1;
+}
+.input-group input[type="text"]:focus, .input-group select:focus {
     outline: none;
     border-color: var(--color-primary);
-    z-index: 1;
 }
-.input-group > *:first-child {
-    border-top-left-radius: 0.25rem;
-    border-bottom-left-radius: 0.25rem;
+.input-group input[type="text"]::placeholder {
+    color: #888;
 }
-.input-group > *:last-child {
-    border-radius: 0 0.25rem 0.25rem 0;
-    border-right: 1px solid #ccc;
+.input-group input[type="color"] {
+    width: 30px !important;
+    height: 30px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px;
+    padding: 0 !important;
 }
 .input-group button {
-    background: var(--color-primary);
-    color: white;
-    border: 1px solid var(--color-primary);
-    border-right: 1px solid var(--color-primary); /* override */
+    background: #fff;
+    color: var(--color-secondary);
+    border: 1px solid transparent !important;
+    border-radius: 0.25rem;
+    width: auto !important;
+    height: auto !important;
+    padding: 0.5rem var(--font-md) !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 }
 .input-group button:hover {
-    background: #001f42;
+    background: #f0f0f0;
 }
 
 /* Popover & Anchor styles */

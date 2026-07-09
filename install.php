@@ -306,7 +306,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isInstalled) {
                 "CWO", "FS", "Cpl", "Cdt"
             ],
             "staff" => [
-                [ "name" => "Di Domenica", "rank" => "Flt Lt" ],
+                [ "name" => "Di Domenico", "rank" => "Flt Lt" ],
                 [ "name" => "Wright", "rank" => "WO" ],
                 [ "name" => "Gaskin", "rank" => "CWO" ],
                 [ "name" => "Drew", "rank" => "FSgt" ],
@@ -331,6 +331,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isInstalled) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Install - Sqn Display Board</title>
+    <link rel="icon" href="uploads/roundel.svg" type="image/svg+xml">
     <link rel="stylesheet" href="css/core.css">
     <link rel="stylesheet" href="css/pages/install.css">
 </head>

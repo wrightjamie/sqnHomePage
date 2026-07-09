@@ -38,6 +38,7 @@ require_once 'api/config.php';
                 </div>
             </div>
             <button id="btn-login-trigger" class="menu-btn flex-center" title="Login"><span class="material-symbols-outlined">login</span></button>
+            <a href="home.php" class="menu-btn flex-center" title="Home"><span class="material-symbols-outlined">home</span></a>
             <a href="programme.php" class="menu-btn flex-center" title="Training Programme"><span class="material-symbols-outlined">calendar_month</span></a>
             <button id="btn-edit-mode" class="menu-btn flex-center hidden" title="Edit Mode"><span class="material-symbols-outlined">edit</span></button>
             <a href="admin.php" id="link-admin" class="menu-btn flex-center hidden" title="Admin Panel"><span class="material-symbols-outlined">settings</span></a>
@@ -120,6 +121,6 @@ require_once 'api/config.php';
     <script src="js/utils.js?v=<?= time() ?>"></script>
     <script src="js/api.js?v=<?= time() ?>"></script>
     <script src="js/auth.js?v=<?= time() ?>"></script>
-    <script src="js/app.js?v=<?= time() ?>"></script>
+    <script src="js/display-board.js?v=<?= time() ?>"></script>
 </body>
 </html>

@@ -82,6 +82,9 @@ if ($method === 'GET') {
             } elseif (!empty($data['imageUrl'])) {
                 $contentObj['imageUrl'] = $data['imageUrl'];
             }
+        } elseif ($type === 'programme') {
+            $contentObj['mode'] = $data['mode'] ?? 'next';
+            $contentObj['specificDate'] = $data['specificDate'] ?? '';
         }
         $content = json_encode($contentObj);
 
@@ -108,6 +111,9 @@ if ($method === 'GET') {
             } elseif (!empty($data['imageUrl'])) {
                 $contentObj['imageUrl'] = $data['imageUrl'];
             }
+        } elseif ($type === 'programme') {
+            $contentObj['mode'] = $data['mode'] ?? 'next';
+            $contentObj['specificDate'] = $data['specificDate'] ?? '';
         }
         $content = json_encode($contentObj);
 

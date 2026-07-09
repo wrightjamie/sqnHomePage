@@ -5,7 +5,7 @@ let slideInterval = null;
 let isPaused = false;
 let editMode = false;
 let currentSetId = null;
-const INTERVAL_MS = 10000;
+let INTERVAL_MS = 10000;
 
 // DOM Elements
 const viewer = document.getElementById('slide-viewer');
@@ -38,10 +38,22 @@ function renderSlide(slide) {
             <div class="slide flex-col flex-center" id="slide-dummy">
                 <h1>Add New Slide</h1>
                 <div style="display:flex; gap:1.25rem;">
-                    <button class="dummy-slide-btn" onclick="createNewSlide('text')"><span class="material-symbols-outlined">description</span> Text Slide</button>
-                    <button class="dummy-slide-btn" onclick="createNewSlide('image')"><span class="material-symbols-outlined">image</span> Image Slide</button>
+                    <button class="dummy-slide-btn" onclick="window.createNewSlide('text')"><span class="material-symbols-outlined">description</span> Text Slide</button>
+                    <button class="dummy-slide-btn" onclick="window.createNewSlide('image')"><span class="material-symbols-outlined">image</span> Image Slide</button>
+                    <button class="dummy-slide-btn" onclick="window.createNewSlide('programme')"><span class="material-symbols-outlined">calendar_today</span> Programme Slide</button>
                 </div>
             </div>`;
+    }
+
+    // Attach createNewSlide to window if missing
+    if (!window.createNewSlide) {
+        window.createNewSlide = async function(type) {
+            let data = {};
+            if (type === 'programme') {
+                data = { mode: 'next', title: 'Training Programme' };
+            }
+            await createSlide(type, data);
+        };
     }
 
     let content = '';
@@ -76,34 +88,51 @@ function renderSlide(slide) {
                 <div class="slide-image-container flex-center">
                     <img src="${data.imageUrl || ''}" alt="${data.title || 'Slide Image'}" style="object-position: ${data.focusX || 50}% ${data.focusY || 50}%;">
                 </div>`;
+            
+            let imageActionHtml = '';
             if (editMode) {
-                imgHtml = `
+                imageActionHtml = `
                     <div class="editable-container flex-center" style="flex:1; margin-top:0.625rem;" onclick="openGalleryForSlide(${slide.id})">
                         ${imgHtml}
                         <span class="material-symbols-outlined edit-marker">image</span>
                     </div>`;
+            } else {
+                imageActionHtml = imgHtml;
             }
             content = `
-                <div class="slide-content">
+                <div class="slide-content" style="padding:0; overflow:hidden;">
+                    <div class="gallery-slide-bg" style="background-image: url('${data.imageUrl || ''}'); background-position: ${data.focusX || 50}% ${data.focusY || 50}%;"></div>
                     ${titleHtml}
-                    ${imgHtml}
+                    ${imageActionHtml}
+                </div>`;
+        } else if (slide.type === 'programme') {
+            content = `
+                <div class="slide-content" style="padding:2rem;">
+                    ${titleHtml}
+                    <div class="programme-slide-container" id="prog-container-${slide.id}" data-slide-id="${slide.id}" data-mode="${data.mode || 'next'}" data-date="${data.specificDate || ''}">
+                        <div style="display:flex; justify-content:center; align-items:center; height:100%;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size:3rem; color: #fff;">autorenew</span></div>
+                    </div>
                 </div>`;
         }
-    } catch(e) {
-        content = '<h1>Error parsing slide</h1>';
-    }
 
-    let toolbarHtml = '';
-    if (editMode) {
-        toolbarHtml = `
+        let toolbarHtml = '';
+        if (editMode) {
+            toolbarHtml = `
             <div class="edit-toolbar">
                 <button class="btn-secondary" onclick="openReorderModal()" title="Reorder Slides"><span class="material-symbols-outlined">format_list_numbered</span></button>
                 <button class="btn-primary" onclick="deleteSlide(${slide.id})" title="Delete Slide"><span class="material-symbols-outlined">delete</span></button>
+            </div>`;
+        }
+
+        return `
+            <div class="slide flex-col" id="slide-${slide.id}">
+                ${toolbarHtml}
+                ${content}
             </div>
         `;
+    } catch(e) {
+        return `<div class="slide flex-col" id="slide-${slide.id}"><h1>Error parsing slide</h1></div>`;
     }
-
-    return `<div class="slide flex-col" id="slide-${slide.id}">${toolbarHtml}${content}</div>`;
 }
 
 let allActiveSets = [];
@@ -178,11 +207,17 @@ function renderAllSlides() {
     if (editMode) {
         slidesToRender.push({ isDummy: true, id: 'dummy' });
     }
+    
     viewer.innerHTML = slidesToRender.map(renderSlide).join('');
     
-    // Ensure index is valid
-    if (currentIndex >= slidesToRender.length) currentIndex = 0;
-    showSlide(currentIndex);
+    // Now trigger async programme fetch
+    setTimeout(loadProgrammeSlidesData, 50);
+
+    if (slidesToRender.length > 0) {
+        // Ensure index is valid
+        if (currentIndex >= slidesToRender.length) currentIndex = 0;
+        showSlide(currentIndex);
+    }
     
     if (!editMode) {
         startCarousel();
@@ -430,10 +465,12 @@ function openReorderModal() {
     const list = document.getElementById('reorder-list');
     list.innerHTML = currentSlides.map(s => {
         const title = JSON.parse(s.content).title || 'Untitled Slide';
+        const typeIcon = s.type === 'image' ? 'image' : (s.type === 'text' ? 'article' : 'feed');
         return `
-        <div class="set-item reorder-item" draggable="true" data-id="${s.id}">
+        <div class="set-item reorder-item" draggable="true" data-id="${s.id}" style="justify-content: flex-start;">
             <span class="material-symbols-outlined drag-handle mr-sm">drag_indicator</span>
-            <span>${title} (${s.type})</span>
+            <span class="material-symbols-outlined mr-sm" title="${s.type}" style="color: #888; font-size: 1.125rem;">${typeIcon}</span>
+            <span>${title}</span>
         </div>`;
     }).join('');
     
@@ -639,3 +676,206 @@ async function selectGalleryImage(url, focusX = 50, focusY = 50) {
     galleryModal.classList.add('hidden');
     await updateSlide(slide.id, slide.type, data);
 }
+
+// --- Global Config ---
+async function loadGlobalConfig() {
+    try {
+        const data = await apiFetch('api/settings.php?action=global_config');
+        if (data) {
+            if (data.sidebarText) {
+                const sidebarEl = document.querySelector('.swoosh-sidebar-text');
+                if (sidebarEl) sidebarEl.textContent = data.sidebarText;
+            }
+            if (data.slideSpeed) {
+                INTERVAL_MS = parseInt(data.slideSpeed, 10) * 1000;
+                resetInterval();
+            }
+        }
+    } catch (e) {
+        console.error('Error loading global config', e);
+    }
+}
+
+// Initialize global config on load
+loadGlobalConfig();
+
+// --- Programme Slide Logic ---
+async function loadProgrammeSlidesData() {
+    const containers = document.querySelectorAll('.programme-slide-container');
+    if (containers.length === 0) return;
+    
+    for (const container of containers) {
+        const mode = container.getAttribute('data-mode');
+        const specificDate = container.getAttribute('data-date');
+        
+        let url = `api/programme.php?action=night&mode=${mode}`;
+        if (mode === 'specific' && specificDate) {
+            url += `&date=${specificDate}`;
+        }
+        
+        try {
+            const data = await apiFetch(url);
+            if (data && data.night) {
+                renderProgrammeNight(container, data.night, data.date);
+            } else {
+                container.innerHTML = `<div style="text-align:center; margin-top:2rem;"><h2>No Programme Found</h2><p>For date: ${data ? data.date : 'Unknown'}</p></div>`;
+            }
+        } catch (e) {
+            container.innerHTML = `<div style="text-align:center; color:red; margin-top:2rem;"><h2>Error loading programme</h2></div>`;
+        }
+    }
+}
+
+function renderProgrammeNight(container, night, dateStr) {
+    const slideId = container.getAttribute('data-slide-id');
+    const d = new Date(dateStr);
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const dateFormatted = d.toLocaleDateString(undefined, options);
+    
+    let editActionHtml = '';
+    if (typeof editMode !== 'undefined' && editMode) {
+        editActionHtml = `<button class="btn-primary" style="margin-left:1rem;" onclick="openProgrammeSettings(${slideId})" title="Slide Settings"><span class="material-symbols-outlined">settings</span></button>`;
+    }
+    
+    let html = `<div style="margin-bottom:1.5rem; border-bottom:2px solid rgba(255,255,255,0.2); padding-bottom:1rem; display:flex; align-items:center; justify-content:flex-start;">
+        <h2 style="margin:0; font-size:2rem; color:var(--colour-heading);">${dateFormatted}</h2>
+        ${editActionHtml}
+    </div>`;
+    
+    html += `<div style="display:flex; flex-direction:column; gap:1.25rem;">`;
+    
+    // Uniform & Notes side by side or stacked
+    html += `<div style="display:flex; gap:2rem; flex-wrap:wrap;">`;
+    
+    if (night.uniform) {
+        html += `
+        <div style="flex:1; min-width:300px; background:rgba(0,0,0,0.4); padding:1rem; border-radius:0.5rem; border-left:4px solid var(--colour-accent);">
+            <h3 style="margin-top:0; color:#fff; font-size:1.25rem; margin-bottom:0.5rem;"><span class="material-symbols-outlined" style="vertical-align:middle;">checkroom</span> Uniform</h3>
+            <div style="font-size:1.5rem; font-weight:bold; color:var(--colour-accent);">${night.uniform}</div>
+        </div>`;
+    }
+    
+    if (night.notes && night.notes.length > 0) {
+        const notesHtml = night.notes.filter(n => n.trim()).map(n => `<li style="margin-bottom:0.25rem;">${n}</li>`).join('');
+        if (notesHtml) {
+            html += `
+            <div style="flex:2; min-width:300px; background:rgba(0,0,0,0.4); padding:1rem; border-radius:0.5rem; border-left:4px solid var(--color-secondary);">
+                <h3 style="margin-top:0; color:#fff; font-size:1.25rem; margin-bottom:0.5rem;"><span class="material-symbols-outlined" style="vertical-align:middle;">info</span> Notes</h3>
+                <ul style="margin:0; padding-left:1.5rem; font-size:1.1rem; color:#eee;">${notesHtml}</ul>
+            </div>`;
+        }
+    }
+    html += `</div>`;
+    
+    // Activities
+    if (night.activities && night.activities.length > 0) {
+        html += `
+        <div style="background:rgba(255,255,255,0.1); border-radius:0.5rem; overflow:hidden; margin-top:1rem;">
+            <table style="width:100%; border-collapse:collapse; color:#fff;">
+                <thead>
+                    <tr style="background:rgba(0,0,0,0.6); text-align:left;">
+                        <th style="padding:1rem; border-bottom:2px solid #555;">Classification</th>
+                        <th style="padding:1rem; border-bottom:2px solid #555;">Activity</th>
+                        <th style="padding:1rem; border-bottom:2px solid #555;">Instructor</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        let rowIndex = 0;
+        night.activities.forEach((act) => {
+            if (!act.name && !act.instructor) return;
+            const classes = act.classifications && act.classifications.length > 0 ? act.classifications : ['All'];
+            
+            classes.forEach((cls) => {
+                const bg = rowIndex % 2 === 0 ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.3)';
+                html += `
+                    <tr style="background:${bg};">
+                        <td style="padding:1rem; border-bottom:1px solid #444; font-weight:bold; color:#ccc;">${cls}</td>
+                        <td style="padding:1rem; border-bottom:1px solid #444; font-size:1.2rem;">
+                            ${act.activity_type ? `<span style="font-size:0.8rem; background:var(--colour-heading); padding:0.2rem 0.5rem; border-radius:0.25rem; margin-right:0.5rem; color:#fff;">${act.activity_type}</span>` : ''}
+                            ${act.name}
+                        </td>
+                        <td style="padding:1rem; border-bottom:1px solid #444; color:#ddd;">${act.instructor || '-'}</td>
+                    </tr>
+                `;
+                rowIndex++;
+            });
+        });
+        
+        html += `
+                </tbody>
+            </table>
+        </div>`;
+    }
+    
+    html += `</div>`; // end flex column
+    container.innerHTML = html;
+}
+
+// Setup Programme Slide edit modal
+function openProgrammeSettings(slideId) {
+    // We can inject a modal or just prompt for now. Let's create a custom modal for this.
+    let modal = document.getElementById('prog-settings-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'prog-settings-modal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width:400px; color:black;">
+                <h2>Programme Slide Settings</h2>
+                <input type="hidden" id="prog-slide-id">
+                
+                <label style="display:block; margin-bottom:0.25rem; font-weight:bold;">Date Mode</label>
+                <select id="prog-slide-mode" style="width:100%; padding:0.5rem; margin-bottom:1rem; border-radius:0.25rem;">
+                    <option value="next">Next Parade Night</option>
+                    <option value="today">Today</option>
+                    <option value="specific">Specific Date</option>
+                </select>
+                
+                <div id="prog-slide-date-container" style="display:none;">
+                    <label style="display:block; margin-bottom:0.25rem; font-weight:bold;">Specific Date</label>
+                    <input type="date" id="prog-slide-date" style="width:100%; padding:0.5rem; margin-bottom:1rem; border-radius:0.25rem;">
+                </div>
+                
+                <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+                    <button class="btn btn-secondary" onclick="document.getElementById('prog-settings-modal').classList.add('hidden')">Cancel</button>
+                    <button class="btn btn-primary" onclick="saveProgrammeSettings()">Save</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        document.getElementById('prog-slide-mode').addEventListener('change', (e) => {
+            document.getElementById('prog-slide-date-container').style.display = e.target.value === 'specific' ? 'block' : 'none';
+        });
+    }
+    
+    const slide = currentSlides.find(s => s.id == slideId);
+    const data = JSON.parse(slide.content);
+    
+    document.getElementById('prog-slide-id').value = slideId;
+    document.getElementById('prog-slide-mode').value = data.mode || 'next';
+    document.getElementById('prog-slide-date').value = data.specificDate || '';
+    
+    document.getElementById('prog-slide-date-container').style.display = (data.mode === 'specific') ? 'block' : 'none';
+    
+    modal.classList.remove('hidden');
+}
+
+window.openProgrammeSettings = openProgrammeSettings;
+
+window.saveProgrammeSettings = async function() {
+    const slideId = document.getElementById('prog-slide-id').value;
+    const mode = document.getElementById('prog-slide-mode').value;
+    const specificDate = document.getElementById('prog-slide-date').value;
+    
+    const slide = currentSlides.find(s => s.id == slideId);
+    const data = JSON.parse(slide.content);
+    
+    data.mode = mode;
+    data.specificDate = specificDate;
+    
+    await updateSlide(slide.id, slide.type, data);
+    document.getElementById('prog-settings-modal').classList.add('hidden');
+};

@@ -240,36 +240,49 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderParadeNights() {
         const container = document.getElementById('parade-nights-list');
         container.innerHTML = '';
+        container.style.display = 'flex';
+        container.style.flexWrap = 'wrap';
+        container.style.gap = 'var(--space-sm)';
+        
         const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         if (!progConfig.parade_nights) progConfig.parade_nights = [];
         
         days.forEach(day => {
             const isActive = progConfig.parade_nights.includes(day);
-            const div = document.createElement('div');
-            div.className = 'set-item';
-            div.style.cursor = 'pointer';
-            div.style.justifyContent = 'flex-start';
-            div.style.gap = '10px';
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn';
+            btn.style.borderRadius = '50px';
+            btn.style.padding = '0.5rem 1rem';
+            btn.style.transition = 'all 0.2s ease';
             
-            div.innerHTML = `
-                <input type="checkbox" ${isActive ? 'checked' : ''} class="m-0 cursor-pointer">
-                <span style="user-select:none;">${day}</span>
-            `;
+            if (isActive) {
+                btn.style.background = 'var(--color-primary)';
+                btn.style.color = '#fff';
+                btn.style.border = '1px solid var(--color-primary)';
+            } else {
+                btn.style.background = '#f0f0f0';
+                btn.style.color = 'var(--color-text)';
+                btn.style.border = '1px solid #ccc';
+            }
             
-            div.addEventListener('click', (e) => {
-                const cb = div.querySelector('input');
-                if (e.target.tagName !== 'INPUT') {
-                    cb.checked = !cb.checked;
-                }
-                if (cb.checked && !progConfig.parade_nights.includes(day)) {
-                    progConfig.parade_nights.push(day);
-                } else if (!cb.checked && progConfig.parade_nights.includes(day)) {
+            btn.innerHTML = `<span style="font-weight: 500;">${day}</span>`;
+            
+            btn.addEventListener('click', () => {
+                if (progConfig.parade_nights.includes(day)) {
                     progConfig.parade_nights = progConfig.parade_nights.filter(d => d !== day);
+                } else {
+                    progConfig.parade_nights.push(day);
                 }
+                
                 // Sort array to keep chronological order
                 progConfig.parade_nights.sort((a, b) => days.indexOf(a) - days.indexOf(b));
+                
+                saveConfig();
+                renderParadeNights();
             });
-            container.appendChild(div);
+            
+            container.appendChild(btn);
         });
     }
 

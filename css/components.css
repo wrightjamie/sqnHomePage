@@ -31,11 +31,11 @@
     display: flex; 
     justify-content: flex-start; 
     align-items: center; 
-    background: #1e293b; 
+    background: #f0f0f0; 
     padding: var(--space-sm); 
     border-radius: var(--space-xs); 
     cursor: grab;
-    color: white;
+    color: var(--color-text);
 }
 
 .modal-content {

@@ -7,6 +7,7 @@ require_once 'api/config.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Training Programme</title>
+    <link rel="icon" href="uploads/roundel.svg" type="image/svg+xml">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <link rel="stylesheet" href="css/core.css">
     <link rel="stylesheet" href="css/components.css">
@@ -55,13 +56,6 @@ require_once 'api/config.php';
             <div id="month-notes-container" class="editable-cell month-notes-container" data-type="month-notes"></div>
         </div>
         
-        <!-- Controls -->
-        <div class="no-print" style="position: fixed; bottom: 1.25rem; right: 1.25rem; display: flex; gap: 0.625rem;">
-            <a href="index.php" class="btn btn-secondary flex-center" title="Back to Display" style="padding:0.625rem;"><span class="material-symbols-outlined">home</span></a>
-            <?php if (isset($_SESSION['user_id'])): ?>
-                <button id="btn-toggle-edit" class="btn btn-primary flex-center" style="padding:0.625rem 1.25rem; font-weight:bold;"><span class="material-symbols-outlined" style="margin-right:0.3125rem;">edit</span> Edit Mode</button>
-            <?php endif; ?>
-        </div>
     </div>
     
     <!-- Auto Save Toast -->
@@ -76,7 +70,7 @@ require_once 'api/config.php';
         <input type="text" id="act-name" list="dl-activities" placeholder="Activity Name" class="form-control">
         <div class="popular-btns mb-sm" id="act-popular-btns"></div>
         
-        <select id="act-type" class="form-control mb-sm"></select>
+        <div id="act-type" class="radio-selector-group mb-sm flex-row flex-wrap gap-xs"></div>
         
         <select id="act-instructor" class="form-control"></select>
         <div class="popular-btns mb-md flex-wrap gap-xs" id="staff-popular-btns"></div>
@@ -86,7 +80,7 @@ require_once 'api/config.php';
                 <button id="btn-act-merge" class="btn btn-secondary btn-sm" title="Merge Left"><span class="material-symbols-outlined btn-icon-md">keyboard_double_arrow_left</span></button>
                 <button id="btn-act-split" class="btn btn-secondary btn-sm" title="Split"><span class="material-symbols-outlined btn-icon-md">splitscreen</span></button>
             </div>
-            <button id="btn-act-save" class="btn btn-primary btn-sm">Done</button>
+            <button id="btn-act-save" class="btn btn-primary btn-sm" title="Done"><span class="material-symbols-outlined btn-icon-md">check</span></button>
         </div>
     </div>
     
@@ -100,13 +94,14 @@ require_once 'api/config.php';
         <textarea id="note-text" placeholder="Add note..."></textarea>
         <div class="popular-btns" id="note-popular-btns"></div>
         <div class="popover-footer popover-footer-end">
-            <button id="btn-note-save" class="btn btn-primary btn-sm">Done</button>
+            <button id="btn-note-save" class="btn btn-primary btn-sm" title="Done"><span class="material-symbols-outlined btn-icon-md">check</span></button>
         </div>
     </div>
 
     <!-- Interactive UI Layer -->
     <div id="bottom-right-controls">
         <a href="index.php" class="menu-btn flex-center" title="Display Board"><span class="material-symbols-outlined">slideshow</span></a>
+        <a href="home.php" class="menu-btn flex-center" title="Home"><span class="material-symbols-outlined">home</span></a>
         <button id="btn-login-trigger" class="menu-btn flex-center" title="Login"><span class="material-symbols-outlined">login</span></button>
         <button id="btn-toggle-edit" class="menu-btn flex-center hidden" title="Edit Programme"><span class="material-symbols-outlined">edit</span></button>
         <a href="admin.php" id="link-admin" class="menu-btn flex-center hidden" title="Admin Panel"><span class="material-symbols-outlined">settings</span></a>
@@ -118,6 +113,7 @@ require_once 'api/config.php';
 
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/programme-editor.js"></script>
     <script src="js/programme.js"></script>
 </body>
 </html>

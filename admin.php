@@ -8,6 +8,7 @@ require_once 'api/config.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Sqn Display Board</title>
+    <link rel="icon" href="uploads/roundel.svg" type="image/svg+xml">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
     <link rel="stylesheet" href="css/core.css">
@@ -17,7 +18,7 @@ require_once 'api/config.php';
 <body>
     <div class="admin-container">
         <h1>Display Board Admin</h1>
-        <a href="index.php">Back to Display Board</a>
+        <a href="index.php">Back to Display Board</a> | <a href="home.php">Back to Home</a>
         <hr>
 
         <div id="login-section">
@@ -39,6 +40,7 @@ require_once 'api/config.php';
                 <button class="tab-btn active" data-target="tab-slides">Slide Sets</button>
                 <button class="tab-btn" data-target="tab-images">Image Management</button>
                 <button class="tab-btn" data-target="tab-programme">Programme Settings</button>
+                <button class="tab-btn" data-target="tab-settings">Settings</button>
             </div>
 
             <div id="tab-slides" class="tab-content active">
@@ -229,6 +231,39 @@ require_once 'api/config.php';
                     </div>
                 </div>
             </div> <!-- End tab-programme -->
+
+            <!-- Settings Tab -->
+            <div id="tab-settings" class="tab-content hidden">
+                <div class="mb-lg">
+                    <h3 class="mb-sm">Display Board Settings</h3>
+                    <div class="set-item mb-md" style="flex-direction: column; align-items: flex-start;">
+                        <label for="global-sidebar-text" class="mb-xs font-bold">Sidebar Text</label>
+                        <input type="text" id="global-sidebar-text" class="mb-md" style="width: 100%; max-width: 400px; padding: 0.5rem;" placeholder="2459 Squadron">
+                        
+                        <label for="global-slide-speed" class="mb-xs font-bold">Slide Duration (seconds)</label>
+                        <input type="number" id="global-slide-speed" class="mb-md" style="width: 100%; max-width: 400px; padding: 0.5rem;" min="1" max="60" value="10">
+                        
+                        <button class="btn btn-primary" type="button" id="btn-save-global-settings">Save Display Settings</button>
+                    </div>
+                </div>
+                
+                <div class="mb-lg">
+                    <h3 class="mb-sm text-danger">Change Admin Password</h3>
+                    <div class="set-item" style="flex-direction: column; align-items: flex-start;">
+                        <label for="pwd-current" class="mb-xs font-bold">Current Password</label>
+                        <input type="password" id="pwd-current" class="mb-md" style="width: 100%; max-width: 400px; padding: 0.5rem;" required>
+                        
+                        <label for="pwd-new" class="mb-xs font-bold">New Password</label>
+                        <input type="password" id="pwd-new" class="mb-md" style="width: 100%; max-width: 400px; padding: 0.5rem;" required>
+                        
+                        <label for="pwd-confirm" class="mb-xs font-bold">Confirm New Password</label>
+                        <input type="password" id="pwd-confirm" class="mb-md" style="width: 100%; max-width: 400px; padding: 0.5rem;" required>
+                        
+                        <div id="pwd-msg" class="mb-sm font-bold"></div>
+                        <button class="btn btn-primary" type="button" id="btn-change-password">Update Password</button>
+                    </div>
+                </div>
+            </div>
 
         </div>
     </div>
