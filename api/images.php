@@ -6,7 +6,7 @@ require_once 'utils.php';
 header('Content-Type: application/json');
 
 // Check authentication
-if (!isset($_SESSION['user_id'])) {
+if (!$isLoggedIn) {
     jsonError('Unauthorized', 401);
 }
 

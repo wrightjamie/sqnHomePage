@@ -1,6 +1,5 @@
 <?php
 require_once 'api/config.php';
-$isLoggedIn = isset($_SESSION['user_id']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -66,10 +65,6 @@ $isLoggedIn = isset($_SESSION['user_id']);
       </div>
   </div>
 
-  <script>
-      window.IS_LOGGED_IN = <?php echo $isLoggedIn ? 'true' : 'false'; ?>;
-  </script>
-  
   <script src="js/utils.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>

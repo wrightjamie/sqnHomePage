@@ -495,3 +495,23 @@ body::before {
   text-align: center;
   padding: 1rem;
 }
+
+/* --- JS Inline Style Replacements --- */
+.home-add-row-icon { font-size: 1.4rem; }
+.home-logo { width: 3.5rem; height: 3.5rem; }
+.weather-unavailable { padding: 1rem; }
+.weather-edit-container { display: flex; justify-content: center; }
+.weather-edit-btn-margin { margin-left: 0.5rem; }
+
+.rss-empty-feed { 
+  opacity: 0.5; 
+  font-style: italic; 
+}
+.rss-loading-feed, .rss-no-items {
+  opacity: 0.5;
+}
+.search-box-container { 
+  position: relative; 
+  width: 100%; 
+}
+.flex-inline { display: flex; }

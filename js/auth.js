@@ -6,10 +6,6 @@ const Auth = {
     modal: null,
     form: null,
     errorMsg: null,
-    callbacks: {
-        onLogin: [],
-        onLogout: []
-    },
 
     init() {
         this.modal = document.getElementById('login-modal');
@@ -26,8 +22,7 @@ const Auth = {
                 try {
                     await this.login(u, p);
                     this.hideModal();
-                    // trigger callbacks
-                    this.callbacks.onLogin.forEach(cb => cb());
+                    window.location.reload();
                 } catch (err) {
                     this.errorMsg.textContent = err.message;
                 }
@@ -37,6 +32,17 @@ const Auth = {
             if (btnCancel) {
                 btnCancel.addEventListener('click', () => this.hideModal());
             }
+        }
+
+        // Global menu bindings
+        const btnLoginTrigger = document.getElementById('btn-login-trigger');
+        if (btnLoginTrigger) {
+            btnLoginTrigger.addEventListener('click', () => this.showModal());
+        }
+
+        const btnLogout = document.getElementById('btn-logout');
+        if (btnLogout) {
+            btnLogout.addEventListener('click', () => this.logout());
         }
     },
 
@@ -64,16 +70,8 @@ const Auth = {
 
     async logout() {
         const result = await apiFetch('api/auth.php?action=logout');
-        this.callbacks.onLogout.forEach(cb => cb());
+        window.location.reload();
         return result;
-    },
-
-    onLogin(cb) {
-        this.callbacks.onLogin.push(cb);
-    },
-
-    onLogout(cb) {
-        this.callbacks.onLogout.push(cb);
     }
 };
 

@@ -1,5 +1,9 @@
 // js/admin.js
 
+const ADMIN_CONFIG = {
+    BUTTON_RESET_TIMEOUT_MS: 2000
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     const loginSection = document.getElementById('login-section');
     const adminSection = document.getElementById('admin-section');
@@ -86,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const div = document.createElement('div');
                 div.className = 'set-item';
                 div.innerHTML = `
-                    <span><span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 0.3125rem;">${set.icon || 'folder'}</span><strong>${set.name}</strong> ${set.is_active ? '(ACTIVE)' : ''}</span>
+                    <span><span class="material-symbols-outlined list-icon">${set.icon || 'folder'}</span><strong>${set.name}</strong> ${set.is_active ? '(ACTIVE)' : ''}</span>
                     <button class="btn" onclick="setActiveSet(${set.id})" title="Set Active"><span class="material-symbols-outlined">check_circle</span></button>
                 `;
                 setsList.appendChild(div);
@@ -152,8 +156,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const typeIcon = slide.type === 'image' ? 'image' : 'article';
                 div.innerHTML = `
                     <span>
-                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 0.3125rem; cursor: grab;">drag_indicator</span>
-                        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 0.3125rem;">${typeIcon}</span> ${content.title || 'No Title'}
+                        <span class="material-symbols-outlined drag-handle">drag_indicator</span>
+                        <span class="material-symbols-outlined list-icon">${typeIcon}</span> ${content.title || 'No Title'}
                     </span>
                     <div class="btn-group">
                         <button class="btn" onclick="editSlide(${slide.id})" title="Edit"><span class="material-symbols-outlined">edit</span></button>
@@ -193,8 +197,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (slide.type === 'image' && content.imageUrl) {
             document.getElementById('current-image-preview').src = content.imageUrl;
             document.getElementById('current-image-preview').classList.remove('hidden');
+            document.getElementById('slide-image-description').value = content.description || '';
         } else {
             document.getElementById('current-image-preview').classList.add('hidden');
+            document.getElementById('slide-image-description').value = '';
         }
         document.getElementById('slide-image-file').value = '';
         
@@ -211,6 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (quill) quill.root.innerHTML = '';
         document.getElementById('slide-image-url').value = '';
         document.getElementById('slide-image-file').value = '';
+        document.getElementById('slide-image-description').value = '';
         document.getElementById('current-image-preview').classList.add('hidden');
         document.getElementById('current-image-preview').src = '';
         document.getElementById('submit-slide-btn').innerHTML = '<span class="material-symbols-outlined">add_box</span> Add Slide';
@@ -246,6 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (existingUrl) {
                 formData.append('existing_image_url', existingUrl);
             }
+            const description = document.getElementById('slide-image-description').value;
+            formData.append('description', description);
         }
         if (editId) formData.append('slide_id', editId);
 
@@ -316,9 +325,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             reorderSetsIds = sets.map(s => s.id);
             reorderSetsList.innerHTML = sets.map(s => `
-                <div class="reorder-item flex-center" draggable="true" data-id="${s.id}" style="justify-content:flex-start; margin-bottom:0.3125rem; padding:0.625rem; background:#f9f9f9; border:0.0625rem solid #ddd; cursor:grab;">
-                    <span class="material-symbols-outlined" style="margin-right:0.625rem; cursor:grab;">drag_indicator</span>
-                    <span class="material-symbols-outlined" style="margin-right:0.3125rem;">${s.icon || 'folder'}</span>
+                <div class="reorder-item reorder-list-item" draggable="true" data-id="${s.id}">
+                    <span class="material-symbols-outlined drag-handle">drag_indicator</span>
+                    <span class="material-symbols-outlined list-icon">${s.icon || 'folder'}</span>
                     ${s.name} ${s.is_active ? '(ACTIVE)' : ''}
                 </div>
             `).join('');
@@ -376,13 +385,13 @@ document.addEventListener('DOMContentLoaded', () => {
         adminGalleryGrid.innerHTML = data.images.map(img => `
             <div class="admin-gallery-item-container">
                 <img src="${img.thumb_url}" class="admin-gallery-item" title="${img.filename}">
-                <button class="admin-edit-overlay" onclick="openMetadataModal(${img.id})" title="Edit Metadata" style="position:absolute; top:0.3125rem; left:0.3125rem; background:rgba(0,0,0,0.7); color:white; border:none; border-radius:50%; width:1.875rem; height:1.875rem; display:flex; justify-content:center; align-items:center; cursor:pointer;">
-                    <span class="material-symbols-outlined" style="font-size:1.125rem;">edit</span>
+                <button class="admin-edit-overlay-btn" onclick="openMetadataModal(${img.id})" title="Edit Metadata">
+                    <span class="material-symbols-outlined">edit</span>
                 </button>
                 <button class="admin-delete-overlay" onclick="deleteAdminImage('${img.filename}')" title="Delete Image">
                     <span class="material-symbols-outlined">delete</span>
                 </button>
-                ${img.tags && img.tags.length > 0 ? `<div style="position:absolute; bottom:0.3125rem; left:0.3125rem; background:rgba(0,0,0,0.6); color:white; font-size:0.625rem; padding:0.125rem 0.3125rem; border-radius:0.1875rem;">${[...img.tags].sort().join(', ')}</div>` : ''}
+                ${img.tags && img.tags.length > 0 ? `<div class="admin-img-tags">${[...img.tags].sort().join(', ')}</div>` : ''}
             </div>
         `).join('');
         
@@ -548,7 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     btnRegenThumbs.addEventListener('click', async () => {
         const originalText = btnRegenThumbs.innerHTML;
-        btnRegenThumbs.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">autorenew</span> Working...';
+        btnRegenThumbs.innerHTML = '<span class="material-symbols-outlined loading-spinner">autorenew</span> Working...';
         btnRegenThumbs.disabled = true;
         
         try {
@@ -684,7 +693,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const submitBtn = uploadForm.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">autorenew</span> Uploading...';
+        submitBtn.innerHTML = '<span class="material-symbols-outlined loading-spinner">autorenew</span> Uploading...';
         submitBtn.disabled = true;
 
         const formData = new FormData();
@@ -737,7 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-save-global-settings')?.addEventListener('click', async () => {
         const btn = document.getElementById('btn-save-global-settings');
         const originalText = btn.innerHTML;
-        btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">autorenew</span> Saving...';
+        btn.innerHTML = '<span class="material-symbols-outlined loading-spinner">autorenew</span> Saving...';
         btn.disabled = true;
 
         const payload = {
@@ -753,13 +762,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.innerHTML = originalText;
                 btn.style.background = '';
                 btn.disabled = false;
-            }, 2000);
+            }, ADMIN_CONFIG.BUTTON_RESET_TIMEOUT_MS);
         } catch (e) {
             btn.innerHTML = 'Error saving';
             setTimeout(() => {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
-            }, 2000);
+            }, ADMIN_CONFIG.BUTTON_RESET_TIMEOUT_MS);
         }
     });
 
@@ -783,7 +792,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const btn = document.getElementById('btn-change-password');
         const originalText = btn.innerHTML;
-        btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">autorenew</span> Updating...';
+        btn.innerHTML = '<span class="material-symbols-outlined loading-spinner">autorenew</span> Updating...';
         btn.disabled = true;
 
         try {

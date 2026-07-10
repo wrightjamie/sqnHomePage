@@ -34,4 +34,6 @@ session_set_cookie_params([
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+$isLoggedIn = isset($_SESSION['user_id']);
 ?>

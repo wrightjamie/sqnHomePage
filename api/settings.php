@@ -29,16 +29,9 @@ if ($method === 'GET' && $action === 'global_config') {
 }
 
 if ($method === 'POST' && $action === 'global_config') {
-    if (!isset($_SESSION['user_id']) && (!isset($_SESSION['username']))) {
-        // wait, let's just use check_session logic if needed. Or just check if session user is set
-        // Actually, init_db sets username. But I'll just check if either is set for safety.
-        if (empty($_SESSION)) {
-            session_start();
-        }
-        if (!isset($_SESSION['user_id']) && !isset($_SESSION['username'])) {
-            http_response_code(401);
-            jsonResponse(['success' => false, 'error' => 'Unauthorized']);
-        }
+    if (!$isLoggedIn) {
+        http_response_code(401);
+        jsonResponse(['success' => false, 'error' => 'Unauthorized']);
     }
 
     $json_value = json_encode($data);
