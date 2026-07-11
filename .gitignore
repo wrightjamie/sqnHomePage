@@ -23,5 +23,3 @@ uploads/*
 .Trashes
 ehthumbs.db
 Thumbs.db
-php_server.log
-data/sessions/

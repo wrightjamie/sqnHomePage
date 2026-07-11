@@ -19,45 +19,9 @@ td.notes-col { font-size: 0.9em; }
 /* Print Styles */
 @media print {
     @page { size: landscape; margin: 10mm; }
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; background: #fff; color: #000; }
-
-    /* UI Noise Elimination */
-    .no-print,
-    #bottom-right-controls,
-    .popover-panel,
-    #toast-container,
-    .row-controls,
-    .modal {
-        display: none !important;
-    }
-
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #fff; }
+    .no-print { display: none !important; }
     .programme-container { padding: 0; max-width: 100%; }
-
-    /* Page Break Management & Repeated Table Headers */
-    .prog-table { width: 100%; }
-    .prog-table thead { display: table-header-group; }
-    .prog-table tbody tr { break-inside: avoid; page-break-inside: avoid; }
-
-    /* General Layout Optimization & High Contrast */
-    .prog-table th,
-    .prog-table td {
-        color: #000;
-        border-color: #000;
-    }
-
-    /* Color Preservation for Uniform Indicators */
-    .prog-table td.uniform-col,
-    .prog-table td[data-type="uniform"] {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-        color-adjust: exact;
-    }
-
-    .month-notes-container {
-        break-inside: avoid;
-        page-break-inside: avoid;
-        color: #000;
-    }
 }
 
 /* Edit Mode Styles */
