@@ -20,5 +20,8 @@ This document outlines the proposed order for implementing the pending features 
 ## 6. Print Stylesheet (`todo/print-stylesheet.md`)
 **Justification:** The print stylesheet relies heavily on a finalized, stable DOM structure, specifically requiring the hiding of complex UI elements like the floating hamburger menu and correctly formatting tables on `programme.php`. Implementing this last ensures we are applying print rules against a complete HTML structure, guaranteeing all elements are accounted for and styled appropriately for export.
 
-## 7. User Management (`todo/user_management.md`)
-**Justification:** This is a major administrative feature that requires a stable application structure. It should be built after the core UI (such as the Floating Hamburger Menu and core page logic) has stabilized, ensuring that new permission models and admin navigation are applied to the finalized application structure.
+## 7. Role-Based Auth & Registration (`todo/role_based_auth.md`)
+**Justification:** This feature establishes the core authentication framework, roles, and sign-up workflow. It should be implemented after the UI layout has stabilized but before full user management interfaces are built, as it provides the underlying structure and permissions model that subsequent administrative features will rely upon.
+
+## 8. User Management (`todo/user_management.md`)
+**Justification:** This is a major administrative feature that provides the CRUD interface for managing roles and accounts. It naturally follows the implementation of the core Role-Based Auth framework (Step 7), ensuring that dynamic permission models and admin navigation are applied to a fully established authentication system.
