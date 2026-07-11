@@ -18,10 +18,34 @@ td.notes-col { font-size: 0.9em; }
 
 /* Print Styles */
 @media print {
-    @page { size: landscape; margin: 10mm; }
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #fff; }
-    .no-print { display: none !important; }
-    .programme-container { padding: 0; max-width: 100%; }
+    @page { size: A4 landscape; margin: 10mm; }
+    body { background: #fff; color: #000; }
+
+    /* Preserve colors on uniform indicators and table headers */
+    body, .uniform-col, .prog-table th, .uniform-col * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    /* Hide UI Noise */
+    .no-print, #bottom-right-controls, .row-controls, #toast-container, .popover-panel {
+        display: none !important;
+    }
+
+    /* Layout Optimization */
+    .programme-container { padding: 0; max-width: 100%; width: 100%; margin: 0; }
+
+    /* Force non-uniform text elements to high-contrast dark color */
+    .prog-table td:not(.uniform-col) { color: #000 !important; }
+
+    /* Page Break Management */
+    .prog-table { page-break-inside: auto; }
+    .prog-row, tr { page-break-inside: avoid; break-inside: avoid; }
+    thead { display: table-header-group; }
+    tfoot { display: table-footer-group; }
+    h1, h2, h3, th { page-break-after: avoid; break-after: avoid; }
+    .month-header { page-break-inside: avoid; break-inside: avoid; }
 }
 
 /* Edit Mode Styles */
