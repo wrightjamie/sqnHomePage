@@ -20,41 +20,8 @@ td.notes-col { font-size: 0.9em; }
 @media print {
     @page { size: landscape; margin: 10mm; }
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #fff; }
-
-    /* UI Noise Elimination */
-    .no-print,
-    #activity-popover,
-    #uniform-popover,
-    #notes-popover,
-    #toast-container,
-    #bottom-right-controls {
-        display: none !important;
-    }
-
-    /* General Layout Optimization */
-    .programme-container { padding: 0; max-width: 100%; width: 100%; }
-
-    td, th { color: #000 !important; }
-
-    /* Color Preservation for Uniform Indicators */
-    .uniform-col {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-
-    /* Repeated Table Headers */
-    thead { display: table-header-group; }
-
-    /* Page Break Management */
-    tr, .month-header {
-        page-break-inside: avoid;
-        break-inside: avoid;
-    }
-
-    h1, h3 {
-        page-break-after: avoid;
-        break-after: avoid;
-    }
+    .no-print { display: none !important; }
+    .programme-container { padding: 0; max-width: 100%; }
 }
 
 /* Edit Mode Styles */
