@@ -1,70 +1,21 @@
-Description
-Introduces a dedicated print stylesheet (`@media print`) for the training schedule page (`programme.php`). When a user prints the schedule or exports it to a PDF, the layout dynamically refactors to maximize readability on standard A4 paper. This feature strips away non-essential web interface noise while deliberately retaining background and border colors used for uniform and dress code indicators to ensure physical copies remain operationally useful.
+# Proposed Feature Implementation Order
 
-Key Requirements
-• UI Noise Elimination: Automatically hide web-only interface elements during print execution, including the header, footer, floating corner hamburger menu, persistent action overlays, and configuration buttons.
+This document outlines the proposed order for implementing the pending features to ensure a logical progression based on existing code structure, appropriate timing of changes, and minimizing rework.
 
-• Color Preservation for Uniform Indicators: Explicitly preserve structural CSS background fills, text colors, and borders that designate specific uniform requirements (e.g., Working Blue, Coveralls, No. 1 Dress) using print properties that force color rendering.
+## 1. Floating Hamburger Menu (`todo/floating_hamburger_menu.md`)
+**Justification:** This feature alters the global navigation layout across the site, replacing the existing header/sidebar approach with a bottom-right floating menu. This foundational UI change should be implemented first so that all subsequent new pages and UI adjustments are built against the final layout, avoiding the need to refactor them later.
 
-• General Layout Optimization: Force non-uniform text elements to a high-contrast dark color and set the main body layout to utilize the full width of standard paper margins.
+## 2. Array-based Notes (`todo/array_based_notes.md`)
+**Justification:** This feature modifies the core JSON data schema (converting notes from a string to an array) and requires significant updates to the UI rendering logic in both `programme.php` and `index.php`. Making these core data and structural changes early ensures that other UI additions on those same pages don't encounter integration conflicts or data structure mismatches later.
 
-• Page Break Management: Configure table rows and schedule blocks to prevent individual rows or multi-line event slots from awkwardly splitting across page breaks. Ensure section headers are pinned to their subsequent content.
+## 3. Tonight's Duties (`todo/tonights_duties.md`)
+**Justification:** This adds new fields (`duty_nco` and `duty_cadet`) to `index.php`. Implementing this immediately after the data structure and rendering changes from the "Array-based Notes" feature allows us to build upon the updated page structure, minimizing merge conflicts or repeated layout adjustments on the same view.
 
-• Repeated Table Headers: Ensure that table column headers (`<thead>`) automatically repeat at the top of the page if the monthly or weekly programme spans multiple physical sheets.
+## 4. Documents Page (`todo/documents_feature.md`)
+**Justification:** This introduces an entirely new standalone page (`documents.php`). It is best to build this page after the global navigation (Floating Hamburger Menu) has been firmly established. This ensures the new page inherits the correct layout components natively without requiring later modification.
 
-Implementation Goals
-• Integrate a targeted `@media print` block into the existing stylesheet framework.
+## 5. Document History (`todo/document-history.md`)
+**Justification:** This feature is a direct enhancement to the new Documents Page, adding an amendment tracking system and history table. It naturally and logically follows the creation of the base page itself.
 
-• Apply broad layout resets for typography and layout wrappers.
-
-• Override standard ink-saving behavior by applying `color-adjust: exact` (and its vendor-prefixed variants) specifically to the elements, classes, or table cells handling the uniform matrix data.
-
-• Validate visual output across standard print previews to guarantee uniform color visibility remains distinct and legible.
-
----
-
-User Story
-
-As a training administrator,
-
-I want to manage training notes as separate, individual list items rather than a single text block,
-
-So that I can add, remove, and reorder notes using simple arrow controls while taking advantage of autocomplete suggestions for common entries.
-
----
-
-Description
-
-This feature upgrades the "Notes" architecture for both single training nights and full months. Converting notes into an array-based list allows the editor interface to support fast entry manipulation, sequential reordering using directional arrows, and smart typeahead suggestions derived from loaded cache data and historically common values.
-
----
-
-Key Requirements
-
-• From Text Field to Array List:
-
-  • Migrate data structures so that notes are stored as an ordered list of strings rather than a single block of text.
-
-• Smart Entry UI & Autocomplete:
-
-  • Memory Pool Fetching: Pool all note strings from the surrounding months currently loaded into memory (Previous, Current, and Next Month).
-
-  • Native Input Typeahead: Populate standard input suggestions from this memory pool to auto-complete familiar phrases as an editor types.
-
-  • Quick-Pick Panel: Display a section of highly repeated "Common Notes" that can be clicked to instantly append to the active list.
-
-• Arrow-Based Reordering:
-
-  • Provide simple up and down arrow buttons next to each note item within the editor view to adjust their display sequence cleanly.
-
-• Component-Based Rendering:
-
-  • Both `programme.php` and `index.php` will loop through the new array structure, rendering each note item cleanly as an independent line or list item.
-
----
-
-Proposed Implementation Ideas
-
-• Modify the schema of the monthly JSON data file to nest a structured array block under the `notes` key for nights and months.
-
-• Use a lightweight array indexing approach on the edit form state to swap positions dynamically when the up or down arrow buttons are clicked.
+## 6. Print Stylesheet (`todo/print-stylesheet.md`)
+**Justification:** The print stylesheet relies heavily on a finalized, stable DOM structure, specifically requiring the hiding of complex UI elements like the floating hamburger menu and correctly formatting tables on `programme.php`. Implementing this last ensures we are applying print rules against a complete HTML structure, guaranteeing all elements are accounted for and styled appropriately for export.
