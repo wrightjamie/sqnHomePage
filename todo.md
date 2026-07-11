@@ -23,11 +23,14 @@ This document outlines the proposed order for implementing the pending features 
 ## 7. Print Stylesheet (`todo/print-stylesheet.md`)
 **Justification:** The print stylesheet relies heavily on a finalized, stable DOM structure, specifically requiring the hiding of complex UI elements like the floating hamburger menu and correctly formatting tables on `programme.php`. Implementing this last ensures we are applying print rules against a complete HTML structure, guaranteeing all elements are accounted for and styled appropriately for export.
 
-## 8. Role-Based Auth & Registration (`todo/role_based_auth.md`)
+## 8. Global Notification (Toast) System (`todo/global_notification_system.md`)
+**Justification:** This feature introduces a robust, global notification system for application-wide feedback. It provides a foundational UI feedback mechanism that should be established before building complex features like Role-Based Auth, User Management, and Secure System Reset, allowing them to leverage it for permission errors and form confirmations.
+
+## 9. Role-Based Auth & Registration (`todo/role_based_auth.md`)
 **Justification:** This feature establishes the core authentication framework, roles, and sign-up workflow. It should be implemented after the UI layout has stabilized but before full user management interfaces are built, as it provides the underlying structure and permissions model that subsequent administrative features will rely upon.
 
-## 9. User Management (`todo/user_management.md`)
-**Justification:** This is a major administrative feature that provides the CRUD interface for managing roles and accounts. It naturally follows the implementation of the core Role-Based Auth framework (Step 8), ensuring that dynamic permission models and admin navigation are applied to a fully established authentication system.
+## 10. User Management (`todo/user_management.md`)
+**Justification:** This is a major administrative feature that provides the CRUD interface for managing roles and accounts. It naturally follows the implementation of the core Role-Based Auth framework (Step 9), ensuring that dynamic permission models and admin navigation are applied to a fully established authentication system.
 
-## 10. Secure System Reset (`todo/secure_system_reset.md`)
+## 11. Secure System Reset (`todo/secure_system_reset.md`)
 **Justification:** This feature requires an administrator to explicitly re-type their active login password to authorize the execution of a system reset script. Therefore, it critically relies on the authentication system and user roles established in the previous two steps (Role-Based Auth and User Management) being fully operational.
