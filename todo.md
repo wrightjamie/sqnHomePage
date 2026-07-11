@@ -20,3 +20,55 @@ Implementation Goals
 • Override standard ink-saving behavior by applying `color-adjust: exact` (and its vendor-prefixed variants) specifically to the elements, classes, or table cells handling the uniform matrix data.
 
 • Validate visual output across standard print previews to guarantee uniform color visibility remains distinct and legible.
+
+---
+
+User Story
+
+As an administrator or staff member configuring the display board,
+
+I want to add a new slide type that displays a full month's training schedule fetched directly from our monthly JSON datastore,
+
+So that cadets and visitors can view upcoming activities at a glance using the exact layout aesthetic found on `programme.php`.
+
+---
+
+Description
+
+This feature introduces a new Monthly Programme Slide type to the `index.php` rotation. Instead of querying individual days, the slide will leverage our existing monthly datastore architecture—where all training data for a given month is kept inside a single JSON file. The slide configuration will allow the editor to specify which month to display using a relative time delta.
+
+---
+
+Key Requirements
+
+• New Slide Variant (`index.php`):
+
+  • Add a new slide type option to the display board system for a full monthly overview.
+
+• Consistent Styling Integration:
+
+  • Replicate the exact visual layout and CSS styling used on the main `programme.php` page for seamless cohesion.
+
+• JSON Datastore Integration:
+
+  • The rendering logic should fetch data directly from the monthly JSON datastore structure. No individual day selection or custom date range filtering is required.
+
+• Dynamic Relative Month Selector (Editor Panel):
+
+  • In the slide editor, provide a setting to define the displayed month using a relative time delta from the current date:
+
+    • `0` = This Month
+
+    • `+1` = Next Month
+
+    • `+2` = Two Months Out
+
+  • The slide must dynamically resolve this delta to load the correct monthly JSON file automatically as the calendar moves forward.
+
+---
+
+Proposed Implementation Ideas
+
+• Use the configured relative `month_delta` to build the target filename string for the monthly JSON file (e.g., matching the application's file naming pattern for year/month).
+
+• Parse the loaded JSON payload directly within the slide rendering loop to display the complete month's schedule inline.
