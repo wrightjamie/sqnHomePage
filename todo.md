@@ -20,3 +20,4 @@ Implementation Goals
 • Override standard ink-saving behavior by applying `color-adjust: exact` (and its vendor-prefixed variants) specifically to the elements, classes, or table cells handling the uniform matrix data.
 
 • Validate visual output across standard print previews to guarantee uniform color visibility remains distinct and legible.
+• Validate visual output across standard print previews to guarantee uniform color visibility remains distinct and legible.
