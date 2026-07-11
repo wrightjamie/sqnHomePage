@@ -19,3 +19,6 @@ This document outlines the proposed order for implementing the pending features 
 
 ## 6. Print Stylesheet (`todo/print-stylesheet.md`)
 **Justification:** The print stylesheet relies heavily on a finalized, stable DOM structure, specifically requiring the hiding of complex UI elements like the floating hamburger menu and correctly formatting tables on `programme.php`. Implementing this last ensures we are applying print rules against a complete HTML structure, guaranteeing all elements are accounted for and styled appropriately for export.
+
+## 7. User Management (`todo/user_management.md`)
+**Justification:** This is a major administrative feature that requires a stable application structure. It should be built after the core UI (such as the Floating Hamburger Menu and core page logic) has stabilized, ensuring that new permission models and admin navigation are applied to the finalized application structure.
