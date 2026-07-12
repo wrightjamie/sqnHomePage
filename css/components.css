@@ -413,3 +413,32 @@
     display: flex;
     align-items: center;
 }
+
+/* Floating Hamburger Menu Layout */
+#hamburger-menu-wrapper {
+    position: relative;
+}
+
+#hamburger-menu-items {
+    position: absolute;
+    bottom: 60px; /* Sit just above the hamburger button */
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    pointer-events: auto; /* Re-enable clicks */
+}
+
+/* Ensure menu items transition correctly */
+#hamburger-menu-items.hidden {
+    display: none !important;
+}
+
+/* Optional: Make floating controls container sticky if page scrolls */
+.floating-controls-container {
+    pointer-events: none; /* Let clicks pass through empty space */
+}
+
+.floating-controls-container > * {
+    pointer-events: auto; /* Re-enable clicks on the buttons themselves */
+}

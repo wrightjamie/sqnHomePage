@@ -84,11 +84,10 @@ try {
     // 4. Update users table with status and role logic
     $result = $pdo->query("PRAGMA table_info(users)")->fetchAll();
     $hasStatus = false;
+    $hasRole = false;
     foreach ($result as $row) {
-        if ($row['name'] === 'status') {
-            $hasStatus = true;
-            break;
-        }
+        if ($row['name'] === 'status') $hasStatus = true;
+        if ($row['name'] === 'role') $hasRole = true;
     }
 
     if (!$hasStatus) {
@@ -97,6 +96,13 @@ try {
         echo "Added status column to users table.<br>\n";
     } else {
         echo "Users table status column already exists.<br>\n";
+    }
+
+    if (!$hasRole) {
+        $pdo->exec("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'Admin'");
+        echo "Added role column to users table.<br>\n";
+    } else {
+        echo "Users table role column already exists.<br>\n";
     }
 
     // We also need to create roles functionality, we will add an explicit user_types table and update users.

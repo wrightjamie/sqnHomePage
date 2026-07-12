@@ -26,23 +26,30 @@ require_once 'api/config.php';
         </div>
 
         <!-- Interactive UI Layer -->
-        <div id="bottom-right-controls">
-            <div id="controls-wrapper" class="expandable-menu flex-center" tabindex="0">
-                <div class="expandable-menu-trigger flex-center" title="Slideshow Controls">
-                    <span class="material-symbols-outlined">slideshow</span>
-                </div>
-                <div class="expandable-menu-items">
-                    <button id="btn-prev" class="flex-center" title="Previous Slide"><span class="material-symbols-outlined">skip_previous</span></button>
-                    <button id="btn-pause-play" class="flex-center" title="Pause/Play"><span class="material-symbols-outlined">pause</span></button>
-                    <button id="btn-next" class="flex-center" title="Next Slide"><span class="material-symbols-outlined">skip_next</span></button>
-                </div>
-            </div>
-            <button id="btn-login-trigger" class="menu-btn flex-center" title="Login"><span class="material-symbols-outlined">login</span></button>
-            <a href="programme.php" class="menu-btn flex-center" title="Training Programme"><span class="material-symbols-outlined">calendar_month</span></a>
-            <button id="btn-edit-mode" class="menu-btn flex-center hidden" title="Edit Mode"><span class="material-symbols-outlined">edit</span></button>
-            <a href="admin.php" id="link-admin" class="menu-btn flex-center hidden" title="Admin Panel"><span class="material-symbols-outlined">settings</span></a>
-            <button id="btn-logout" class="menu-btn flex-center hidden" title="Logout"><span class="material-symbols-outlined">logout</span></button>
-        </div>
+        <?php
+            $pinnedItems = [
+                '<div id="controls-wrapper" class="expandable-menu flex-center" tabindex="0">
+                    <div class="expandable-menu-trigger flex-center" title="Slideshow Controls">
+                        <span class="material-symbols-outlined">slideshow</span>
+                    </div>
+                    <div class="expandable-menu-items">
+                        <button id="btn-prev" class="flex-center" title="Previous Slide"><span class="material-symbols-outlined">skip_previous</span></button>
+                        <button id="btn-pause-play" class="flex-center" title="Pause/Play"><span class="material-symbols-outlined">pause</span></button>
+                        <button id="btn-next" class="flex-center" title="Next Slide"><span class="material-symbols-outlined">skip_next</span></button>
+                    </div>
+                </div>'
+            ];
+
+            $menuItems = [
+                '<button id="btn-login-trigger" class="menu-btn flex-center" title="Login"><span class="material-symbols-outlined">login</span></button>',
+                '<a href="programme.php" class="menu-btn flex-center" title="Training Programme"><span class="material-symbols-outlined">calendar_month</span></a>',
+                '<button id="btn-edit-mode" class="menu-btn flex-center hidden" title="Edit Mode"><span class="material-symbols-outlined">edit</span></button>',
+                '<a href="admin.php" id="link-admin" class="menu-btn flex-center hidden" title="Admin Panel"><span class="material-symbols-outlined">settings</span></a>',
+                '<button id="btn-logout" class="menu-btn flex-center hidden" title="Logout"><span class="material-symbols-outlined">logout</span></button>'
+            ];
+
+            include 'components/floating_menu.php';
+        ?>
     </div>
     
     <!-- Brand Swoosh Sidebar -->

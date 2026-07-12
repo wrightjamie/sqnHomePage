@@ -137,9 +137,10 @@ const Toast = {
 
         toast.innerHTML = `
             <span class="material-symbols-outlined toast-icon">${icon}</span>
-            <span class="toast-message">${message}</span>
+            <span class="toast-message"></span>
             <button class="toast-close"><span class="material-symbols-outlined">close</span></button>
         `;
+        toast.querySelector('.toast-message').textContent = message;
 
         this.container.appendChild(toast);
 

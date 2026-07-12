@@ -15,9 +15,19 @@ try {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
-        role TEXT DEFAULT 'admin',
+        role TEXT DEFAULT 'Admin',
         status TEXT DEFAULT 'active'
     )");
+
+    // Safety check for older installs that might have run before 'role' was added to schema
+    $cols = $pdo->query("PRAGMA table_info(users)")->fetchAll();
+    $hasRole = false;
+    foreach ($cols as $col) {
+        if ($col['name'] === 'role') $hasRole = true;
+    }
+    if (!$hasRole) {
+        $pdo->exec("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'Admin'");
+    }
 
     // Create user_roles table
     $pdo->exec("CREATE TABLE IF NOT EXISTS user_roles (
@@ -86,3 +96,17 @@ try {
     die("DB Init Error: " . $e->getMessage());
 }
 ?>
+
+    // Backwards compatibility check for old databases that don't have role
+    $result = $pdo->query("PRAGMA table_info(users)")->fetchAll();
+    $hasRole = false;
+    foreach ($result as $row) {
+        if ($row['name'] === 'role') {
+            $hasRole = true;
+            break;
+        }
+    }
+
+    if (!$hasRole) {
+        $pdo->exec("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'Admin'");
+    }

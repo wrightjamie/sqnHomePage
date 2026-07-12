@@ -50,21 +50,25 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await loadRoles();
             const users = await apiFetch('api/users.php?action=list');
-            usersList.innerHTML = users.map(u => `
+            usersList.innerHTML = users.map(u => {
+                const safeName = escapeHTML(u.username);
+                const safeRole = escapeHTML(u.role);
+                const safeStatus = escapeHTML(u.status);
+                return `
                 <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 10px;">${u.username}</td>
-                    <td style="padding: 10px;"><span style="background: var(--raf-nav-1); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">${u.role}</span></td>
+                    <td style="padding: 10px;">${safeName}</td>
+                    <td style="padding: 10px;"><span style="background: var(--raf-nav-1); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">${safeRole}</span></td>
                     <td style="padding: 10px;">
                         <span style="color: ${u.status === 'active' ? 'green' : u.status === 'pending' ? 'orange' : 'red'}; font-weight: bold;">
-                            ${u.status.toUpperCase()}
+                            ${safeStatus.toUpperCase()}
                         </span>
                     </td>
                     <td style="padding: 10px; text-align: right;">
-                        <button class="btn btn-secondary" onclick="editUser(${u.id}, '${u.username}', '${u.role}', '${u.status}')">Edit</button>
-                        <button class="btn" style="background: var(--raf-logo-1); color: white;" onclick="deleteUser(${u.id}, '${u.username}')">Delete</button>
+                        <button class="btn btn-secondary" onclick="editUser(${u.id}, '${safeName.replace(/'/g, "\\'")}', '${safeRole}', '${safeStatus}')">Edit</button>
+                        <button class="btn" style="background: var(--raf-logo-1); color: white;" onclick="deleteUser(${u.id}, '${safeName.replace(/'/g, "\\'")}')">Delete</button>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         } catch (e) {
             // Handled by Toast
             usersList.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 10px; color: red;">Failed to load users. You may not be an Admin.</td></tr>';
