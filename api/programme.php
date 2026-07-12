@@ -52,18 +52,6 @@ if ($method === 'GET' && $action === 'month') {
     }
 }
 
-if ($method === 'GET' && $action === 'autocomplete') {
-    $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'programme_autocomplete_cache'");
-    $stmt->execute();
-    $result = $stmt->fetchColumn();
-    if ($result) {
-        $decoded = json_decode($result, true);
-        jsonResponse($decoded);
-    } else {
-        jsonResponse(['activities' => [], 'comments' => []]);
-    }
-}
-
 // POST actions require authentication
 if (!isset($_SESSION['user_id'])) {
     jsonError('Unauthorized', 401);
@@ -90,79 +78,6 @@ if ($method === 'POST' && $action === 'month') {
     
     $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (`key`, `value`) VALUES (?, ?)");
     $stmt->execute([$key, $jsonProgramme]);
-    
-    // Update autocomplete cache
-    $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'programme_autocomplete_cache'");
-    $stmt->execute();
-    $result = $stmt->fetchColumn();
-    $cache = $result ? json_decode($result, true) : ['activities' => [], 'comments' => []];
-    
-    // Tally frequencies
-    $activityFreq = [];
-    $commentFreq = [];
-    
-    // Repopulate from scratch based on existing cache to maintain past counts, but decay them over time?
-    // Let's just maintain a simple dict of {name: count} and increment.
-    foreach($cache['activities'] as $act) {
-        $activityFreq[$act['name']] = $act['count'];
-    }
-    foreach($cache['comments'] as $com) {
-        $commentFreq[$com['name']] = $com['count'];
-    }
-    
-    // Process new programme
-    if (isset($programme['parade_nights']) && is_array($programme['parade_nights'])) {
-        foreach($programme['parade_nights'] as $pn) {
-            if (isset($pn['activities']) && is_array($pn['activities'])) {
-                foreach($pn['activities'] as $act) {
-                    if (!empty($act['name'])) {
-                        $n = trim($act['name']);
-                        if (!isset($activityFreq[$n])) $activityFreq[$n] = 0;
-                        $activityFreq[$n]++;
-                    }
-                }
-            }
-            if (isset($pn['notes']) && is_array($pn['notes'])) {
-                foreach($pn['notes'] as $note) {
-                    if (!empty($note)) {
-                        $n = trim($note);
-                        if (!isset($commentFreq[$n])) $commentFreq[$n] = 0;
-                        $commentFreq[$n]++;
-                    }
-                }
-            }
-        }
-    }
-    if (isset($programme['month_comments']) && is_array($programme['month_comments'])) {
-        foreach($programme['month_comments'] as $note) {
-            if (!empty($note)) {
-                $n = trim($note);
-                if (!isset($commentFreq[$n])) $commentFreq[$n] = 0;
-                $commentFreq[$n]++;
-            }
-        }
-    }
-    
-    // Convert back to sorted arrays
-    $newActivities = [];
-    foreach($activityFreq as $name => $count) {
-        $newActivities[] = ['name' => $name, 'count' => $count];
-    }
-    usort($newActivities, function($a, $b) { return $b['count'] <=> $a['count']; });
-    
-    $newComments = [];
-    foreach($commentFreq as $name => $count) {
-        $newComments[] = ['name' => $name, 'count' => $count];
-    }
-    usort($newComments, function($a, $b) { return $b['count'] <=> $a['count']; });
-    
-    $newCache = [
-        'activities' => array_slice($newActivities, 0, 100), // Keep top 100
-        'comments' => array_slice($newComments, 0, 100)
-    ];
-    
-    $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (`key`, `value`) VALUES ('programme_autocomplete_cache', ?)");
-    $stmt->execute([json_encode($newCache)]);
     
     jsonResponse(['message' => 'Month saved']);
 }

@@ -322,6 +322,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 dlAct.appendChild(opt);
             });
         }
+
+        const dlComments = document.getElementById('dl-comments');
+        if (dlComments) {
+            dlComments.innerHTML = '';
+            Object.keys(noteTally).forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                dlComments.appendChild(opt);
+            });
+        }
     }
     
     function renderGrid(prevRows, currRows, nextRows) {

@@ -107,6 +107,7 @@ require_once 'api/config.php';
         <div class="popover-footer popover-footer-end">
             <button id="btn-note-save" class="btn btn-primary btn-sm">Done</button>
         </div>
+        <datalist id="dl-comments"></datalist>
     </div>
 
     <!-- Interactive UI Layer -->
