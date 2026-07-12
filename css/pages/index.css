@@ -96,6 +96,8 @@ body {
 }
 
 .slide-description-banner {
+    position: absolute;
+    bottom: var(--space-xl);
     width: 100%;
     max-width: 80ch;
     background: rgba(0, 0, 0, 0.6);
@@ -109,6 +111,7 @@ body {
     line-height: 1.4;
     text-shadow: 0 1px 3px rgba(0,0,0,0.8);
     box-sizing: border-box;
+    z-index: 10;
 }
 
 .editable-image-action {

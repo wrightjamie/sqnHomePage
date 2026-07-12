@@ -115,6 +115,9 @@ if ($method === 'GET') {
         } elseif ($type === 'programme') {
             $contentObj['mode'] = $data['mode'] ?? 'next';
             $contentObj['specificDate'] = $data['specificDate'] ?? '';
+        } elseif ($type === 'qr') {
+            $contentObj['qrData'] = $data['qr_data'] ?? $data['qrData'] ?? '';
+            $contentObj['description'] = $data['description'] ?? '';
         }
         $content = json_encode($contentObj);
 
@@ -151,6 +154,9 @@ if ($method === 'GET') {
         } elseif ($type === 'programme') {
             $contentObj['mode'] = $data['mode'] ?? 'next';
             $contentObj['specificDate'] = $data['specificDate'] ?? '';
+        } elseif ($type === 'qr') {
+            $contentObj['qrData'] = $data['qr_data'] ?? $data['qrData'] ?? '';
+            $contentObj['description'] = $data['description'] ?? '';
         }
         $content = json_encode($contentObj);
 

@@ -101,6 +101,7 @@ require_once 'api/config.php';
 
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     <script src="js/utils.js?v=<?= time() ?>"></script>
+    <script src="js/qrcode.min.js"></script>
     <script src="js/api.js?v=<?= time() ?>"></script>
     <script src="js/auth.js?v=<?= time() ?>"></script>
     <script src="js/display-board.js?v=<?= time() ?>"></script>

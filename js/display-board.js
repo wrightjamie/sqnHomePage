@@ -48,6 +48,7 @@ function renderSlide(slide) {
                     <button class="dummy-slide-btn" onclick="window.createNewSlide('text')"><span class="material-symbols-outlined">description</span> Text Slide</button>
                     <button class="dummy-slide-btn" onclick="window.createNewSlide('image')"><span class="material-symbols-outlined">image</span> Image Slide</button>
                     <button class="dummy-slide-btn" onclick="window.createNewSlide('programme')"><span class="material-symbols-outlined">calendar_today</span> Programme Slide</button>
+                    <button class="dummy-slide-btn" onclick="window.createNewSlide('qr')"><span class="material-symbols-outlined">qr_code</span> QR Code</button>
                 </div>
             </div>`;
     }
@@ -138,6 +139,68 @@ function renderSlide(slide) {
                     <div class="programme-slide-container" id="prog-container-${slide.id}" data-slide-id="${slide.id}" data-mode="${data.mode || 'next'}" data-date="${data.specificDate || ''}" data-orig-mode="${data.mode || 'next'}" data-orig-date="${data.specificDate || ''}">
                         <div class="programme-loading-container"><span class="material-symbols-outlined programme-loading-spinner">autorenew</span></div>
                     </div>
+                </div>`;
+        } else if (slide.type === 'qr') {
+            let descriptionHtml = '';
+            if (data.description || editMode) {
+                let innerDesc = data.description || (editMode ? 'Click to add a description...' : '');
+                if (innerDesc) {
+                    if (editMode) {
+                        descriptionHtml = `<div class="editable-container slide-description-banner editable-desc mt-sm" onclick="startEdit(${slide.id}, 'description')">
+                            ${innerDesc}
+                            <span class="material-symbols-outlined edit-marker">edit</span>
+                        </div>`;
+                    } else {
+                        descriptionHtml = `<div class="slide-description-banner mt-sm">
+                            ${innerDesc}
+                        </div>`;
+                    }
+                }
+            }
+
+            const qrData = data.qrData || window.location.href;
+            const styles = getComputedStyle(document.documentElement);
+            const fgColor = styles.getPropertyValue('--text-light').trim() || '#FFFFFF';
+            let qrSvg = '';
+            try {
+                const qr = new QRCode({
+                    content: qrData,
+                    padding: 4,
+                    width: 300,
+                    height: 300,
+                    color: fgColor,
+                    background: 'transparent',
+                    join: true
+                });
+                qrSvg = qr.svg();
+            } catch (e) {
+                console.error("QR Code Error:", e);
+                qrSvg = '<div class="slide-placeholder">[Invalid QR Code Data]</div>';
+            }
+
+            let qrHtml = `
+                <div class="slide-qr-container flex-col align-center mt-lg mb-lg">
+                    <div class="qr-svg-wrapper flex-center" style="max-width: 400px; width: 100%; aspect-ratio: 1; background: transparent;">
+                        ${qrSvg}
+                    </div>
+                    ${descriptionHtml}
+                </div>`;
+            
+            let qrActionHtml = '';
+            if (editMode) {
+                qrActionHtml = `
+                    <div class="editable-container editable-image-action flex-center" onclick="startEdit(${slide.id}, 'qrData')">
+                        ${qrHtml}
+                        <span class="material-symbols-outlined edit-marker">qr_code</span>
+                    </div>`;
+            } else {
+                qrActionHtml = `<div class="image-action-container flex-center">${qrHtml}</div>`;
+            }
+            
+            content = `
+                <div class="slide-content slide-content-qr flex-col align-center text-center">
+                    ${titleHtml}
+                    ${qrActionHtml}
                 </div>`;
         }
 
@@ -386,7 +449,7 @@ function startEdit(slideId, field) {
     const container = event.currentTarget;
     
     let inputHtml = '';
-    if (field === 'title') {
+    if (field === 'title' || field === 'qrData') {
         inputHtml = `<input type="text" id="inline-edit-input" class="inline-edit-text" value="${value.replace(/"/g, '&quot;')}" autofocus onkeydown="if(event.key === 'Enter') { saveEdit(event); }">`;
     } else if (field === 'description') {
         inputHtml = `<textarea id="inline-edit-input" class="inline-edit-textarea" autofocus>${value}</textarea>`;
@@ -585,7 +648,7 @@ function handleSwipe() {
 }
 
 // Initial load
-checkAuthStatus();
+
 
 let currentFocusImageId = null;
 let currentFocusX = 50;

@@ -85,6 +85,7 @@ require_once 'api/config.php';
                 <select id="slide-type">
                     <option value="text">Text Slide</option>
                     <option value="image">Image Slide</option>
+                    <option value="qr">QR Code</option>
                 </select>
                 <input type="text" id="slide-title" placeholder="Slide Title/Header">
                 <div id="slide-body-container" class="mb-sm">
@@ -95,6 +96,10 @@ require_once 'api/config.php';
                     <input type="hidden" id="slide-image-url" value="">
                     <img id="current-image-preview" class="hidden admin-img-preview">
                     <textarea id="slide-image-description" class="mt-sm" placeholder="Optional description to display below image"></textarea>
+                </div>
+                <div id="qr-fields" class="hidden">
+                    <input type="text" id="slide-qr-data" class="mb-sm" placeholder="URL or Text for QR Code">
+                    <textarea id="slide-qr-description" class="mt-sm" placeholder="Optional description below QR code"></textarea>
                 </div>
                 <div class="flex-row gap-sm">
                     <button class="btn" type="submit" id="submit-slide-btn" title="Save Slide"><span class="material-symbols-outlined">save</span> Save Slide</button>

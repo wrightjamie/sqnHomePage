@@ -34,12 +34,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Toggle slide input fields based on type
     slideType.addEventListener('change', () => {
+        document.getElementById('slide-body-container').classList.add('hidden');
+        document.getElementById('image-upload-group').classList.add('hidden');
+        const qrFields = document.getElementById('qr-fields');
+        if (qrFields) qrFields.classList.add('hidden');
+
         if (slideType.value === 'image') {
-            document.getElementById('slide-body-container').classList.add('hidden');
             document.getElementById('image-upload-group').classList.remove('hidden');
+        } else if (slideType.value === 'qr') {
+            if (qrFields) qrFields.classList.remove('hidden');
         } else {
             document.getElementById('slide-body-container').classList.remove('hidden');
-            document.getElementById('image-upload-group').classList.add('hidden');
         }
     });
 
@@ -203,6 +208,14 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('slide-image-description').value = '';
         }
         document.getElementById('slide-image-file').value = '';
+
+        if (slide.type === 'qr') {
+            document.getElementById('slide-qr-data').value = content.qrData || '';
+            document.getElementById('slide-qr-description').value = content.description || '';
+        } else {
+            document.getElementById('slide-qr-data').value = '';
+            document.getElementById('slide-qr-description').value = '';
+        }
         
         slideType.dispatchEvent(new Event('change'));
         
@@ -220,6 +233,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('slide-image-description').value = '';
         document.getElementById('current-image-preview').classList.add('hidden');
         document.getElementById('current-image-preview').src = '';
+        document.getElementById('slide-qr-data').value = '';
+        document.getElementById('slide-qr-description').value = '';
         document.getElementById('submit-slide-btn').innerHTML = '<span class="material-symbols-outlined">add_box</span> Add Slide';
         document.getElementById('cancel-edit-btn').classList.add('hidden');
     }
@@ -255,6 +270,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const description = document.getElementById('slide-image-description').value;
             formData.append('description', description);
+        } else if (type === 'qr') {
+            const qrData = document.getElementById('slide-qr-data').value;
+            const qrDescription = document.getElementById('slide-qr-description').value;
+            formData.append('qr_data', qrData);
+            formData.append('description', qrDescription);
         }
         if (editId) formData.append('slide_id', editId);
 
