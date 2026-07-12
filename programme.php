@@ -106,11 +106,18 @@ require_once 'api/config.php';
 
     <!-- Interactive UI Layer -->
     <div id="bottom-right-controls">
-        <a href="index.php" class="menu-btn flex-center" title="Display Board"><span class="material-symbols-outlined">slideshow</span></a>
-        <button id="btn-login-trigger" class="menu-btn flex-center" title="Login"><span class="material-symbols-outlined">login</span></button>
-        <button id="btn-toggle-edit" class="menu-btn flex-center hidden" title="Edit Programme"><span class="material-symbols-outlined">edit</span></button>
-        <a href="admin.php" id="link-admin" class="menu-btn flex-center hidden" title="Admin Panel"><span class="material-symbols-outlined">settings</span></a>
-        <button id="btn-logout" class="menu-btn flex-center hidden" title="Logout"><span class="material-symbols-outlined">logout</span></button>
+        <div class="expandable-menu vertical-menu flex-center" tabindex="0">
+            <div class="expandable-menu-trigger flex-center" title="Menu">
+                <span class="material-symbols-outlined">menu</span>
+            </div>
+            <div class="expandable-menu-items">
+                <a href="index.php" class="menu-btn flex-center" title="Display Board"><span class="material-symbols-outlined">slideshow</span></a>
+                <button id="btn-login-trigger" class="menu-btn flex-center" title="Login"><span class="material-symbols-outlined">login</span></button>
+                <button id="btn-toggle-edit" class="menu-btn flex-center hidden" title="Edit Programme"><span class="material-symbols-outlined">edit</span></button>
+                <a href="admin.php" id="link-admin" class="menu-btn flex-center hidden" title="Admin Panel"><span class="material-symbols-outlined">settings</span></a>
+                <button id="btn-logout" class="menu-btn flex-center hidden" title="Logout"><span class="material-symbols-outlined">logout</span></button>
+            </div>
+        </div>
     </div>
 
     <!-- Modals -->

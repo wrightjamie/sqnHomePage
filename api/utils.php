@@ -102,7 +102,9 @@ function jsonResponse($data, $statusCode = 200) {
     header('Pragma: no-cache');
     header('Expires: 0');
     echo json_encode(['success' => true, 'data' => $data]);
-    exit;
+    if (!defined('PHPUNIT_RUNNING')) {
+        exit;
+    }
 }
 
 /**
@@ -112,6 +114,8 @@ function jsonError($message, $statusCode = 400) {
     http_response_code($statusCode);
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'error' => $message]);
-    exit;
+    if (!defined('PHPUNIT_RUNNING')) {
+        exit;
+    }
 }
 ?>

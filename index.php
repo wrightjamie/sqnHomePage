@@ -37,11 +37,18 @@ require_once 'api/config.php';
                     <button id="btn-next" class="flex-center" title="Next Slide"><span class="material-symbols-outlined">skip_next</span></button>
                 </div>
             </div>
-            <button id="btn-login-trigger" class="menu-btn flex-center" title="Login"><span class="material-symbols-outlined">login</span></button>
-            <a href="programme.php" class="menu-btn flex-center" title="Training Programme"><span class="material-symbols-outlined">calendar_month</span></a>
-            <button id="btn-edit-mode" class="menu-btn flex-center hidden" title="Edit Mode"><span class="material-symbols-outlined">edit</span></button>
-            <a href="admin.php" id="link-admin" class="menu-btn flex-center hidden" title="Admin Panel"><span class="material-symbols-outlined">settings</span></a>
-            <button id="btn-logout" class="menu-btn flex-center hidden" title="Logout"><span class="material-symbols-outlined">logout</span></button>
+            <div class="expandable-menu vertical-menu flex-center" tabindex="0">
+                <div class="expandable-menu-trigger flex-center" title="Menu">
+                    <span class="material-symbols-outlined">menu</span>
+                </div>
+                <div class="expandable-menu-items">
+                    <button id="btn-login-trigger" class="menu-btn flex-center" title="Login"><span class="material-symbols-outlined">login</span></button>
+                    <a href="programme.php" class="menu-btn flex-center" title="Training Programme"><span class="material-symbols-outlined">calendar_month</span></a>
+                    <button id="btn-edit-mode" class="menu-btn flex-center hidden" title="Edit Mode"><span class="material-symbols-outlined">edit</span></button>
+                    <a href="admin.php" id="link-admin" class="menu-btn flex-center hidden" title="Admin Panel"><span class="material-symbols-outlined">settings</span></a>
+                    <button id="btn-logout" class="menu-btn flex-center hidden" title="Logout"><span class="material-symbols-outlined">logout</span></button>
+                </div>
+            </div>
         </div>
     </div>
     

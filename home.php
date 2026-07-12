@@ -35,10 +35,18 @@ $isLoggedIn = isset($_SESSION['user_id']);
   <!-- Interactive UI Layer -->
   <div id="bottom-right-controls">
       <button id="btn-next-bg" class="menu-btn flex-center hidden" title="Next Background"><span class="material-symbols-outlined">image</span></button>
-      <button id="btn-login-trigger" class="menu-btn flex-center" title="Login" <?php if($isLoggedIn) echo 'style="display:none;"'; ?>><span class="material-symbols-outlined">login</span></button>
-      <button id="btn-edit-mode" class="menu-btn flex-center" title="Edit Mode" <?php if(!$isLoggedIn) echo 'style="display:none;"'; ?>><span class="material-symbols-outlined">edit</span></button>
-      <a href="admin.php" id="link-admin" class="menu-btn flex-center" title="Admin Panel" <?php if(!$isLoggedIn) echo 'style="display:none;"'; ?>><span class="material-symbols-outlined">settings</span></a>
-      <button id="btn-logout" class="menu-btn flex-center" title="Logout" <?php if(!$isLoggedIn) echo 'style="display:none;"'; ?>><span class="material-symbols-outlined">logout</span></button>
+
+      <div class="expandable-menu vertical-menu flex-center" tabindex="0">
+          <div class="expandable-menu-trigger flex-center" title="Menu">
+              <span class="material-symbols-outlined">menu</span>
+          </div>
+          <div class="expandable-menu-items">
+              <button id="btn-login-trigger" class="menu-btn flex-center" title="Login" <?php if($isLoggedIn) echo 'style="display:none;"'; ?>><span class="material-symbols-outlined">login</span></button>
+              <button id="btn-edit-mode" class="menu-btn flex-center" title="Edit Mode" <?php if(!$isLoggedIn) echo 'style="display:none;"'; ?>><span class="material-symbols-outlined">edit</span></button>
+              <a href="admin.php" id="link-admin" class="menu-btn flex-center" title="Admin Panel" <?php if(!$isLoggedIn) echo 'style="display:none;"'; ?>><span class="material-symbols-outlined">settings</span></a>
+              <button id="btn-logout" class="menu-btn flex-center" title="Logout" <?php if(!$isLoggedIn) echo 'style="display:none;"'; ?>><span class="material-symbols-outlined">logout</span></button>
+          </div>
+      </div>
   </div>
 
   <!-- Login Modal -->

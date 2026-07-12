@@ -361,3 +361,75 @@
 .focus-target-btn:hover {
     background: var(--raf-red);
 }
+
+/* Vertical Expandable Menu Component */
+.expandable-menu.vertical-menu {
+    width: 50px;
+    height: 50px;
+    background: transparent;
+    border-radius: 0;
+}
+
+.expandable-menu.vertical-menu:hover,
+.expandable-menu.vertical-menu:focus-within {
+    height: max-content;
+    width: 50px;
+    background: transparent;
+}
+
+.expandable-menu.vertical-menu .expandable-menu-trigger {
+    bottom: 0;
+    top: auto;
+    background: rgba(0,0,0,0.3);
+    border-radius: 50%;
+    transition: background 0.3s ease;
+}
+
+.expandable-menu.vertical-menu:hover .expandable-menu-trigger,
+.expandable-menu.vertical-menu:focus-within .expandable-menu-trigger {
+    opacity: 1;
+    pointer-events: auto;
+    background: rgba(0,0,0,0.7);
+}
+
+.expandable-menu.vertical-menu .expandable-menu-items {
+    flex-direction: column-reverse;
+    height: max-content;
+    width: 50px;
+    padding-bottom: 50px; /* Space for the trigger */
+    pointer-events: none;
+}
+
+.expandable-menu.vertical-menu:hover .expandable-menu-items,
+.expandable-menu.vertical-menu:focus-within .expandable-menu-items {
+    pointer-events: auto;
+}
+
+.expandable-menu.vertical-menu .expandable-menu-items .menu-btn,
+.expandable-menu.vertical-menu .expandable-menu-items button,
+.expandable-menu.vertical-menu .expandable-menu-items a {
+    border: none;
+    width: 50px;
+    height: 50px;
+    opacity: 0;
+    background: rgba(0,0,0,0.3);
+    border-radius: 50%;
+    margin-bottom: var(--space-sm);
+    transition: background 0.3s, transform 0.2s, opacity 0.3s;
+}
+
+.expandable-menu.vertical-menu:hover .expandable-menu-items .menu-btn,
+.expandable-menu.vertical-menu:hover .expandable-menu-items button,
+.expandable-menu.vertical-menu:hover .expandable-menu-items a,
+.expandable-menu.vertical-menu:focus-within .expandable-menu-items .menu-btn,
+.expandable-menu.vertical-menu:focus-within .expandable-menu-items button,
+.expandable-menu.vertical-menu:focus-within .expandable-menu-items a {
+    opacity: 1;
+}
+
+.expandable-menu.vertical-menu .expandable-menu-items .menu-btn:hover,
+.expandable-menu.vertical-menu .expandable-menu-items button:hover,
+.expandable-menu.vertical-menu .expandable-menu-items a:hover {
+    background: rgba(0,0,0,0.7);
+    transform: scale(1.1);
+}
