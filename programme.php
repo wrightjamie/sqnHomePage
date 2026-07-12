@@ -96,9 +96,14 @@ require_once 'api/config.php';
     </div>
 
     <div id="notes-popover" class="popover-panel" popover>
-        <h3>Edit Notes</h3>
-        <textarea id="note-text" placeholder="Add note..."></textarea>
-        <div class="popular-btns" id="note-popular-btns"></div>
+        <div class="flex-row justify-between align-center mb-sm">
+            <h3 class="m-0">Edit Notes</h3>
+            <button id="btn-add-note" class="btn btn-secondary btn-sm flex-center"><span class="material-symbols-outlined">add</span></button>
+        </div>
+        <div id="note-inputs-container" class="flex-col gap-xs mb-sm" style="max-height: 250px; overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
+            <!-- Populated by JS -->
+        </div>
+        <div class="popular-btns mb-sm" id="note-popular-btns"></div>
         <div class="popover-footer popover-footer-end">
             <button id="btn-note-save" class="btn btn-primary btn-sm">Done</button>
         </div>

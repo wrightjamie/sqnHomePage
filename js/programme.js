@@ -305,8 +305,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.className = 'btn btn-secondary btn-sm';
                 btn.textContent = name;
                 btn.onclick = () => { 
-                    const ta = document.getElementById('note-text');
-                    ta.value = ta.value ? ta.value + '\n' + name : name; 
+                    if (typeof window.quickAddNote === 'function') {
+                        window.quickAddNote(name);
+                    }
                 };
                 noteContainer.appendChild(btn);
             });
@@ -507,10 +508,62 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         } else if (type === 'notes' || type === 'month-notes') {
             popover = notesPopover;
+            const container = document.getElementById('note-inputs-container');
+            const btnAdd = document.getElementById('btn-add-note');
             let currentNotes = type === 'month-notes' ? (rowData.month_comments || []) : (rowData.notes || []);
-            document.getElementById('note-text').value = currentNotes.join('\n');
+
+            // Render existing notes
+            container.innerHTML = '';
+
+            const createNoteRow = (val = '') => {
+                const row = document.createElement('div');
+                row.className = 'flex-row gap-xs align-center note-input-row w-100';
+                row.innerHTML = `
+                    <input type="text" list="dl-comments" class="form-control flex-1" value="${val.replace(/"/g, '&quot;')}" style="min-width: 0;">
+                    <button class="btn btn-secondary btn-sm flex-center btn-note-up" title="Move Up"><span class="material-symbols-outlined" style="font-size: 16px;">arrow_upward</span></button>
+                    <button class="btn btn-secondary btn-sm flex-center btn-note-down" title="Move Down"><span class="material-symbols-outlined" style="font-size: 16px;">arrow_downward</span></button>
+                    <button class="btn btn-sm flex-center btn-note-del" title="Delete" style="background: var(--raf-logo-1); color: white; border: none;"><span class="material-symbols-outlined" style="font-size: 16px;">delete</span></button>
+                `;
+
+                row.querySelector('.btn-note-up').onclick = (e) => {
+                    e.preventDefault();
+                    if (row.previousElementSibling) row.parentNode.insertBefore(row, row.previousElementSibling);
+                };
+                row.querySelector('.btn-note-down').onclick = (e) => {
+                    e.preventDefault();
+                    if (row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling, row);
+                };
+                row.querySelector('.btn-note-del').onclick = (e) => {
+                    e.preventDefault();
+                    row.remove();
+                };
+                return row;
+            };
+
+            currentNotes.forEach(n => container.appendChild(createNoteRow(n)));
+
+            if (currentNotes.length === 0) {
+                container.appendChild(createNoteRow());
+            }
+
+            // Cleanup previous listener
+            const newBtnAdd = btnAdd.cloneNode(true);
+            btnAdd.parentNode.replaceChild(newBtnAdd, btnAdd);
+            newBtnAdd.addEventListener('click', (e) => {
+                e.preventDefault();
+                container.appendChild(createNoteRow());
+                container.scrollTop = container.scrollHeight;
+            });
+
+            // Quick add support for popular buttons (need to hook this globally or here)
+            window.quickAddNote = (val) => {
+                container.appendChild(createNoteRow(val));
+                container.scrollTop = container.scrollHeight;
+            };
+
             document.getElementById('btn-note-save').onclick = () => {
-                let lines = document.getElementById('note-text').value.split('\n').map(l => l.trim()).filter(l => l);
+                const inputs = Array.from(container.querySelectorAll('input[type="text"]'));
+                let lines = inputs.map(inp => inp.value.trim()).filter(l => l);
                 
                 if (type === 'month-notes') {
                     rowData.month_comments = lines;

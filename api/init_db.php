@@ -96,17 +96,3 @@ try {
     die("DB Init Error: " . $e->getMessage());
 }
 ?>
-
-    // Backwards compatibility check for old databases that don't have role
-    $result = $pdo->query("PRAGMA table_info(users)")->fetchAll();
-    $hasRole = false;
-    foreach ($result as $row) {
-        if ($row['name'] === 'role') {
-            $hasRole = true;
-            break;
-        }
-    }
-
-    if (!$hasRole) {
-        $pdo->exec("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'Admin'");
-    }
