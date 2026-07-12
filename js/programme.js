@@ -584,53 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
     style.innerHTML = `@keyframes spin { 100% { transform: rotate(360deg); } }`;
     document.head.appendChild(style);
     
-    // Auth Logic
-    async function checkAuthStatus() {
-        try {
-            const data = await Auth.checkStatus();
-            if (data.logged_in) {
-                setAuthenticatedState();
-            } else {
-                setUnauthenticatedState();
-            }
-        } catch(e) {
-            setUnauthenticatedState();
-        }
-    }
-
-    function setAuthenticatedState() {
-        const btnLoginTrigger = document.getElementById('btn-login-trigger');
-        const linkAdmin = document.getElementById('link-admin');
-        const btnLogout = document.getElementById('btn-logout');
-        if (btnLoginTrigger) btnLoginTrigger.classList.add('hidden');
-        if (btnEdit) btnEdit.classList.remove('hidden');
-        if (linkAdmin) linkAdmin.classList.remove('hidden');
-        if (btnLogout) btnLogout.classList.remove('hidden');
-    }
-
-    function setUnauthenticatedState() {
-        const btnLoginTrigger = document.getElementById('btn-login-trigger');
-        const linkAdmin = document.getElementById('link-admin');
-        const btnLogout = document.getElementById('btn-logout');
-        if (btnLoginTrigger) btnLoginTrigger.classList.remove('hidden');
-        if (btnEdit) btnEdit.classList.add('hidden');
-        if (linkAdmin) linkAdmin.classList.add('hidden');
-        if (btnLogout) btnLogout.classList.add('hidden');
-        if (isEditMode) toggleEditMode();
-    }
-
-    const loginTrigger = document.getElementById('btn-login-trigger');
-    if (loginTrigger) {
-        loginTrigger.addEventListener('click', () => Auth.showModal());
-    }
-
-    const btnLogout = document.getElementById('btn-logout');
-    if (btnLogout) {
-        btnLogout.addEventListener('click', () => Auth.logout());
-    }
-    
-    Auth.onLogin(() => setAuthenticatedState());
-    Auth.onLogout(() => setUnauthenticatedState());
+    // Auth logic is now handled globally and by page reload
 
     init();
 });

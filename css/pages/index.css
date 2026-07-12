@@ -11,7 +11,7 @@ body {
 :root {
     --sidebar-width: 6rem;
     --swoosh-width: 5rem;
-    --slide-padding-offset: 3rem;
+    --slide-padding-offset: 1rem;
 }
 
 /* Display Container */
@@ -35,8 +35,9 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    padding: 5% 5% 5% calc(var(--sidebar-width) + var(--swoosh-width) + var(--slide-padding-offset));
-    justify-content: center;
+    max-height: 100vh;
+    padding: 2% 5% 2% calc(var(--sidebar-width) + var(--swoosh-width) + var(--slide-padding-offset));
+    display: grid;
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
 }
@@ -48,6 +49,7 @@ body {
 
 .slide h1 {
     font-size: var(--font-heading);
+    line-height: 1.1;
     margin-bottom: 2rem;
     color: var(--colour-heading);
     text-shadow: 0 2px 4px rgba(0,0,0,0.5);
@@ -67,18 +69,283 @@ body {
 }
 
 .slide-image-container {
+    position: relative;
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     height: 100%;
-    min-height: 200px;
-    margin-top: var(--space-sm);
+    width: 100%;
+    min-height: 0; /* allows flexbox to shrink past content size */
+    gap: var(--space-md);
 }
 
 .slide-image-container img {
     width: 100%;
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     object-fit: cover; /* Cover mode for art direction */
     border-radius: 0.5rem;
     box-shadow: 0 var(--space-sm) var(--space-xs) rgba(0,0,0,0.5);
+}
+
+/* --- Slide Component Classes --- */
+
+.slide-placeholder {
+    color: var(--color-muted);
+}
+
+.slide-description-banner {
+    position: absolute;
+    bottom: var(--space-xl);
+    width: 100%;
+    max-width: 80ch;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--raf-white);
+    text-align: center;
+    font-size: var(--font-lg);
+    padding: 0.75rem var(--space-md);
+    border-radius: 0.5rem;
+    line-height: 1.4;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    box-sizing: border-box;
+    z-index: 10;
+}
+
+.editable-image-action {
+    flex: 1;
+    margin-top: var(--space-sm);
+    min-height: 0;
+}
+
+.image-action-container {
+    flex: 1;
+    margin-top: var(--space-sm);
+    min-height: 0;
+    display: flex;
+}
+
+.slide-content-image {
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.slide-content-programme {
+    padding: 0 2rem;
+}
+
+.programme-loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.programme-loading-spinner {
+    animation: spin 2s linear infinite;
+    font-size: 3rem;
+    color: var(--raf-white);
+}
+
+.dummy-slide-actions {
+    display: flex;
+    gap: var(--space-lg);
+}
+
+.inline-edit-wrapper {
+    background: rgba(0,0,0,0.8);
+    padding: var(--space-md);
+    border-radius: 0.5rem;
+    width: 100%;
+}
+
+.inline-edit-text {
+    font-size: 2rem;
+    width: 100%;
+    padding: var(--space-sm);
+    color: #000;
+}
+
+.inline-edit-textarea {
+    font-size: var(--font-lg);
+    width: 100%;
+    padding: var(--space-sm);
+    color: #000;
+    height: 6rem;
+    resize: vertical;
+}
+
+.inline-edit-div {
+    background: var(--raf-white);
+    color: #000;
+}
+
+/* --- Programme Slide Internal Components --- */
+
+.prog-slide-header {
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid rgba(255,255,255,0.2);
+    padding-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.prog-slide-date-title {
+    margin: 0;
+    font-size: 2rem;
+    color: var(--colour-heading);
+    text-align: left;
+}
+
+.prog-nav-left { margin-right: var(--space-sm); }
+.prog-nav-right { margin-right: var(--space-lg); }
+.prog-settings-btn { margin-left: var(--space-md); }
+
+.prog-slide-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.prog-info-cards {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.prog-info-card {
+    background: rgba(0,0,0,0.4);
+    padding: var(--space-md);
+    border-radius: 0.5rem;
+}
+
+.prog-uniform-card {
+    flex: 1;
+    min-width: 300px;
+    border-left: 4px solid var(--colour-accent);
+}
+
+.prog-notes-card {
+    flex: 2;
+    min-width: 300px;
+    border-left: 4px solid var(--color-secondary);
+}
+
+.prog-info-card h3 {
+    margin-top: 0;
+    color: var(--raf-white);
+    font-size: var(--font-lg);
+    margin-bottom: var(--space-sm);
+}
+
+.prog-uniform-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--colour-accent);
+}
+
+.prog-notes-list {
+    margin: 0;
+    padding-left: 1.5rem;
+    font-size: 1.1rem;
+    color: #eee;
+}
+
+.prog-notes-list li {
+    margin-bottom: 0.25rem;
+}
+
+.prog-notes-list li.italic {
+    font-style: italic;
+}
+
+.prog-notes-divider {
+    border-color: rgba(255,255,255,0.2);
+    margin: var(--space-sm) 0;
+}
+
+.prog-table-wrapper {
+    background: rgba(255,255,255,0.1);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    margin-top: var(--space-md);
+}
+
+.prog-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: var(--raf-white);
+}
+
+.prog-table th {
+    padding: var(--space-md);
+    border-bottom: 2px solid #555;
+    text-align: left;
+    background: rgba(0,0,0,0.6);
+}
+
+.prog-table td {
+    padding: var(--space-md);
+    border-bottom: 1px solid #444;
+}
+
+.prog-table td.class-col {
+    font-weight: bold;
+    color: #ccc;
+}
+
+.prog-table td.act-col {
+    font-size: 1.2rem;
+}
+
+.prog-table td.inst-col {
+    color: #ddd;
+}
+
+.prog-act-type-tag {
+    font-size: 0.8rem;
+    background: var(--colour-heading);
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+    margin-right: var(--space-sm);
+    color: var(--raf-white);
+}
+
+.prog-error-msg {
+    text-align: center;
+    color: var(--color-error);
+    margin-top: 2rem;
+}
+
+.prog-empty-msg {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+/* Modal form overrides */
+.prog-settings-modal {
+    max-width: 400px;
+    color: #000;
+}
+
+.prog-form-label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: bold;
+}
+
+.prog-form-input {
+    width: 100%;
+    padding: var(--space-sm);
+    margin-bottom: var(--space-md);
+    border-radius: 0.25rem;
+    border: 1px solid #ccc;
 }
 
 /* Logo */
@@ -216,17 +483,28 @@ body {
 }
 
 .dummy-slide-btn {
-    padding: var(--space-lg) 40px;
+    padding: var(--space-md) var(--space-xl);
     font-size: 1.5rem;
-    background: var(--color-primary);
+    background: rgba(255, 255, 255, 0.05);
     color: white;
-    border: none;
-    border-radius: var(--space-sm);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--space-md);
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: all 0.2s ease-in-out;
     margin: var(--space-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
-.dummy-slide-btn:hover { transform: scale(1.05); }
+
+.dummy-slide-btn:hover { 
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+}
 
 
 .accent {
@@ -239,4 +517,24 @@ body {
     margin: 0;
     font-size: 2.5rem;
     font-weight: bold;
+}
+
+/* Programme Slide Navigation Buttons */
+.prog-nav-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.prog-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
 }

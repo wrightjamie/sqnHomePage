@@ -144,7 +144,7 @@ if ($method === 'GET' && $action === 'autocomplete') {
 }
 
 // POST actions require authentication
-if (!isset($_SESSION['user_id'])) {
+if (!$isLoggedIn) {
     jsonError('Unauthorized', 401);
 }
 

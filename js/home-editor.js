@@ -11,17 +11,8 @@ function initEditorUI() {
       };
   }
 
-  const loginTrigger = document.getElementById('btn-login-trigger');
-  if (loginTrigger) {
-      loginTrigger.onclick = () => Auth.showModal();
-      
-      const logoutBtn = document.getElementById('btn-logout');
-      if (logoutBtn) {
-        logoutBtn.onclick = () => Auth.logout();
-      }
-      Auth.onLogout(() => window.location.reload());
-      Auth.onLogin(() => window.location.reload());
-  }
+  Auth.onLogout(() => window.location.reload());
+  Auth.onLogin(() => window.location.reload());
 
   const nextBgBtn = document.getElementById('btn-next-bg');
   if (nextBgBtn) {
@@ -62,10 +53,10 @@ function toggleEditMode(show) {
     renderBgList();
     
   } else if (sidebarEl) {
-    if(toggleBtn) toggleBtn.style.display = 'flex';
-    if(loginTrigger && !window.IS_LOGGED_IN) loginTrigger.style.display = 'flex';
-    if(logoutBtn && window.IS_LOGGED_IN) logoutBtn.style.display = 'flex';
-    if(adminBtn && window.IS_LOGGED_IN) adminBtn.style.display = 'flex';
+    if(toggleBtn) toggleBtn.style.display = '';
+    if(loginTrigger) loginTrigger.style.display = '';
+    if(logoutBtn) logoutBtn.style.display = '';
+    if(adminBtn) adminBtn.style.display = '';
     
     if(nextBgBtn && hasMultipleBgs) nextBgBtn.style.display = 'flex';
     sidebarEl.remove();

@@ -99,17 +99,7 @@ require_once 'api/config.php';
     </div>
 
     <!-- Interactive UI Layer -->
-    <div id="bottom-right-controls">
-        <a href="index.php" class="menu-btn flex-center" title="Display Board"><span class="material-symbols-outlined">slideshow</span></a>
-        <a href="home.php" class="menu-btn flex-center" title="Home"><span class="material-symbols-outlined">home</span></a>
-        <button id="btn-login-trigger" class="menu-btn flex-center" title="Login"><span class="material-symbols-outlined">login</span></button>
-        <button id="btn-toggle-edit" class="menu-btn flex-center hidden" title="Edit Programme"><span class="material-symbols-outlined">edit</span></button>
-        <a href="admin.php" id="link-admin" class="menu-btn flex-center hidden" title="Admin Panel"><span class="material-symbols-outlined">settings</span></a>
-        <button id="btn-logout" class="menu-btn flex-center hidden" title="Logout"><span class="material-symbols-outlined">logout</span></button>
-    </div>
-
-    <!-- Modals -->
-    <?php include 'components/login_modal.php'; ?>
+    <?php include 'components/menu.php'; ?>
 
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>

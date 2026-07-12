@@ -6,6 +6,26 @@ require_once 'utils.php';
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? '';
 
+function injectFocusCoordinates($pdo, &$slides) {
+    if (!$slides) return;
+    $stmtImg = $pdo->prepare("SELECT focus_x, focus_y FROM images WHERE filename = ?");
+    foreach ($slides as &$slide) {
+        if ($slide['type'] === 'image' || $slide['type'] === 'gallery') {
+            $contentObj = json_decode($slide['content'], true);
+            if ($contentObj && !empty($contentObj['imageUrl'])) {
+                $filename = basename($contentObj['imageUrl']);
+                $stmtImg->execute([$filename]);
+                $img = $stmtImg->fetch();
+                if ($img) {
+                    $contentObj['focusX'] = $img['focus_x'];
+                    $contentObj['focusY'] = $img['focus_y'];
+                    $slide['content'] = json_encode($contentObj);
+                }
+            }
+        }
+    }
+}
+
 // Check if it's a public request (fetching active slide set)
 if ($method === 'GET' && $action === 'active_set') {
     $stmt = $pdo->query("SELECT * FROM slide_sets WHERE is_active = 1 ORDER BY display_order ASC");
@@ -19,6 +39,7 @@ if ($method === 'GET' && $action === 'active_set') {
         foreach ($activeSets as $set) {
             $stmtSlides->execute([$set['id']]);
             $slides = $stmtSlides->fetchAll();
+            injectFocusCoordinates($pdo, $slides);
             $set['slides'] = $slides;
             $allSets[] = $set;
         }
@@ -31,7 +52,7 @@ if ($method === 'GET' && $action === 'active_set') {
 }
 
 // Ensure user is logged in for all other actions
-if (!isset($_SESSION['user_id'])) {
+if (!$isLoggedIn) {
     jsonError('Unauthorized', 401);
 }
 
@@ -57,7 +78,9 @@ if ($method === 'GET') {
         $setId = $_GET['set_id'] ?? 0;
         $stmt = $pdo->prepare("SELECT * FROM slides WHERE slide_set_id = ? ORDER BY display_order ASC");
         $stmt->execute([$setId]);
-        jsonResponse(['slides' => $stmt->fetchAll()]);
+        $slides = $stmt->fetchAll();
+        injectFocusCoordinates($pdo, $slides);
+        jsonResponse(['slides' => $slides]);
     }
 } elseif ($method === 'POST') {
     if ($action === 'create_set') {
@@ -82,9 +105,19 @@ if ($method === 'GET') {
             } elseif (!empty($data['imageUrl'])) {
                 $contentObj['imageUrl'] = $data['imageUrl'];
             }
+            if (isset($data['focusX'])) {
+                $contentObj['focusX'] = $data['focusX'];
+                $contentObj['focusY'] = $data['focusY'];
+            }
+            if (isset($data['description'])) {
+                $contentObj['description'] = $data['description'];
+            }
         } elseif ($type === 'programme') {
             $contentObj['mode'] = $data['mode'] ?? 'next';
             $contentObj['specificDate'] = $data['specificDate'] ?? '';
+        } elseif ($type === 'qr') {
+            $contentObj['qrData'] = $data['qr_data'] ?? $data['qrData'] ?? '';
+            $contentObj['description'] = $data['description'] ?? '';
         }
         $content = json_encode($contentObj);
 
@@ -111,9 +144,19 @@ if ($method === 'GET') {
             } elseif (!empty($data['imageUrl'])) {
                 $contentObj['imageUrl'] = $data['imageUrl'];
             }
+            if (isset($data['focusX'])) {
+                $contentObj['focusX'] = $data['focusX'];
+                $contentObj['focusY'] = $data['focusY'];
+            }
+            if (isset($data['description'])) {
+                $contentObj['description'] = $data['description'];
+            }
         } elseif ($type === 'programme') {
             $contentObj['mode'] = $data['mode'] ?? 'next';
             $contentObj['specificDate'] = $data['specificDate'] ?? '';
+        } elseif ($type === 'qr') {
+            $contentObj['qrData'] = $data['qr_data'] ?? $data['qrData'] ?? '';
+            $contentObj['description'] = $data['description'] ?? '';
         }
         $content = json_encode($contentObj);
 

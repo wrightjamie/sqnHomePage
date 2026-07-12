@@ -32,8 +32,8 @@ require_once 'api/config.php';
 
         <div id="admin-section" class="hidden">
             <div class="flex-row justify-between align-center mb-md">
-                <h2 style="margin:0;">Dashboard</h2>
-                <button class="btn" id="btn-logout" style="width:auto; margin:0;" title="Logout"><span class="material-symbols-outlined">logout</span> Logout</button>
+                <h2 class="m-0">Dashboard</h2>
+                <button class="btn w-auto m-0" id="btn-logout" title="Logout"><span class="material-symbols-outlined">logout</span> Logout</button>
             </div>
             
             <div class="tabs">
@@ -45,7 +45,7 @@ require_once 'api/config.php';
 
             <div id="tab-slides" class="tab-content active">
                 <form id="create-set-form" class="input-group">
-                <button class="btn" type="button" id="icon-picker-btn" popovertarget="icon-picker" style="width:7.5rem; flex-shrink:0;">
+                <button class="btn flex-shrink-0 w-auto" type="button" id="icon-picker-btn" popovertarget="icon-picker">
                     <span class="material-symbols-outlined" id="selected-icon-display">folder</span> Icon
                 </button>
                 
@@ -64,13 +64,13 @@ require_once 'api/config.php';
                     </div>
                 </div>
 
-                <input type="text" id="new-set-name" placeholder="New Slide Set Name" required style="flex-grow:1;">
-                <button class="btn" type="submit" style="width:auto; flex-shrink:0;" title="Create Set"><span class="material-symbols-outlined">add_circle</span> Create</button>
+                <input type="text" id="new-set-name" class="flex-grow-1" placeholder="New Slide Set Name" required>
+                <button class="btn w-auto flex-shrink-0" type="submit" title="Create Set"><span class="material-symbols-outlined">add_circle</span> Create</button>
             </form>
 
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.625rem; margin-top: 1.25rem;">
-                <h3 style="margin:0;">Active Slide Sets</h3>
-                <button class="btn" type="button" id="btn-reorder-sets" style="width:auto; margin:0;" title="Reorder Sets"><span class="material-symbols-outlined">format_list_numbered</span> Reorder</button>
+            <div class="admin-header-row">
+                <h3 class="m-0">Active Slide Sets</h3>
+                <button class="btn w-auto m-0" type="button" id="btn-reorder-sets" title="Reorder Sets"><span class="material-symbols-outlined">format_list_numbered</span> Reorder</button>
             </div>
             <div id="sets-list"></div>
             
@@ -85,15 +85,21 @@ require_once 'api/config.php';
                 <select id="slide-type">
                     <option value="text">Text Slide</option>
                     <option value="image">Image Slide</option>
+                    <option value="qr">QR Code</option>
                 </select>
                 <input type="text" id="slide-title" placeholder="Slide Title/Header">
                 <div id="slide-body-container" class="mb-sm">
-                    <div id="slide-body-editor" style="height: 9.375rem; background: white;"></div>
+                    <div id="slide-body-editor" class="inline-edit-div" style="height: 9.375rem;"></div>
                 </div>
                 <div id="image-upload-group" class="hidden">
-                    <button class="btn btn-primary" type="button" id="btn-open-upload-modal" style="margin-bottom: 0.625rem; width: auto;"><span class="material-symbols-outlined">upload</span> Upload New Image</button>
+                    <button class="btn btn-primary mb-sm w-auto" type="button" id="btn-open-upload-modal"><span class="material-symbols-outlined">upload</span> Upload New Image</button>
                     <input type="hidden" id="slide-image-url" value="">
-                    <img id="current-image-preview" class="hidden" style="max-height: 6.25rem; margin-top: 0.625rem; border-radius: 0.25rem;">
+                    <img id="current-image-preview" class="hidden admin-img-preview">
+                    <textarea id="slide-image-description" class="mt-sm" placeholder="Optional description to display below image"></textarea>
+                </div>
+                <div id="qr-fields" class="hidden">
+                    <input type="text" id="slide-qr-data" class="mb-sm" placeholder="URL or Text for QR Code">
+                    <textarea id="slide-qr-description" class="mt-sm" placeholder="Optional description below QR code"></textarea>
                 </div>
                 <div class="flex-row gap-sm">
                     <button class="btn" type="submit" id="submit-slide-btn" title="Save Slide"><span class="material-symbols-outlined">save</span> Save Slide</button>
@@ -109,28 +115,28 @@ require_once 'api/config.php';
                 <div class="flex-row justify-between align-center mb-md">
                     <h3>Image Gallery</h3>
                     <div class="flex-row gap-sm">
-                        <button class="btn btn-primary" type="button" id="btn-open-gallery-upload-modal"  style="width:auto; margin:0;" title="Upload New Image">
+                        <button class="btn btn-primary w-auto m-0" type="button" id="btn-open-gallery-upload-modal" title="Upload New Image">
                             <span class="material-symbols-outlined">upload</span> Upload Image
                         </button>
-                        <button class="btn btn-primary" id="btn-regen-thumbs" style="width:auto; margin:0;"  title="Generate missing thumbnails">
+                        <button class="btn btn-primary w-auto m-0" id="btn-regen-thumbs" title="Generate missing thumbnails">
                             <span class="material-symbols-outlined">autorenew</span> Regenerate Thumbnails
                         </button>
                     </div>
                 </div>
                 
-                <div class="input-group" class="mb-sm">
-                    <input type="text" id="admin-gallery-search" placeholder="Search by filename, title, or description..." style="flex-grow: 1;">
-                    <button class="btn btn-primary" id="btn-admin-gallery-search" type="button"  style="width: auto; padding: 0 0.9375rem;">Search</button>
+                <div class="input-group mb-sm">
+                    <input type="text" id="admin-gallery-search" class="flex-grow-1" placeholder="Search by filename, title, or description...">
+                    <button class="btn btn-primary w-auto" id="btn-admin-gallery-search" type="button" style="padding: 0 0.9375rem;">Search</button>
                 </div>
                 
                 <div class="mb-lg">
-                    <strong style="display:block; margin-bottom:0.3125rem;" class="text-sm text-muted">Filter by Tag:</strong>
-                    <div id="admin-gallery-tag-filter" style="display:flex; overflow-x:auto; gap:0.5rem; padding-bottom:0.5rem; scrollbar-width:thin;">
+                    <strong class="text-sm text-muted mb-xs" style="display:block;">Filter by Tag:</strong>
+                    <div id="admin-gallery-tag-filter" class="admin-gallery-tag-filter">
                         <!-- Tags inserted here -->
                     </div>
                 </div>
                 
-                <div id="admin-gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(9.375rem, 1fr)); gap: 0.9375rem; margin-bottom: 0.9375rem;">
+                <div id="admin-gallery-grid" class="admin-gallery-grid">
                     <!-- Admin Images injected here -->
                 </div>
                 
@@ -165,8 +171,8 @@ require_once 'api/config.php';
                 </datalist>
 
                 <div class="flex-row justify-between align-center mb-md">
-                    <h3 style="margin:0;">Programme Settings</h3>
-                    <button class="btn btn-primary" id="btn-save-programme" style="width:auto; margin:0;" title="Save Settings">
+                    <h3 class="m-0">Programme Settings</h3>
+                    <button class="btn btn-primary w-auto m-0" id="btn-save-programme" title="Save Settings">
                         <span class="material-symbols-outlined">save</span> Save Settings
                     </button>
                 </div>
@@ -182,52 +188,52 @@ require_once 'api/config.php';
                 <div id="subtab-uniforms" class="sub-tab-content">
                     <div id="uniforms-list" class="mb-sm"></div>
                     <div class="input-group">
-                        <input type="color" id="new-uniform-color" value="#002F5F" list="brand-colors" style="width: 3.125rem; padding: 0; height: 2.1875rem; border: 0.0625rem solid #ccc; cursor: pointer;">
-                        <input type="text" id="new-uniform-name" placeholder="Uniform Name" style="flex-grow:1; height: 2.1875rem;">
-                        <button class="btn" type="button" id="btn-add-uniform" style="width:auto; height: 2.1875rem;"><span class="material-symbols-outlined">add</span></button>
+                        <input type="color" id="new-uniform-color" value="#002F5F" list="brand-colors" class="admin-color-picker">
+                        <input type="text" id="new-uniform-name" placeholder="Uniform Name" class="flex-grow-1 admin-input-btn-h">
+                        <button class="btn w-auto admin-input-btn-h" type="button" id="btn-add-uniform"><span class="material-symbols-outlined">add</span></button>
                     </div>
                 </div>
 
                 <div id="subtab-activities" class="sub-tab-content hidden">
                     <div id="activity-list" class="mb-sm"></div>
                     <div class="input-group">
-                        <input type="color" id="new-activity-color" value="#879637" list="brand-colors" style="width: 3.125rem; padding: 0; height: 2.1875rem; border: 0.0625rem solid #ccc; cursor: pointer;">
-                        <input type="text" id="new-activity-name" placeholder="Activity Name" style="flex-grow:1; height: 2.1875rem;">
-                        <button class="btn" type="button" id="btn-add-activity" style="width:auto; height: 2.1875rem;"><span class="material-symbols-outlined">add</span></button>
+                        <input type="color" id="new-activity-color" value="#879637" list="brand-colors" class="admin-color-picker">
+                        <input type="text" id="new-activity-name" placeholder="Activity Name" class="flex-grow-1 admin-input-btn-h">
+                        <button class="btn w-auto admin-input-btn-h" type="button" id="btn-add-activity"><span class="material-symbols-outlined">add</span></button>
                     </div>
                 </div>
                 
                 <div id="subtab-classifications" class="sub-tab-content hidden">
                     <div id="classifications-list" class="mb-sm"></div>
                     <div class="input-group">
-                        <input type="text" id="new-classification-name" placeholder="Classification (e.g. Leading)" style="flex-grow:1;">
-                        <button class="btn" type="button" id="btn-add-classification" style="width:auto;"><span class="material-symbols-outlined">add</span></button>
+                        <input type="text" id="new-classification-name" placeholder="Classification (e.g. Leading)" class="flex-grow-1">
+                        <button class="btn w-auto" type="button" id="btn-add-classification"><span class="material-symbols-outlined">add</span></button>
                     </div>
                 </div>
                 
                 <div id="subtab-parades" class="sub-tab-content hidden">
-                    <p style="margin-bottom: 0.625rem; color: #666; font-size: 0.875rem;">Select the days your squadron parades.</p>
-                    <div id="parade-nights-list" style="margin-bottom: 0.625rem; display: grid; gap: 0.3125rem;"></div>
+                    <p class="text-sm text-muted mb-sm">Select the days your squadron parades.</p>
+                    <div id="parade-nights-list" class="mb-sm admin-gallery-grid"></div>
                 </div>
 
                 <div id="subtab-staff" class="sub-tab-content hidden">
                     <div id="staff-list" class="mb-sm"></div>
                     <div class="input-group">
-                        <button class="btn" type="button" id="rank-picker-btn" popovertarget="rank-picker" style="width:7.5rem; border-radius: 0.25rem 0 0 0.25rem; padding:0 0.3125rem; display:flex; justify-content:center; align-items:center;">
-                            <img src="" id="selected-rank-display" style="width:1.875rem; height:2.8125rem; object-fit:contain; display:none;">
+                        <button class="btn admin-input-btn-h w-auto" type="button" id="rank-picker-btn" popovertarget="rank-picker" style="border-radius: 0.25rem 0 0 0.25rem; padding:0 0.3125rem;">
+                            <img src="" id="selected-rank-display" class="admin-rank-preview hidden">
                             <span id="selected-rank-text">Select Rank</span>
                         </button>
                         <input type="hidden" id="new-staff-rank">
                         
                         <div id="rank-picker" popover>
-                            <h4 style="margin-top:0;">Select Rank</h4>
+                            <h4 class="mt-0">Select Rank</h4>
                             <div class="icon-grid" id="rank-picker-grid" style="grid-template-columns: repeat(4, 1fr);">
                                 <!-- Populated dynamically -->
                             </div>
                         </div>
 
-                        <input type="text" id="new-staff-name" placeholder="Staff Name (e.g. Smith)" style="flex-grow:1; border-radius: 0;">
-                        <button class="btn" type="button" id="btn-add-staff" style="width:auto;"><span class="material-symbols-outlined">add</span></button>
+                        <input type="text" id="new-staff-name" placeholder="Staff Name (e.g. Smith)" class="flex-grow-1" style="border-radius: 0;">
+                        <button class="btn w-auto" type="button" id="btn-add-staff"><span class="material-symbols-outlined">add</span></button>
                     </div>
                 </div>
             </div> <!-- End tab-programme -->
@@ -236,12 +242,12 @@ require_once 'api/config.php';
             <div id="tab-settings" class="tab-content hidden">
                 <div class="mb-lg">
                     <h3 class="mb-sm">Display Board Settings</h3>
-                    <div class="set-item mb-md" style="flex-direction: column; align-items: flex-start;">
+                    <div class="set-item mb-md flex-col items-start">
                         <label for="global-sidebar-text" class="mb-xs font-bold">Sidebar Text</label>
-                        <input type="text" id="global-sidebar-text" class="mb-md" style="width: 100%; max-width: 400px; padding: 0.5rem;" placeholder="2459 Squadron">
+                        <input type="text" id="global-sidebar-text" class="mb-md w-full" style="max-width: 400px;" placeholder="2459 Squadron">
                         
                         <label for="global-slide-speed" class="mb-xs font-bold">Slide Duration (seconds)</label>
-                        <input type="number" id="global-slide-speed" class="mb-md" style="width: 100%; max-width: 400px; padding: 0.5rem;" min="1" max="60" value="10">
+                        <input type="number" id="global-slide-speed" class="mb-md w-full" style="max-width: 400px;" min="1" max="60" value="10">
                         
                         <button class="btn btn-primary" type="button" id="btn-save-global-settings">Save Display Settings</button>
                     </div>
@@ -249,15 +255,15 @@ require_once 'api/config.php';
                 
                 <div class="mb-lg">
                     <h3 class="mb-sm text-danger">Change Admin Password</h3>
-                    <div class="set-item" style="flex-direction: column; align-items: flex-start;">
+                    <div class="set-item flex-col items-start">
                         <label for="pwd-current" class="mb-xs font-bold">Current Password</label>
-                        <input type="password" id="pwd-current" class="mb-md" style="width: 100%; max-width: 400px; padding: 0.5rem;" required>
+                        <input type="password" id="pwd-current" class="mb-md w-full" style="max-width: 400px;" required>
                         
                         <label for="pwd-new" class="mb-xs font-bold">New Password</label>
-                        <input type="password" id="pwd-new" class="mb-md" style="width: 100%; max-width: 400px; padding: 0.5rem;" required>
+                        <input type="password" id="pwd-new" class="mb-md w-full" style="max-width: 400px;" required>
                         
                         <label for="pwd-confirm" class="mb-xs font-bold">Confirm New Password</label>
-                        <input type="password" id="pwd-confirm" class="mb-md" style="width: 100%; max-width: 400px; padding: 0.5rem;" required>
+                        <input type="password" id="pwd-confirm" class="mb-md w-full" style="max-width: 400px;" required>
                         
                         <div id="pwd-msg" class="mb-sm font-bold"></div>
                         <button class="btn btn-primary" type="button" id="btn-change-password">Update Password</button>
@@ -274,25 +280,25 @@ require_once 'api/config.php';
             <h2>Upload New Image</h2>
             <form id="upload-form">
                 <input type="file" id="upload-file" accept="image/*" class="mb-md" required>
-                <img id="upload-image-preview" class="hidden" src="" style="width: 100%; max-height: 12.5rem; object-fit: contain; margin-bottom: 0.9375rem; border-radius: 0.25rem; background: #eee;">
+                <img id="upload-image-preview" class="hidden admin-img-preview-lg" src="">
                 
-                <label for="upload-title" style="display:block; margin-bottom:0.3125rem; font-weight:bold;">Title</label>
-                <input type="text" id="upload-title" placeholder="Image Title" style="width:100%; margin-bottom: 0.9375rem;">
+                <label for="upload-title" class="mb-xs font-bold" style="display:block;">Title</label>
+                <input type="text" id="upload-title" placeholder="Image Title" class="w-full mb-md">
                 
-                <label for="upload-description" style="display:block; margin-bottom:0.3125rem; font-weight:bold;">Description</label>
-                <textarea id="upload-description" rows="3" placeholder="Description" style="width:100%; margin-bottom: 0.9375rem; resize:vertical;"></textarea>
+                <label for="upload-description" class="mb-xs font-bold" style="display:block;">Description</label>
+                <textarea id="upload-description" rows="3" placeholder="Description" class="w-full mb-md" style="resize:vertical;"></textarea>
                 
-                <label style="display:block; margin-bottom:0.3125rem; font-weight:bold;">Tags</label>
+                <label class="mb-xs font-bold" style="display:block;">Tags</label>
                 <div style="position: relative;">
                     <div id="upload-tags-container" style="display:flex; flex-wrap:wrap; gap:0.3125rem; margin-bottom: 0.3125rem; padding: 0.3125rem; border: 0.0625rem solid #ccc; border-radius: 0.25rem; min-height: 2.625rem; align-items:center;">
-                        <input type="text" id="upload-tag-input" placeholder="Add tag..." style="border:none; outline:none; flex-grow:1; min-width:6.25rem; margin:0; padding:0; height:1.875rem;">
+                        <input type="text" id="upload-tag-input" placeholder="Add tag..." class="flex-grow-1" style="border:none; outline:none; min-width:6.25rem; margin:0; padding:0; height:1.875rem;">
                     </div>
                     <div id="upload-tag-autocomplete" class="hidden" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 0.0625rem solid #ccc; border-radius: 0.25rem; max-height: 9.375rem; overflow-y: auto; box-shadow: 0 0.25rem 0.375rem rgba(0,0,0,0.1); z-index: 100;">
                     </div>
                 </div>
-                <p style="font-size: 0.75rem; color: #666; margin-bottom: 1.25rem; margin-top: 0.3125rem;">Press Space to add a tag.</p>
+                <p class="text-sm text-muted mt-xs mb-lg">Press Space to add a tag.</p>
                 
-                <div style="display: flex; justify-content: flex-end; gap: 0.625rem;">
+                <div class="flex-row justify-end gap-sm">
                     <button type="button" class="btn" id="btn-close-upload" style="background:#ccc; color:black; border-color:#aaa;">Cancel</button>
                     <button type="submit" class="btn btn-primary"><span class="material-symbols-outlined">upload</span> Upload</button>
                 </div>
@@ -304,30 +310,30 @@ require_once 'api/config.php';
     <div id="image-metadata-modal" class="modal hidden">
         <div class="modal-content" style="max-width: 37.5rem;">
             <h2>Edit Image Metadata</h2>
-            <img id="metadata-image-preview" src="" style="width: 100%; max-height: 12.5rem; object-fit: contain; margin-bottom: 0.9375rem; border-radius: 0.25rem; background: #eee;">
+            <img id="metadata-image-preview" src="" class="admin-img-preview-lg">
             
             <form id="metadata-form">
                 <input type="hidden" id="metadata-image-id">
                 
-                <label for="metadata-title" style="display:block; margin-bottom:0.3125rem; font-weight:bold;">Title</label>
-                <input type="text" id="metadata-title" placeholder="Image Title" style="width:100%; margin-bottom: 0.9375rem;">
+                <label for="metadata-title" class="mb-xs font-bold" style="display:block;">Title</label>
+                <input type="text" id="metadata-title" placeholder="Image Title" class="w-full mb-md">
                 
-                <label for="metadata-description" style="display:block; margin-bottom:0.3125rem; font-weight:bold;">Description</label>
-                <textarea id="metadata-description" rows="3" placeholder="Description" style="width:100%; margin-bottom: 0.9375rem; resize:vertical;"></textarea>
+                <label for="metadata-description" class="mb-xs font-bold" style="display:block;">Description</label>
+                <textarea id="metadata-description" rows="3" placeholder="Description" class="w-full mb-md" style="resize:vertical;"></textarea>
                 
-                <label style="display:block; margin-bottom:0.3125rem; font-weight:bold;">Tags</label>
+                <label class="mb-xs font-bold" style="display:block;">Tags</label>
                 <div style="position: relative;">
                     <div id="tags-container" style="display:flex; flex-wrap:wrap; gap:0.3125rem; margin-bottom: 0.3125rem; padding: 0.3125rem; border: 0.0625rem solid #ccc; border-radius: 0.25rem; min-height: 2.625rem; align-items:center;">
                         <!-- Tags will go here -->
-                        <input type="text" id="tag-input" placeholder="Add tag..." style="border:none; outline:none; flex-grow:1; min-width:6.25rem; margin:0; padding:0; height:1.875rem;">
+                        <input type="text" id="tag-input" placeholder="Add tag..." class="flex-grow-1" style="border:none; outline:none; min-width:6.25rem; margin:0; padding:0; height:1.875rem;">
                     </div>
                     <div id="tag-autocomplete" class="hidden" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 0.0625rem solid #ccc; border-radius: 0.25rem; max-height: 9.375rem; overflow-y: auto; box-shadow: 0 0.25rem 0.375rem rgba(0,0,0,0.1); z-index: 100;">
                         <!-- Autocomplete options -->
                     </div>
                 </div>
-                <p style="font-size: 0.75rem; color: #666; margin-bottom: 1.25rem; margin-top: 0.3125rem;">Press Space to add a tag.</p>
+                <p class="text-sm text-muted mt-xs mb-lg">Press Space to add a tag.</p>
                 
-                <div style="display:flex; justify-content: flex-end; gap: 0.625rem;">
+                <div class="flex-row justify-end gap-sm">
                     <button class="btn" type="button" id="btn-close-metadata" style="background:#ccc; color:black; border-color:#aaa;">Cancel</button>
                     <button class="btn btn-primary" type="submit" >Save Changes</button>
                 </div>

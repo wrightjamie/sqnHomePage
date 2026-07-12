@@ -93,7 +93,7 @@ function initApp(config) {
   if (isEditMode) {
     const addRowBtn = document.createElement('button');
     addRowBtn.className = 'add-row-btn glass-panel';
-    addRowBtn.innerHTML = '<i class="ph ph-list-plus" style="font-size: 1.4rem;"></i> Add New Row';
+    addRowBtn.innerHTML = '<i class="ph ph-list-plus home-add-row-icon"></i> Add New Row';
     addRowBtn.onclick = () => {
       config.layout.push({ type: 'row', children: [] });
       updateApp();
@@ -418,7 +418,7 @@ function renderTitleContent(panel, node) {
   
   let logoHTML = '';
   if (CONFIG.logoUrl) {
-    logoHTML = `<img src="${CONFIG.logoUrl}" class="raf-roundel" alt="Logo" style="width: 3.5rem; height: 3.5rem;">`;
+    logoHTML = `<img src="${CONFIG.logoUrl}" class="raf-roundel home-logo" alt="Logo">`;
   }
   
   const h1 = document.createElement('h1');
@@ -554,12 +554,12 @@ function renderWeatherContent(panel, node) {
           <i class="ph ph-${info.icon}"></i> ${Math.round(cw.temperature)}°C
         </div>
         <div class="weather-desc">${info.desc}</div>
-        <div class="weather-location" style="display: flex; align-items: center; justify-content: center; gap: 0.25rem;">
+        <div class="weather-location">
           ${node.locationName.toUpperCase()}
           ${isEditMode ? `
-            <button class="inline-edit-btn weather-edit-btn" style="display: flex;" title="Edit Location"><i class="ph ph-pencil-simple"></i></button>
-            <button class="inline-edit-btn weather-minus-btn" style="display: flex;" title="Fewer Days"><i class="ph ph-minus"></i></button>
-            <button class="inline-edit-btn weather-plus-btn" style="display: flex;" title="More Days"><i class="ph ph-plus"></i></button>
+            <button class="inline-edit-btn weather-edit-btn flex-inline" title="Edit Location"><i class="ph ph-pencil-simple"></i></button>
+            <button class="inline-edit-btn weather-minus-btn flex-inline" title="Fewer Days"><i class="ph ph-minus"></i></button>
+            <button class="inline-edit-btn weather-plus-btn flex-inline" title="More Days"><i class="ph ph-plus"></i></button>
           ` : ''}
         </div>
       `;
@@ -588,9 +588,9 @@ function renderWeatherContent(panel, node) {
       }
     })
     .catch(err => {
-      currentEl.innerHTML = `<div style="padding: 1rem;">Weather unavailable</div>`;
+      currentEl.innerHTML = `<div class="weather-unavailable">Weather unavailable</div>`;
       if (isEditMode) {
-        currentEl.innerHTML += `<div style="display:flex;justify-content:center;"><button class="inline-edit-btn weather-edit-btn" style="margin-left: 0.5rem;"><i class="ph ph-pencil"></i></button></div>`;
+        currentEl.innerHTML += `<div class="weather-edit-container"><button class="inline-edit-btn weather-edit-btn weather-edit-btn-margin"><i class="ph ph-pencil"></i></button></div>`;
         bindWeatherEditBtn();
       }
     });
@@ -604,7 +604,7 @@ function renderSearchContent(panel, node) {
   panel.style.boxShadow = 'none';
   
   panel.innerHTML = `
-    <div class="search-box" style="position: relative; width: 100%;">
+    <div class="search-box search-box-container">
       <i class="ph ph-magnifying-glass search-icon"></i>
       <input type="text" id="search-input-${node.id || Math.random().toString(36).substr(2,9)}" class="search-input" placeholder="Search Google..." />
     </div>
@@ -748,11 +748,11 @@ function renderRssContent(panel, node) {
   panel.appendChild(feedContainer);
 
   if (!node.feedUrl) {
-    feedContainer.innerHTML = '<div style="opacity:0.5; font-style:italic;">No feed URL configured. Edit widget to add one.</div>';
+    feedContainer.innerHTML = '<div class="rss-empty-feed">No feed URL configured. Edit widget to add one.</div>';
     return;
   }
 
-  feedContainer.innerHTML = '<div style="opacity:0.5;"><i class="ph ph-spinner ph-spin"></i> Loading feed...</div>';
+  feedContainer.innerHTML = '<div class="rss-loading-feed"><i class="ph ph-spinner ph-spin"></i> Loading feed...</div>';
 
   const r2d2Url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(node.feedUrl)}`;
   fetch(r2d2Url)
@@ -763,7 +763,7 @@ function renderRssContent(panel, node) {
       feedContainer.innerHTML = '';
       const items = data.items.slice(0, 5);
       if(items.length === 0) {
-        feedContainer.innerHTML = '<div style="opacity:0.5;">No items found.</div>';
+        feedContainer.innerHTML = '<div class="rss-no-items">No items found.</div>';
         return;
       }
       
@@ -788,13 +788,13 @@ function renderRssContent(panel, node) {
         const dateStr = dt.toLocaleDateString('en-GB', {day:'numeric', month:'short'});
         
         a.innerHTML = `
-          <div style="font-weight: 500; margin-bottom: 0.25rem; font-size: 0.95rem; line-height: 1.3;">${item.title}</div>
-          <div style="font-size: 0.75rem; color: var(--raf-light-blue);">${dateStr}</div>
+          <div class="rss-item-title">${item.title}</div>
+          <div class="rss-item-date">${dateStr}</div>
         `;
         feedContainer.appendChild(a);
       });
     })
     .catch(err => {
-      feedContainer.innerHTML = '<div style="color: #ffaa00;"><i class="ph ph-warning"></i> Could not load feed.</div>';
+      feedContainer.innerHTML = '<div class="rss-error"><i class="ph ph-warning"></i> Could not load feed.</div>';
     });
 }

@@ -56,7 +56,15 @@
     --space-sm: 0.625rem;  /* 10px */
     --space-md: 0.9375rem; /* 15px */
     --space-lg: 1.25rem;   /* 20px */
-    
+    /* Z-Index Scale */
+    --z-base: 1;          /* Base elements */
+    --z-elevated: 10;     /* Elevated elements, active slides */
+    --z-overlay: 50;      /* Fixed UI overlay (header, footers) */
+    --z-dropdown: 100;    /* Dropdowns, menus */
+    --z-modal-bg: 900;    /* Modal backdrops */
+    --z-modal: 1000;      /* Modal contents */
+    --z-tooltip: 9999;    /* Tooltips, notifications */
+
     /* Typography */
     --font-sm: 0.85rem;
     --font-md: 1rem;

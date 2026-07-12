@@ -1,17 +1,24 @@
-// js/app.js
+// Configuration
+const DISPLAY_CONFIG = {
+    DEFAULT_INTERVAL_MS: 10000,
+    INITIAL_LOAD_DELAY_MS: 50,
+    PROGRAMME_REVERT_TIMEOUT_MS: 30000
+};
+
 let currentSlides = [];
 let currentIndex = 0;
 let slideInterval = null;
 let isPaused = false;
 let editMode = false;
 let currentSetId = null;
-let INTERVAL_MS = 10000;
+let INTERVAL_MS = DISPLAY_CONFIG.DEFAULT_INTERVAL_MS;
 
 // DOM Elements
 const viewer = document.getElementById('slide-viewer');
 const btnPrev = document.getElementById('btn-prev');
 const btnNext = document.getElementById('btn-next');
 const btnPausePlay = document.getElementById('btn-pause-play');
+const menuTriggerIcon = document.querySelector('.expandable-menu-trigger span');
 const btnEditMode = document.getElementById('btn-edit-mode');
 const btnLogout = document.getElementById('btn-logout');
 
@@ -35,12 +42,13 @@ function renderSlide(slide) {
     // Dummy Slide
     if (slide.isDummy) {
         return `
-            <div class="slide flex-col flex-center" id="slide-dummy">
+            <div class="slide" id="slide-dummy">
                 <h1>Add New Slide</h1>
-                <div style="display:flex; gap:1.25rem;">
+                <div class="dummy-slide-actions">
                     <button class="dummy-slide-btn" onclick="window.createNewSlide('text')"><span class="material-symbols-outlined">description</span> Text Slide</button>
                     <button class="dummy-slide-btn" onclick="window.createNewSlide('image')"><span class="material-symbols-outlined">image</span> Image Slide</button>
                     <button class="dummy-slide-btn" onclick="window.createNewSlide('programme')"><span class="material-symbols-outlined">calendar_today</span> Programme Slide</button>
+                    <button class="dummy-slide-btn" onclick="window.createNewSlide('qr')"><span class="material-symbols-outlined">qr_code</span> QR Code</button>
                 </div>
             </div>`;
     }
@@ -64,7 +72,7 @@ function renderSlide(slide) {
         if (editMode) {
             titleHtml = `
                 <div class="editable-container" onclick="startEdit(${slide.id}, 'title')">
-                    ${titleHtml || '<h1 style="color:#666">[No Title]</h1>'}
+                    ${titleHtml || '<h1 class="slide-placeholder">[No Title]</h1>'}
                     <span class="material-symbols-outlined edit-marker">edit</span>
                 </div>`;
         }
@@ -74,7 +82,7 @@ function renderSlide(slide) {
             if (editMode) {
                 bodyHtml = `
                     <div class="editable-container" onclick="startEdit(${slide.id}, 'body')">
-                        ${bodyHtml || '<div style="color:#666">[No Content]</div>'}
+                        ${bodyHtml || '<div class="slide-placeholder">[No Content]</div>'}
                         <span class="material-symbols-outlined edit-marker">edit</span>
                     </div>`;
             }
@@ -84,34 +92,115 @@ function renderSlide(slide) {
                     ${bodyHtml}
                 </div>`;
         } else if (slide.type === 'image') {
+            let descriptionHtml = '';
+            if (data.description || editMode) {
+                let innerDesc = data.description || (editMode ? 'Click to add a description...' : '');
+                if (innerDesc) {
+                    if (editMode) {
+                        descriptionHtml = `<div class="editable-container slide-description-banner editable-desc" onclick="startEdit(${slide.id}, 'description')">
+                            ${innerDesc}
+                            <span class="material-symbols-outlined edit-marker">edit</span>
+                        </div>`;
+                    } else {
+                        descriptionHtml = `<div class="slide-description-banner">
+                            ${innerDesc}
+                        </div>`;
+                    }
+                }
+            }
+
             let imgHtml = `
-                <div class="slide-image-container flex-center">
-                    <img src="${data.imageUrl || ''}" alt="${data.title || 'Slide Image'}" style="object-position: ${data.focusX || 50}% ${data.focusY || 50}%;">
+                <div class="slide-image-container">
+                    <img src="${data.imageUrl || ''}" alt="${data.title || 'Slide Image'}" style="object-position: ${data.focusX ?? 50}% ${data.focusY ?? 50}%;">
+                    ${descriptionHtml}
                 </div>`;
             
             let imageActionHtml = '';
             if (editMode) {
                 imageActionHtml = `
-                    <div class="editable-container flex-center" style="flex:1; margin-top:0.625rem;" onclick="openGalleryForSlide(${slide.id})">
+                    <div class="editable-container editable-image-action flex-center" onclick="startEdit(${slide.id}, 'image')">
                         ${imgHtml}
                         <span class="material-symbols-outlined edit-marker">image</span>
                     </div>`;
             } else {
-                imageActionHtml = imgHtml;
+                imageActionHtml = `<div class="image-action-container">${imgHtml}</div>`;
             }
+            
             content = `
-                <div class="slide-content" style="padding:0; overflow:hidden;">
-                    <div class="gallery-slide-bg" style="background-image: url('${data.imageUrl || ''}'); background-position: ${data.focusX || 50}% ${data.focusY || 50}%;"></div>
+                <div class="slide-content slide-content-image">
+                    <div class="gallery-slide-bg" style="background-image: url('${data.imageUrl || ''}'); background-position: ${data.focusX ?? 50}% ${data.focusY ?? 50}%;"></div>
                     ${titleHtml}
                     ${imageActionHtml}
                 </div>`;
         } else if (slide.type === 'programme') {
             content = `
-                <div class="slide-content" style="padding:2rem;">
+                <div class="slide-content slide-content-programme">
                     ${titleHtml}
                     <div class="programme-slide-container" id="prog-container-${slide.id}" data-slide-id="${slide.id}" data-mode="${data.mode || 'next'}" data-date="${data.specificDate || ''}" data-orig-mode="${data.mode || 'next'}" data-orig-date="${data.specificDate || ''}">
-                        <div style="display:flex; justify-content:center; align-items:center; height:100%;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size:3rem; color: #fff;">autorenew</span></div>
+                        <div class="programme-loading-container"><span class="material-symbols-outlined programme-loading-spinner">autorenew</span></div>
                     </div>
+                </div>`;
+        } else if (slide.type === 'qr') {
+            let descriptionHtml = '';
+            if (data.description || editMode) {
+                let innerDesc = data.description || (editMode ? 'Click to add a description...' : '');
+                if (innerDesc) {
+                    if (editMode) {
+                        descriptionHtml = `<div class="editable-container slide-description-banner editable-desc mt-sm" onclick="startEdit(${slide.id}, 'description')">
+                            ${innerDesc}
+                            <span class="material-symbols-outlined edit-marker">edit</span>
+                        </div>`;
+                    } else {
+                        descriptionHtml = `<div class="slide-description-banner mt-sm">
+                            ${innerDesc}
+                        </div>`;
+                    }
+                }
+            }
+
+            const qrData = data.qrData || window.location.href;
+            const styles = getComputedStyle(document.documentElement);
+            const fgColor = styles.getPropertyValue('--text-light').trim() || '#FFFFFF';
+            let qrSvg = '';
+            try {
+                const qr = new QRCode({
+                    content: qrData,
+                    padding: 4,
+                    width: 300,
+                    height: 300,
+                    color: fgColor,
+                    background: 'transparent',
+                    join: true
+                });
+                qrSvg = qr.svg();
+            } catch (e) {
+                console.error("QR Code Error:", e);
+                qrSvg = '<div class="slide-placeholder">[Invalid QR Code Data]</div>';
+            }
+
+            let qrHtml = `
+                <div class="slide-qr-container flex-col align-center mt-lg mb-lg">
+                    <div class="qr-svg-wrapper flex-center" style="max-width: 400px; width: 100%; aspect-ratio: 1; background: transparent;">
+                        ${qrSvg}
+                    </div>
+                    ${descriptionHtml}
+                </div>`;
+            
+            let qrActionHtml = '';
+            if (editMode) {
+                qrActionHtml = `
+                    <div class="editable-container editable-image-action flex-center" onclick="startEdit(${slide.id}, 'qrData')">
+                        ${qrHtml}
+                        <span class="material-symbols-outlined edit-marker">qr_code</span>
+                    </div>`;
+            } else {
+                qrActionHtml = `<div class="image-action-container flex-center">${qrHtml}</div>`;
+            }
+            
+            content = `
+                <div class="slide-content slide-content-qr flex-col align-center text-center">
+                    ${titleHtml}
+                    ${qrActionHtml}
                 </div>`;
         }
 
@@ -125,13 +214,13 @@ function renderSlide(slide) {
         }
 
         return `
-            <div class="slide flex-col" id="slide-${slide.id}">
+            <div class="slide" id="slide-${slide.id}">
                 ${toolbarHtml}
                 ${content}
             </div>
         `;
     } catch(e) {
-        return `<div class="slide flex-col" id="slide-${slide.id}"><h1>Error parsing slide</h1></div>`;
+        return `<div class="slide" id="slide-${slide.id}"><h1>Error parsing slide</h1></div>`;
     }
 }
 
@@ -211,7 +300,7 @@ function renderAllSlides() {
     viewer.innerHTML = slidesToRender.map(renderSlide).join('');
     
     // Now trigger async programme fetch
-    setTimeout(loadProgrammeSlidesData, 50);
+    setTimeout(loadProgrammeSlidesData, DISPLAY_CONFIG.INITIAL_LOAD_DELAY_MS);
 
     if (slidesToRender.length > 0) {
         // Ensure index is valid
@@ -254,6 +343,7 @@ function startCarousel() {
     if (!isPaused && !editMode) {
         slideInterval = setInterval(nextSlide, INTERVAL_MS);
         btnPausePlay.innerHTML = '<span class="material-symbols-outlined">pause</span>';
+        if (menuTriggerIcon) menuTriggerIcon.textContent = 'slideshow';
     }
 }
 function resetInterval() {
@@ -268,6 +358,7 @@ function togglePause() {
     if (isPaused) {
         clearInterval(slideInterval);
         btnPausePlay.innerHTML = '<span class="material-symbols-outlined">play_arrow</span>';
+        if (menuTriggerIcon) menuTriggerIcon.textContent = 'play_circle';
     } else {
         startCarousel();
     }
@@ -277,35 +368,23 @@ btnNext.addEventListener('click', nextSlide);
 btnPrev.addEventListener('click', prevSlide);
 btnPausePlay.addEventListener('click', togglePause);
 
+document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+    
+    if (e.code === 'Space') {
+        e.preventDefault();
+        togglePause();
+    } else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        nextSlide();
+    } else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        prevSlide();
+    }
+});
+
 const btnLoginTrigger = document.getElementById('btn-login-trigger');
 const linkAdmin = document.getElementById('link-admin');
-
-async function checkAuthStatus() {
-    try {
-        const data = await Auth.checkStatus();
-        if (data.logged_in) {
-            setAuthenticatedState();
-        } else {
-            setUnauthenticatedState();
-        }
-    } catch (e) {
-        setUnauthenticatedState();
-    }
-}
-
-function setAuthenticatedState() {
-    btnLoginTrigger.classList.add('hidden');
-    btnEditMode.classList.remove('hidden');
-    linkAdmin.classList.remove('hidden');
-    btnLogout.classList.remove('hidden');
-}
-
-function setUnauthenticatedState() {
-    btnLoginTrigger.classList.remove('hidden');
-    btnEditMode.classList.add('hidden');
-    linkAdmin.classList.add('hidden');
-    btnLogout.classList.add('hidden');
-}
 
 btnEditMode.addEventListener('click', () => {
     if (!editMode) {
@@ -315,26 +394,7 @@ btnEditMode.addEventListener('click', () => {
     }
 });
 
-Auth.onLogin(() => {
-    setAuthenticatedState();
-});
-
-Auth.onLogout(() => {
-    exitEditMode();
-    setUnauthenticatedState();
-    window.location.reload();
-});
-
-btnLoginTrigger.addEventListener('click', () => {
-    Auth.showModal();
-});
-
-btnLogout.addEventListener('click', () => {
-    Auth.logout();
-});
-
 // Load slides on start
-checkAuthStatus();
 loadActiveSet();
 
 
@@ -374,6 +434,12 @@ let currentlyEditing = null;
 
 function startEdit(slideId, field) {
     if (currentlyEditing) return; // Only edit one thing at a time
+    
+    if (field === 'image') {
+        openGalleryForSlide(slideId);
+        return;
+    }
+
     currentlyEditing = { id: slideId, field: field };
     
     const slide = currentSlides.find(s => s.id == slideId);
@@ -383,14 +449,16 @@ function startEdit(slideId, field) {
     const container = event.currentTarget;
     
     let inputHtml = '';
-    if (field === 'title') {
-        inputHtml = `<input type="text" id="inline-edit-input" value="${value.replace(/"/g, '&quot;')}" style="font-size:2rem; width:100%; padding:0.625rem; color:black;" autofocus onkeydown="if(event.key === 'Enter') { saveEdit(event); }">`;
+    if (field === 'title' || field === 'qrData') {
+        inputHtml = `<input type="text" id="inline-edit-input" class="inline-edit-text" value="${value.replace(/"/g, '&quot;')}" autofocus onkeydown="if(event.key === 'Enter') { saveEdit(event); }">`;
+    } else if (field === 'description') {
+        inputHtml = `<textarea id="inline-edit-input" class="inline-edit-textarea" autofocus>${value}</textarea>`;
     } else {
-        inputHtml = `<div id="inline-edit-editor" style="background:white; color:black;">${value}</div>`;
+        inputHtml = `<div id="inline-edit-editor" class="inline-edit-div">${value}</div>`;
     }
     
     container.innerHTML = `
-        <div style="background: rgba(0,0,0,0.8); padding: 0.9375rem; border-radius: 0.5rem;">
+        <div class="inline-edit-wrapper">
             ${inputHtml}
             <div class="flex-row gap-sm mt-sm">
                 <button class="btn-primary" onclick="saveEdit(event)">Save</button>
@@ -580,7 +648,7 @@ function handleSwipe() {
 }
 
 // Initial load
-checkAuthStatus();
+
 
 let currentFocusImageId = null;
 let currentFocusX = 50;
@@ -718,10 +786,10 @@ async function loadProgrammeSlidesData() {
             if (data && data.night) {
                 renderProgrammeNight(container, data);
             } else {
-                container.innerHTML = `<div style="text-align:center; margin-top:2rem;"><h2>No Programme Found</h2><p>For date: ${data ? data.date : 'Unknown'}</p></div>`;
+                container.innerHTML = `<div class="prog-empty-msg"><h2>No Programme Found</h2><p>For date: ${data ? data.date : 'Unknown'}</p></div>`;
             }
         } catch (e) {
-            container.innerHTML = `<div style="text-align:center; color:red; margin-top:2rem;"><h2>Error loading programme</h2></div>`;
+            container.innerHTML = `<div class="prog-error-msg"><h2>Error loading programme</h2></div>`;
         }
     }
 }
@@ -769,53 +837,53 @@ function renderProgrammeNight(container, data) {
                         if (typeof isPaused !== 'undefined' && isPaused) togglePause();
                         c.autoPaused = false;
                     }
-                }, 30000); // Revert after 30 seconds
+                }, DISPLAY_CONFIG.PROGRAMME_REVERT_TIMEOUT_MS);
             }
         };
     }
 
-    let prevBtnHtml = prevDate ? `<button onclick="window.shiftProgrammeSlideDate(this, '${prevDate}')" class="btn-secondary" style="background:rgba(255,255,255,0.2); border:none; color:white; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-right:1rem;" title="Previous Parade Night"><span class="material-symbols-outlined">chevron_left</span></button>` : '';
-    let nextBtnHtml = nextDate ? `<button onclick="window.shiftProgrammeSlideDate(this, '${nextDate}')" class="btn-secondary" style="background:rgba(255,255,255,0.2); border:none; color:white; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-left:1rem;" title="Next Parade Night"><span class="material-symbols-outlined">chevron_right</span></button>` : '';
+    let prevBtnHtml = prevDate ? `<button onclick="window.shiftProgrammeSlideDate(this, '${prevDate}')" class="prog-nav-btn prog-nav-left" title="Previous Parade Night"><span class="material-symbols-outlined">chevron_left</span></button>` : '';
+    let nextBtnHtml = nextDate ? `<button onclick="window.shiftProgrammeSlideDate(this, '${nextDate}')" class="prog-nav-btn prog-nav-right" title="Next Parade Night"><span class="material-symbols-outlined">chevron_right</span></button>` : '';
 
-    let html = `<div style="margin-bottom:1.5rem; border-bottom:2px solid rgba(255,255,255,0.2); padding-bottom:1rem; display:flex; align-items:center; justify-content:center; position:relative;">
-        <div style="display:flex; align-items:center; position:absolute; left:0;">
+    let html = `<div class="prog-slide-header">
+        <div style="display:flex; align-items:center;">
             ${prevBtnHtml}
             ${nextBtnHtml}
+            <h2 class="prog-slide-date-title">${dateFormatted}</h2>
         </div>
-        <h2 style="margin:0; font-size:2rem; color:var(--colour-heading); text-align:center;">${dateFormatted}</h2>
-        <div style="position:absolute; right:0;">
+        <div>
             ${editActionHtml}
         </div>
     </div>`;
     
-    html += `<div style="display:flex; flex-direction:column; gap:1.25rem;">`;
+    html += `<div class="prog-slide-body">`;
     
     // Uniform & Notes side by side or stacked
-    html += `<div style="display:flex; gap:2rem; flex-wrap:wrap;">`;
+    html += `<div class="prog-info-cards">`;
     
     if (night.uniform) {
         html += `
-        <div style="flex:1; min-width:300px; background:rgba(0,0,0,0.4); padding:1rem; border-radius:0.5rem; border-left:4px solid var(--colour-accent);">
-            <h3 style="margin-top:0; color:#fff; font-size:1.25rem; margin-bottom:0.5rem;"><span class="material-symbols-outlined" style="vertical-align:middle;">checkroom</span> Uniform</h3>
-            <div style="font-size:1.5rem; font-weight:bold; color:var(--colour-accent);">${night.uniform}</div>
+        <div class="prog-info-card prog-uniform-card">
+            <h3><span class="material-symbols-outlined" style="vertical-align:middle;">checkroom</span> Uniform</h3>
+            <div class="prog-uniform-text">${night.uniform}</div>
         </div>`;
     }
     
     if ((night.notes && night.notes.length > 0) || (monthNotes && monthNotes.length > 0)) {
         let notesHtml = '';
         if (night.notes && night.notes.length > 0) {
-            notesHtml += night.notes.filter(n => n.trim()).map(n => `<li style="margin-bottom:0.25rem;">${n}</li>`).join('');
+            notesHtml += night.notes.filter(n => n.trim()).map(n => `<li>${n}</li>`).join('');
         }
         if (monthNotes && monthNotes.length > 0) {
-            if (notesHtml) notesHtml += `<hr style="border-color:rgba(255,255,255,0.2); margin:0.5rem 0;">`;
-            notesHtml += monthNotes.filter(n => n.trim()).map(n => `<li style="margin-bottom:0.25rem; font-style:italic;">${n}</li>`).join('');
+            if (notesHtml) notesHtml += `<hr class="prog-notes-divider">`;
+            notesHtml += monthNotes.filter(n => n.trim()).map(n => `<li class="italic">${n}</li>`).join('');
         }
 
         if (notesHtml) {
             html += `
-            <div style="flex:2; min-width:300px; background:rgba(0,0,0,0.4); padding:1rem; border-radius:0.5rem; border-left:4px solid var(--color-secondary);">
-                <h3 style="margin-top:0; color:#fff; font-size:1.25rem; margin-bottom:0.5rem;"><span class="material-symbols-outlined" style="vertical-align:middle;">info</span> Notes</h3>
-                <ul style="margin:0; padding-left:1.5rem; font-size:1.1rem; color:#eee;">${notesHtml}</ul>
+            <div class="prog-info-card prog-notes-card">
+                <h3><span class="material-symbols-outlined" style="vertical-align:middle;">info</span> Notes</h3>
+                <ul class="prog-notes-list">${notesHtml}</ul>
             </div>`;
         }
     }
@@ -824,13 +892,13 @@ function renderProgrammeNight(container, data) {
     // Activities
     if (night.activities && night.activities.length > 0) {
         html += `
-        <div style="background:rgba(255,255,255,0.1); border-radius:0.5rem; overflow:hidden; margin-top:1rem;">
-            <table style="width:100%; border-collapse:collapse; color:#fff;">
+        <div class="prog-table-wrapper">
+            <table class="prog-table">
                 <thead>
-                    <tr style="background:rgba(0,0,0,0.6); text-align:left;">
-                        <th style="padding:1rem; border-bottom:2px solid #555;">Classification</th>
-                        <th style="padding:1rem; border-bottom:2px solid #555;">Activity</th>
-                        <th style="padding:1rem; border-bottom:2px solid #555;">Instructor</th>
+                    <tr>
+                        <th>Classification</th>
+                        <th>Activity</th>
+                        <th>Instructor</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -845,12 +913,12 @@ function renderProgrammeNight(container, data) {
                 const bg = rowIndex % 2 === 0 ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.3)';
                 html += `
                     <tr style="background:${bg};">
-                        <td style="padding:1rem; border-bottom:1px solid #444; font-weight:bold; color:#ccc;">${cls}</td>
-                        <td style="padding:1rem; border-bottom:1px solid #444; font-size:1.2rem;">
-                            ${act.activity_type ? `<span style="font-size:0.8rem; background:var(--colour-heading); padding:0.2rem 0.5rem; border-radius:0.25rem; margin-right:0.5rem; color:#fff;">${act.activity_type}</span>` : ''}
+                        <td class="class-col">${cls}</td>
+                        <td class="act-col">
+                            ${act.activity_type ? `<span class="prog-act-type-tag">${act.activity_type}</span>` : ''}
                             ${act.name}
                         </td>
-                        <td style="padding:1rem; border-bottom:1px solid #444; color:#ddd;">${act.instructor || '-'}</td>
+                        <td class="inst-col">${act.instructor || '-'}</td>
                     </tr>
                 `;
                 rowIndex++;
@@ -876,20 +944,20 @@ function openProgrammeSettings(slideId) {
         modal.id = 'prog-settings-modal';
         modal.className = 'modal';
         modal.innerHTML = `
-            <div class="modal-content" style="max-width:400px; color:black;">
+            <div class="modal-content prog-settings-modal">
                 <h2>Programme Slide Settings</h2>
                 <input type="hidden" id="prog-slide-id">
                 
-                <label style="display:block; margin-bottom:0.25rem; font-weight:bold;">Date Mode</label>
-                <select id="prog-slide-mode" style="width:100%; padding:0.5rem; margin-bottom:1rem; border-radius:0.25rem;">
+                <label class="prog-form-label">Date Mode</label>
+                <select id="prog-slide-mode" class="prog-form-input">
                     <option value="next">Next Parade Night</option>
                     <option value="today">Today</option>
                     <option value="specific">Specific Date</option>
                 </select>
                 
                 <div id="prog-slide-date-container" style="display:none;">
-                    <label style="display:block; margin-bottom:0.25rem; font-weight:bold;">Specific Date</label>
-                    <input type="date" id="prog-slide-date" style="width:100%; padding:0.5rem; margin-bottom:1rem; border-radius:0.25rem;">
+                    <label class="prog-form-label">Specific Date</label>
+                    <input type="date" id="prog-slide-date" class="prog-form-input">
                 </div>
                 
                 <div style="display:flex; justify-content:flex-end; gap:0.5rem;">

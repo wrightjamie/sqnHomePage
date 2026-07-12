@@ -166,3 +166,12 @@ body:not(.edit-mode) .padding-row { display: none; }
     border-color: #000;
     box-shadow: 0 0 0 2px #fff inset;
 }
+
+/* --- JS Inline Style Replacements --- */
+.search-box-container {
+    position: relative;
+}
+
+.classifications-header-col {
+    border-bottom: 0.0625rem solid #000;
+}
