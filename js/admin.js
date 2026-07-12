@@ -1,3 +1,11 @@
+/**
+ * admin.js
+ *
+ * Core frontend logic for the Administration Panel (`admin.php`).
+ * Handles slide set management, slide creation/editing, image uploads,
+ * and gallery management. Communicates heavily with `api/slides.php` and `api/images.php`.
+ */
+
 // js/admin.js
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -223,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
     createSlideForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const setId = slideSetSelect.value;
-        if (!setId) return alert("Select a set first");
+        if (!setId) return Toast.show("Select a set first", "warning");
 
         const type = slideType.value;
         const title = document.getElementById('slide-title').value;
@@ -538,11 +546,12 @@ document.addEventListener('DOMContentLoaded', () => {
     window.deleteAdminImage = async (filename) => {
         if (!confirm(`Are you sure you want to permanently delete ${filename}?`)) return;
         
-        const data = await apiFetch(`api/images.php?action=delete&filename=${encodeURIComponent(filename)}`);
-        if (data.success) {
+        try {
+            await apiFetch(`api/images.php?action=delete&filename=${encodeURIComponent(filename)}`);
+            Toast.show('Image deleted successfully', 'success');
             loadAdminGallery(adminPagination.currentPage);
-        } else {
-            alert('Failed to delete image: ' + (data.message || 'Unknown error'));
+        } catch (e) {
+            // Error handled by Toast in apiFetch
         }
     };
     
@@ -556,16 +565,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (data.success) {
                 if (data.debug && !data.debug.gd_loaded) {
-                    alert('Warning: The PHP GD library is STILL NOT loaded by the web server. Please ensure you edited the correct php.ini and fully restarted Apache in XAMPP.');
+                    Toast.show('Warning: PHP GD library not loaded. Thumbnails not generated.', 'warning');
                 } else {
-                    alert(`Successfully generated ${data.count} new thumbnails!`);
+                    Toast.show(`Successfully generated ${data.count} new thumbnails!`, 'success');
                 }
                 loadAdminGallery(adminPagination.currentPage); // refresh grid to show new thumbs
-            } else {
-                alert('Failed: ' + data.message);
             }
         } catch (e) {
-            alert('Error during regeneration.');
+            // Toast handles error automatically via apiFetch
         }
         
         btnRegenThumbs.innerHTML = originalText;
@@ -694,27 +701,23 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('tags', JSON.stringify(uploadTags));
 
         try {
-            const res = await apiFetch('api/images.php?action=upload', 'POST', formData);
-            const data = await res.json();
-            if (data.success) {
-                uploadModal.classList.add('hidden');
-                
-                // Refresh gallery if on gallery tab
-                loadAdminGallery(1);
-                
-                // Automatically select this in the slide creator
-                const slideImageUrl = document.getElementById('slide-image-url');
-                const slideImagePreview = document.getElementById('current-image-preview');
-                if (slideImageUrl && slideImagePreview) {
-                    slideImageUrl.value = data.url;
-                    slideImagePreview.src = data.url;
-                    slideImagePreview.classList.remove('hidden');
-                }
-            } else {
-                alert('Upload failed: ' + data.message);
+            const data = await apiFetch('api/images.php?action=upload', 'POST', formData);
+            uploadModal.classList.add('hidden');
+            Toast.show('Image uploaded successfully', 'success');
+
+            // Refresh gallery if on gallery tab
+            loadAdminGallery(1);
+
+            // Automatically select this in the slide creator
+            const slideImageUrl = document.getElementById('slide-image-url');
+            const slideImagePreview = document.getElementById('current-image-preview');
+            if (slideImageUrl && slideImagePreview) {
+                slideImageUrl.value = data.url;
+                slideImagePreview.src = data.url;
+                slideImagePreview.classList.remove('hidden');
             }
         } catch (err) {
-            alert('Upload error');
+            // Error handled by Toast in apiFetch
         }
         
         submitBtn.innerHTML = originalText;

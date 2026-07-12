@@ -3,13 +3,37 @@
 require_once 'config.php';
 
 try {
+/**
+ * api/init_db.php
+ *
+ * Initializes the SQLite database schema and seeds default data.
+ * Used during the initial installation script (`install.php`).
+ */
+
     // Create users table
     $pdo->exec("CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
-        role TEXT DEFAULT 'admin'
+        role TEXT DEFAULT 'admin',
+        status TEXT DEFAULT 'active'
     )");
+
+    // Create user_roles table
+    $pdo->exec("CREATE TABLE IF NOT EXISTS user_roles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL,
+        can_manage_users INTEGER DEFAULT 0,
+        can_edit_slides INTEGER DEFAULT 0,
+        can_edit_programme INTEGER DEFAULT 0
+    )");
+
+    $stmt = $pdo->query("SELECT COUNT(*) FROM user_roles");
+    if ($stmt->fetchColumn() == 0) {
+        $pdo->exec("INSERT INTO user_roles (name, can_manage_users, can_edit_slides, can_edit_programme) VALUES ('Admin', 1, 1, 1)");
+        $pdo->exec("INSERT INTO user_roles (name, can_manage_users, can_edit_slides, can_edit_programme) VALUES ('Staff', 0, 1, 1)");
+        $pdo->exec("INSERT INTO user_roles (name, can_manage_users, can_edit_slides, can_edit_programme) VALUES ('NCO', 0, 0, 1)");
+    }
 
     // Create slide_sets table
     $pdo->exec("CREATE TABLE IF NOT EXISTS slide_sets (

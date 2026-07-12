@@ -39,6 +39,7 @@ require_once 'api/config.php';
                 <button class="tab-btn active" data-target="tab-slides">Slide Sets</button>
                 <button class="tab-btn" data-target="tab-images">Image Management</button>
                 <button class="tab-btn" data-target="tab-programme">Programme Settings</button>
+                <button class="tab-btn" data-target="tab-users" id="tab-users-btn">User Management</button>
             </div>
 
             <div id="tab-slides" class="tab-content active">
@@ -230,6 +231,63 @@ require_once 'api/config.php';
                 </div>
             </div> <!-- End tab-programme -->
 
+            <!-- Users Tab -->
+            <div id="tab-users" class="tab-content hidden">
+                <div class="flex-row justify-between align-center mb-md">
+                    <h2 class="m-0">User Management</h2>
+                    <button class="btn btn-primary" id="btn-add-user"><span class="material-symbols-outlined">person_add</span> Add User</button>
+                </div>
+
+                <table class="w-100" id="users-table" style="border-collapse: collapse; background: white; border-radius: 4px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <thead style="background: var(--raf-nav-2); color: white;">
+                        <tr>
+                            <th style="padding: 10px; text-align: left;">Username</th>
+                            <th style="padding: 10px; text-align: left;">Role</th>
+                            <th style="padding: 10px; text-align: left;">Status</th>
+                            <th style="padding: 10px; text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-list">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div> <!-- End tab-users -->
+
+        </div>
+    </div>
+
+    <!-- User Edit Modal -->
+    <div id="user-edit-modal" class="modal hidden">
+        <div class="modal-content modal-sm flex-col">
+            <h2 id="user-modal-title">Edit User</h2>
+            <form id="user-edit-form" class="flex-col gap-sm">
+                <input type="hidden" id="edit-user-id">
+
+                <label for="edit-user-name" class="font-bold">Username</label>
+                <input type="text" id="edit-user-name" required class="p-sm">
+
+                <div id="user-password-group" class="flex-col gap-xs">
+                    <label for="edit-user-pass" class="font-bold">Password</label>
+                    <input type="password" id="edit-user-pass" class="p-sm" placeholder="Leave blank to keep current">
+                </div>
+
+                <label for="edit-user-role" class="font-bold">Role</label>
+                <select id="edit-user-role" class="p-sm" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;">
+                    <!-- Populated by JS -->
+                </select>
+
+                <label for="edit-user-status" class="font-bold">Status</label>
+                <select id="edit-user-status" class="p-sm" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;">
+                    <option value="active">Active</option>
+                    <option value="pending">Pending</option>
+                    <option value="disabled">Disabled</option>
+                </select>
+
+                <div class="flex-row gap-sm justify-end mt-md">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-user">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btn-save-user">Save User</button>
+                </div>
+            </form>
         </div>
     </div>
     
@@ -320,5 +378,6 @@ require_once 'api/config.php';
     <script src="js/api.js?v=<?= time() ?>"></script>
     <script src="js/admin.js?v=<?= time() ?>"></script>
     <script src="js/programme_admin.js?v=<?= time() ?>"></script>
+    <script src="js/users_admin.js?v=<?= time() ?>"></script>
 </body>
 </html>

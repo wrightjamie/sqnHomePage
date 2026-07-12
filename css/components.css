@@ -361,3 +361,55 @@
 .focus-target-btn:hover {
     background: var(--raf-red);
 }
+
+/* Toast Notifications */
+#toast-container {
+    position: fixed;
+    bottom: var(--space-lg);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--space-xs);
+    color: white;
+    font-size: var(--font-md);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    pointer-events: auto;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    max-width: 90vw;
+    word-break: break-word;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast-success { background-color: var(--raf-nav-1); }
+.toast-error { background-color: var(--raf-logo-1); }
+.toast-info { background-color: var(--raf-nav-2); }
+.toast-warning { background-color: var(--raf-accent-1); }
+
+.toast-icon { font-size: 1.2rem; }
+.toast-close {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}

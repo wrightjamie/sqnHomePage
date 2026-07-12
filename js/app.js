@@ -1,4 +1,11 @@
-// js/app.js
+/**
+ * app.js
+ *
+ * Main frontend logic for the public-facing Display Board (`index.php`).
+ * Handles the slideshow rendering, interactive menus, image galleries,
+ * and user interactions (like login triggers).
+ */
+
 let currentSlides = [];
 let currentIndex = 0;
 let slideInterval = null;
@@ -524,7 +531,7 @@ document.getElementById('gallery-file-input').addEventListener('change', async (
         galleryModal.classList.add('hidden');
         galleryTargetSlideId = null;
     } else {
-        alert(resultData.error || 'Upload failed');
+        Toast.show(resultData.error || 'Upload failed', 'error');
     }
 });
 

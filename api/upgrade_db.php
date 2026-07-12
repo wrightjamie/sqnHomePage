@@ -81,6 +81,41 @@ try {
         echo "Migrated $count existing images into the database.<br>\n";
     }
 
+    // 4. Update users table with status and role logic
+    $result = $pdo->query("PRAGMA table_info(users)")->fetchAll();
+    $hasStatus = false;
+    foreach ($result as $row) {
+        if ($row['name'] === 'status') {
+            $hasStatus = true;
+            break;
+        }
+    }
+
+    if (!$hasStatus) {
+        $pdo->exec("ALTER TABLE users ADD COLUMN status TEXT DEFAULT 'pending'");
+        $pdo->exec("UPDATE users SET status = 'active' WHERE username = 'admin'");
+        echo "Added status column to users table.<br>\n";
+    } else {
+        echo "Users table status column already exists.<br>\n";
+    }
+
+    // We also need to create roles functionality, we will add an explicit user_types table and update users.
+    $pdo->exec("CREATE TABLE IF NOT EXISTS user_roles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL,
+        can_manage_users INTEGER DEFAULT 0,
+        can_edit_slides INTEGER DEFAULT 0,
+        can_edit_programme INTEGER DEFAULT 0
+    )");
+
+    $stmt = $pdo->query("SELECT COUNT(*) FROM user_roles");
+    if ($stmt->fetchColumn() == 0) {
+        $pdo->exec("INSERT INTO user_roles (name, can_manage_users, can_edit_slides, can_edit_programme) VALUES ('Admin', 1, 1, 1)");
+        $pdo->exec("INSERT INTO user_roles (name, can_manage_users, can_edit_slides, can_edit_programme) VALUES ('Staff', 0, 1, 1)");
+        $pdo->exec("INSERT INTO user_roles (name, can_manage_users, can_edit_slides, can_edit_programme) VALUES ('NCO', 0, 0, 1)");
+        echo "Inserted default roles into user_roles.<br>\n";
+    }
+
     echo "Upgrade complete.<br>\n";
 } catch (PDOException $e) {
     die("DB Upgrade Error: " . $e->getMessage());

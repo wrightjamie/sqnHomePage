@@ -1,4 +1,9 @@
-// js/utils.js
+/**
+ * utils.js
+ *
+ * Shared utility functions and global components used across the frontend.
+ * Includes Pagination, Drag-and-Drop setup, and the Global Toast Notification System.
+ */
 
 /**
  * Reusable Pagination Component
@@ -102,3 +107,65 @@ function setupDragAndDrop(container, onReorder) {
         }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 }
+
+/**
+ * Toast Notification System
+ */
+const Toast = {
+    container: null,
+
+    init() {
+        if (!document.getElementById('toast-container')) {
+            this.container = document.createElement('div');
+            this.container.id = 'toast-container';
+            document.body.appendChild(this.container);
+        } else {
+            this.container = document.getElementById('toast-container');
+        }
+    },
+
+    show(message, type = 'info', duration = 3000) {
+        if (!this.container) this.init();
+
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+
+        let icon = 'info';
+        if (type === 'success') icon = 'check_circle';
+        if (type === 'error') icon = 'error';
+        if (type === 'warning') icon = 'warning';
+
+        toast.innerHTML = `
+            <span class="material-symbols-outlined toast-icon">${icon}</span>
+            <span class="toast-message">${message}</span>
+            <button class="toast-close"><span class="material-symbols-outlined">close</span></button>
+        `;
+
+        this.container.appendChild(toast);
+
+        // Animate in
+        requestAnimationFrame(() => {
+            toast.classList.add('show');
+        });
+
+        // Setup dismissal
+        let timeoutId;
+
+        const dismiss = () => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300); // Wait for transition
+        };
+
+        toast.querySelector('.toast-close').addEventListener('click', () => {
+            clearTimeout(timeoutId);
+            dismiss();
+        });
+
+        if (duration > 0) {
+            timeoutId = setTimeout(dismiss, duration);
+        }
+    }
+};
+
+// Initialize Toast on load
+document.addEventListener('DOMContentLoaded', () => Toast.init());

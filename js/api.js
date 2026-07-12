@@ -1,6 +1,9 @@
 /**
- * Generic wrapper for API fetch requests.
- * Automatically unpacks the {success: true, data: ...} PHP wrapper.
+ * api.js
+ *
+ * Generic wrapper for API fetch requests (`apiFetch`).
+ * Automatically parses JSON, unpacks the standard `{success: true, data: ...}` PHP wrapper,
+ * and intercepts errors to display them via the Global Toast Notification System.
  */
 async function apiFetch(endpoint, method = 'GET', bodyObj = null) {
     const options = { method, credentials: 'include' };
@@ -25,7 +28,14 @@ async function apiFetch(endpoint, method = 'GET', bodyObj = null) {
     
     // Check if HTTP status is bad, or if the API returned success: false
     if (!res.ok || data.success === false) {
-        throw new Error(data.error || data.message || 'API Request Failed');
+        const errorMsg = data.error || data.message || 'API Request Failed';
+
+        // Use Toast system if available, but don't crash if it's not
+        if (typeof Toast !== 'undefined') {
+            Toast.show(errorMsg, 'error');
+        }
+
+        throw new Error(errorMsg);
     }
     
     // If our PHP backend wrapped the response in {success: true, data: ...}, unwrap it

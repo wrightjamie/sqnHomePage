@@ -1,4 +1,11 @@
 // js/programme_admin.js
+/**
+ * programme_admin.js
+ *
+ * Frontend logic for the Programme Settings tab in the admin panel.
+ * Handles configuration of training programme elements like uniforms,
+ * activities, classifications, parade nights, and staff members.
+ */
 document.addEventListener('DOMContentLoaded', () => {
     let progConfig = { uniforms: [], activity_types: [], classifications: [], parade_nights: [], ranks: [], staff: [] };
 
@@ -340,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             renderStaff();
         } else {
-            alert('Please select a rank and enter a name.');
+            Toast.show('Please select a rank and enter a name.', 'warning');
         }
     });
 
