@@ -34,3 +34,5 @@ This document outlines the proposed order for implementing the pending features 
 
 ## 11. Secure System Reset (`todo/secure_system_reset.md`)
 **Justification:** This feature requires an administrator to explicitly re-type their active login password to authorize the execution of a system reset script. Therefore, it critically relies on the authentication system and user roles established in the previous two steps (Role-Based Auth and User Management) being fully operational.
+
+
