@@ -494,11 +494,11 @@ function renderWeatherContent(panel, node) {
               node.longitude = geoData.results[0].longitude;
               updateApp();
             } else {
-              alert("Location not found! Please try a different name.");
+              Toast.show("Location not found! Please try a different name.", 'error');
               updateApp();
             }
           } catch(err) {
-            alert("Error searching for location.");
+            Toast.show("Error searching for location.", 'error');
             updateApp();
           }
         };

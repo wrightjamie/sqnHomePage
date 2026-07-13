@@ -361,3 +361,44 @@
 .focus-target-btn:hover {
     background: var(--raf-red);
 }
+
+/* Toast Container */
+#global-toast-container {
+    position: fixed;
+    bottom: var(--space-lg);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: var(--space-lg);
+    font-size: 1rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    z-index: 9999;
+}
+
+#global-toast-container.show {
+    opacity: 1;
+}
+
+#global-toast-container.success {
+    background: var(--raf-supp-2, #879637);
+}
+
+#global-toast-container.error {
+    background: var(--raf-logo-1, #C60C30);
+}
+
+#global-toast-container.info {
+    background: var(--raf-nav-2, #5482AB);
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}

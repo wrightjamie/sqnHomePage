@@ -544,7 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (monthType === 'next') { year = nextY; month = nextM; data = nextMonthFullData; }
         else { year = currY; month = currM; data = programmeData; }
         
-        showToast('Saving...', 'sync');
+        Toast.show('Saving...', 'info', 'sync');
         
         // Debounce slightly if many events fire (like multiple merges)
         if (saveTimeout) clearTimeout(saveTimeout);
@@ -552,37 +552,13 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const result = await apiFetch('api/programme.php?action=month', 'POST', { year, month, programme: data });
                 if (result.success) {
-                    showToast('Saved', 'check_circle');
-                    setTimeout(hideToast, 2000);
-                } else {
-                    showToast('Error saving', 'error');
+                    Toast.show('Saved', 'success');
                 }
             } catch (e) {
                 console.error(e);
-                showToast('Network error', 'cloud_off');
             }
         }, 500);
     }
-    
-    function showToast(msg, icon) {
-        const t = document.getElementById('toast-container');
-        document.getElementById('toast-message').textContent = msg;
-        document.getElementById('toast-icon').textContent = icon;
-        t.classList.add('show');
-        if (icon === 'sync') {
-            document.getElementById('toast-icon').style.animation = 'spin 1s linear infinite';
-        } else {
-            document.getElementById('toast-icon').style.animation = '';
-        }
-    }
-    function hideToast() {
-        document.getElementById('toast-container').classList.remove('show');
-    }
-    
-    // Add spin animation dynamically
-    const style = document.createElement('style');
-    style.innerHTML = `@keyframes spin { 100% { transform: rotate(360deg); } }`;
-    document.head.appendChild(style);
     
     // Auth logic is now handled globally and by page reload
 

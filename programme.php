@@ -58,11 +58,6 @@ require_once 'api/config.php';
         
     </div>
     
-    <!-- Auto Save Toast -->
-    <div id="toast-container">
-        <span class="material-symbols-outlined toast-icon-sync" id="toast-icon">sync</span>
-        <span id="toast-message">Saving...</span>
-    </div>
     
     <!-- Popovers -->
     <div id="activity-popover" class="popover-panel" popover>

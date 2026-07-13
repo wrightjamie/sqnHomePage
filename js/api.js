@@ -25,7 +25,14 @@ async function apiFetch(endpoint, method = 'GET', bodyObj = null) {
     
     // Check if HTTP status is bad, or if the API returned success: false
     if (!res.ok || data.success === false) {
-        throw new Error(data.error || data.message || 'API Request Failed');
+        const errorMsg = data.error || data.message || 'API Request Failed';
+
+        // Use global Toast if available
+        if (typeof Toast !== 'undefined') {
+            Toast.show(errorMsg, 'error');
+        }
+
+        throw new Error(errorMsg);
     }
     
     // If our PHP backend wrapped the response in {success: true, data: ...}, unwrap it
