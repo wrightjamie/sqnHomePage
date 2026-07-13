@@ -51,10 +51,8 @@ if ($method === 'GET' && $action === 'active_set') {
     exit;
 }
 
-// Ensure user is logged in for all other actions
-if (!$isLoggedIn) {
-    jsonError('Unauthorized', 401);
-}
+// Ensure user has edit_slides permission for all other actions
+requirePermission($pdo, 'edit_slides');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // If it's a multipart/form-data request, json_decode php://input won't work for the main body

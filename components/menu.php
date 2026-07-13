@@ -32,11 +32,11 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <button id="btn-login-trigger" class="menu-btn flex-center <?php if($isLoggedIn) echo 'hidden'; ?>" title="Login"><span class="material-symbols-outlined">login</span></button>
     
     <?php if ($currentPage === 'programme.php'): ?>
-        <button id="btn-toggle-edit" class="menu-btn flex-center <?php if(!$isLoggedIn) echo 'hidden'; ?>" title="Edit Programme"><span class="material-symbols-outlined">edit</span></button>
+        <button id="btn-toggle-edit" class="menu-btn flex-center <?php if(!$isLoggedIn || !hasPermission($pdo, 'edit_programme')) echo 'hidden'; ?>" title="Edit Programme"><span class="material-symbols-outlined">edit</span></button>
     <?php elseif ($currentPage === 'index.php'): ?>
-        <button id="btn-edit-mode" class="menu-btn flex-center <?php if(!$isLoggedIn) echo 'hidden'; ?>" title="Edit Slides"><span class="material-symbols-outlined">edit</span></button>
+        <button id="btn-edit-mode" class="menu-btn flex-center <?php if(!$isLoggedIn || !hasPermission($pdo, 'edit_slides')) echo 'hidden'; ?>" title="Edit Slides"><span class="material-symbols-outlined">edit</span></button>
     <?php else: ?>
-        <button id="btn-edit-mode" class="menu-btn flex-center <?php if(!$isLoggedIn) echo 'hidden'; ?>" title="Edit Mode"><span class="material-symbols-outlined">edit</span></button>
+        <button id="btn-edit-mode" class="menu-btn flex-center <?php if(!$isLoggedIn || !hasPermission($pdo, 'edit_slides')) echo 'hidden'; ?>" title="Edit Mode"><span class="material-symbols-outlined">edit</span></button>
     <?php endif; ?>
 
     <a href="admin.php" id="link-admin" class="menu-btn flex-center <?php if(!$isLoggedIn) echo 'hidden'; ?>" title="Admin Panel"><span class="material-symbols-outlined">settings</span></a>

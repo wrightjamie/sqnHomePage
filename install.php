@@ -24,14 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isInstalled) {
     $adminPass = $_POST['admin_password'] ?? 'admin';
     
     try {
-        // Create users table
-        $pdo->exec("CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
-            role TEXT DEFAULT 'admin'
-        )");
-
         // Create slide_sets table
         $pdo->exec("CREATE TABLE IF NOT EXISTS slide_sets (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -69,13 +61,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isInstalled) {
             `value` TEXT NOT NULL
         )");
         
-        // Insert Admin User
+        // Admin User is created in init_db.php or we can create it explicitly here
+        // The init_db.php script handles base schema and users. Let's include it to make sure the schema is created correctly.
+        require_once 'api/init_db.php';
+
+        // Update the admin user password if needed, or create the requested admin user if it doesn't exist
         $hash = password_hash($adminPass, PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare("INSERT INTO users (username, password_hash) VALUES (?, ?)");
-        $stmt->execute([$adminUser, $hash]);
+        $stmt = $pdo->query("SELECT id FROM roles WHERE name = 'Admin'");
+        $adminRoleId = $stmt->fetchColumn();
+
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ?");
+        $stmt->execute([$adminUser]);
+        if ($stmt->fetch()) {
+             $pdo->prepare("UPDATE users SET password_hash = ?, display_name = 'Administrator', status = 'active', role_id = ? WHERE username = ?")->execute([$hash, $adminRoleId, $adminUser]);
+        } else {
+             $pdo->prepare("INSERT INTO users (username, password_hash, display_name, status, role_id) VALUES (?, ?, 'Administrator', 'active', ?)")->execute([$adminUser, $hash, $adminRoleId]);
+        }
 
         // Seed Dummy Data if requested
         if (isset($_POST['seed_data'])) {
+            require_once 'api/utils.php';
+
+            // Add dummy users (Staff, NCO, and Pending)
+            $stmt = $pdo->query("SELECT id FROM roles WHERE name = 'Staff'");
+            $staffRoleId = $stmt->fetchColumn();
+            $stmt = $pdo->query("SELECT id FROM roles WHERE name = 'NCO'");
+            $ncoRoleId = $stmt->fetchColumn();
+
+            $pdo->exec("INSERT OR IGNORE INTO users (username, password_hash, display_name, status, role_id) VALUES
+                ('staff_user', '" . password_hash('password', PASSWORD_DEFAULT) . "', 'CI Smith', 'active', $staffRoleId),
+                ('nco_user', '" . password_hash('password', PASSWORD_DEFAULT) . "', 'Sgt Jones', 'active', $ncoRoleId),
+                ('pending_user', '" . password_hash('password', PASSWORD_DEFAULT) . "', 'Cdt Davies', 'pending', NULL)
+            ");
             require_once 'api/utils.php';
             
             // Create a slide set

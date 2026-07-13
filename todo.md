@@ -26,10 +26,10 @@ This document outlines the proposed order for implementing the pending features 
 ## 8. Global Notification (Toast) System (`todo/done/global_notification_system.md`) [DONE]
 **Justification:** This feature introduces a robust, global notification system for application-wide feedback. It provides a foundational UI feedback mechanism that should be established before building complex features like Role-Based Auth, User Management, and Secure System Reset, allowing them to leverage it for permission errors and form confirmations.
 
-## 9. Role-Based Auth & Registration (`todo/role_based_auth.md`)
+## 9. Role-Based Auth & Registration (`todo/done/role_based_auth.md`) [DONE]
 **Justification:** This feature establishes the core authentication framework, roles, and sign-up workflow. It should be implemented after the UI layout has stabilized but before full user management interfaces are built, as it provides the underlying structure and permissions model that subsequent administrative features will rely upon.
 
-## 10. User Management (`todo/user_management.md`)
+## 10. User Management (`todo/done/user_management.md`) [DONE]
 **Justification:** This is a major administrative feature that provides the CRUD interface for managing roles and accounts. It naturally follows the implementation of the core Role-Based Auth framework (Step 9), ensuring that dynamic permission models and admin navigation are applied to a fully established authentication system.
 
 ## 11. Secure System Reset (`todo/secure_system_reset.md`)

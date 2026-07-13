@@ -5,10 +5,8 @@ require_once 'utils.php';
 
 header('Content-Type: application/json');
 
-// Check authentication
-if (!$isLoggedIn) {
-    jsonError('Unauthorized', 401);
-}
+// Check authentication and authorization
+requirePermission($pdo, 'edit_slides');
 
 $action = $_GET['action'] ?? 'list';
 

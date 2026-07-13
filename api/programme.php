@@ -144,8 +144,8 @@ if ($method === 'GET' && $action === 'autocomplete') {
 }
 
 // POST actions require authentication
-if (!$isLoggedIn) {
-    jsonError('Unauthorized', 401);
+if ($method === 'POST') {
+    requirePermission($pdo, 'edit_programme');
 }
 
 if ($method === 'POST' && $action === 'config') {

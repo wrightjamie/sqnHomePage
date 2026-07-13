@@ -48,17 +48,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    let currentUserPermissions = [];
+
     async function checkAuth() {
-        const data = await apiFetch('api/auth.php?action=status');
-        if (data.logged_in) {
-            loginSection.classList.add('hidden');
-            adminSection.classList.remove('hidden');
-            loadSets();
-            if (window.checkUrlTab) window.checkUrlTab();
-        } else {
-            loginSection.classList.remove('hidden');
-            adminSection.classList.add('hidden');
-            document.getElementById('username').focus();
+        try {
+            const data = await fetch('api/auth.php?action=status');
+            const res = await data.json();
+            if (res.data && res.data.logged_in) {
+                currentUserPermissions = res.data.permissions || [];
+                loginSection.classList.add('hidden');
+                adminSection.classList.remove('hidden');
+                loadSets();
+                if (window.checkUrlTab) window.checkUrlTab();
+
+                if (currentUserPermissions.includes('manage_users')) {
+                    document.getElementById('tab-btn-users').style.display = 'inline-block';
+                    loadUsers();
+                } else {
+                    document.getElementById('tab-btn-users').style.display = 'none';
+                }
+            } else {
+                loginSection.classList.remove('hidden');
+                adminSection.classList.add('hidden');
+                document.getElementById('username').focus();
+            }
+        } catch (e) {
+            console.error('Auth error', e);
         }
     }
 
@@ -68,11 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         
-        const data = await apiFetch('api/auth.php?action=login', 'POST', {username, password});
-        if (data.success) {
+        try {
+            await apiFetch('api/auth.php?action=login', 'POST', {username, password});
             checkAuth();
-        } else {
-            Toast.show('Login failed: ' + data.message, 'error');
+        } catch (err) {
+            // Toast will handle the error display automatically via apiFetch
         }
     });
 
@@ -837,6 +852,102 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     loadGlobalSettings();
+
+    // User Management
+    let rolesData = [];
+
+    async function loadUsers() {
+        const data = await apiFetch('api/users.php?action=list');
+        if (data && data.users) {
+            rolesData = data.roles || [];
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = '';
+
+            data.users.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid var(--color-border)';
+
+                // Status select
+                const statusOptions = ['pending', 'active', 'disabled'].map(s =>
+                    `<option value="${s}" ${user.status === s ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`
+                ).join('');
+
+                // Role select
+                const roleOptions = `<option value="">(No Role)</option>` + rolesData.map(r =>
+                    `<option value="${r.id}" ${user.role_id == r.id ? 'selected' : ''}>${r.name}</option>`
+                ).join('');
+
+                tr.innerHTML = `
+                    <td class="p-sm">${user.id}</td>
+                    <td class="p-sm"><strong>${user.username}</strong></td>
+                    <td class="p-sm">${user.display_name || ''}</td>
+                    <td class="p-sm">
+                        <select class="form-control admin-select-status" data-id="${user.id}" style="width: auto;">
+                            ${statusOptions}
+                        </select>
+                    </td>
+                    <td class="p-sm">
+                        <select class="form-control admin-select-role" data-id="${user.id}" style="width: auto;">
+                            ${roleOptions}
+                        </select>
+                    </td>
+                    <td class="p-sm">
+                        <button class="btn btn-primary btn-delete-user" data-id="${user.id}" title="Delete User">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Add event listeners
+            document.querySelectorAll('.admin-select-status').forEach(sel => {
+                sel.addEventListener('change', async (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const status = e.target.value;
+                    try {
+                        await apiFetch('api/users.php?action=update_status', 'POST', { user_id: id, status: status });
+                        Toast.show('Status updated', 'success');
+                    } catch (err) {
+                        Toast.show('Failed to update status', 'error');
+                        loadUsers(); // revert UI
+                    }
+                });
+            });
+
+            document.querySelectorAll('.admin-select-role').forEach(sel => {
+                sel.addEventListener('change', async (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const roleId = e.target.value;
+                    try {
+                        await apiFetch('api/users.php?action=update_role', 'POST', { user_id: id, role_id: roleId });
+                        Toast.show('Role updated', 'success');
+                    } catch (err) {
+                        Toast.show('Failed to update role', 'error');
+                        loadUsers(); // revert UI
+                    }
+                });
+            });
+
+            document.querySelectorAll('.btn-delete-user').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    if (confirm('Are you sure you want to delete this user?')) {
+                        const id = e.currentTarget.getAttribute('data-id');
+                        try {
+                            await apiFetch('api/users.php?action=delete_user', 'POST', { user_id: id });
+                            Toast.show('User deleted', 'success');
+                            loadUsers();
+                        } catch (err) {
+                            Toast.show('Failed to delete user', 'error');
+                        }
+                    }
+                });
+            });
+        }
+    }
+
+    // expose loadUsers for the checkAuth scope workaround if needed
+    window.loadUsers = loadUsers;
 
     checkAuth();
 });

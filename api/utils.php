@@ -93,6 +93,35 @@ function handleImageUpload($pdo, $fileField = 'image_file', $title = '', $descri
     return null;
 }
 /**
+ * Checks if the currently logged in user has a specific permission.
+ * Returns true/false.
+ */
+function hasPermission($pdo, $permissionName) {
+    if (!isset($_SESSION['user_id'])) return false;
+
+    $stmt = $pdo->prepare("
+        SELECT 1
+        FROM users u
+        JOIN role_permissions rp ON u.role_id = rp.role_id
+        JOIN permissions p ON rp.permission_id = p.id
+        WHERE u.id = ? AND p.name = ?
+    ");
+    $stmt->execute([$_SESSION['user_id'], $permissionName]);
+
+    return $stmt->fetch() !== false;
+}
+
+/**
+ * Checks if the currently logged in user has a specific permission.
+ * If not, sends a 403 JSON error and exits.
+ */
+function requirePermission($pdo, $permissionName) {
+    if (!hasPermission($pdo, $permissionName)) {
+        jsonError('Forbidden: You do not have permission to perform this action.', 403);
+    }
+}
+
+/**
  * Standard JSON Success Response
  */
 function jsonResponse($data, $statusCode = 200) {

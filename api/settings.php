@@ -29,10 +29,7 @@ if ($method === 'GET' && $action === 'global_config') {
 }
 
 if ($method === 'POST' && $action === 'global_config') {
-    if (!$isLoggedIn) {
-        http_response_code(401);
-        jsonResponse(['success' => false, 'error' => 'Unauthorized']);
-    }
+    requirePermission($pdo, 'manage_settings');
 
     $json_value = json_encode($data);
     $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (`key`, `value`) VALUES ('global_config', ?)");

@@ -9,6 +9,9 @@
                 <button type="button" id="btn-cancel-login" class="btn-secondary">Cancel</button>
             </div>
         </form>
+        <div class="mt-sm text-center">
+            <a href="register.php" style="color: var(--raf-nav-2); text-decoration: none;">Create an account</a>
+        </div>
         <p id="login-error" class="text-error mt-sm"></p>
     </div>
 </div>

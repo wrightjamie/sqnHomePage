@@ -40,7 +40,8 @@ require_once 'api/config.php';
                 <button class="tab-btn active" data-target="tab-slides">Slide Sets</button>
                 <button class="tab-btn" data-target="tab-images">Image Management</button>
                 <button class="tab-btn" data-target="tab-programme">Programme Settings</button>
-                <button class="tab-btn" data-target="tab-settings">Settings</button>
+                <button class="tab-btn" data-target="tab-settings" id="tab-btn-settings">Settings</button>
+                <button class="tab-btn" data-target="tab-users" id="tab-btn-users" style="display: none;">Users</button>
             </div>
 
             <div id="tab-slides" class="tab-content active">
@@ -267,6 +268,30 @@ require_once 'api/config.php';
                         
                         <div id="pwd-msg" class="mb-sm font-bold"></div>
                         <button class="btn btn-primary" type="button" id="btn-change-password">Update Password</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="tab-users" class="tab-content hidden">
+                <div class="mb-lg">
+                    <h3 class="mb-sm">User Management</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="w-100" style="text-align: left; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--color-border);">
+                                    <th class="p-sm">ID</th>
+                                    <th class="p-sm">Username</th>
+                                    <th class="p-sm">Display Name</th>
+                                    <th class="p-sm">Status</th>
+                                    <th class="p-sm">Role</th>
+                                    <th class="p-sm">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <!-- Users injected here -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
