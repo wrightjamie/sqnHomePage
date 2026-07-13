@@ -353,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             renderStaff();
         } else {
-            alert('Please select a rank and enter a name.');
+            Toast.show('Please select a rank and enter a name.', 'error');
         }
     });
 

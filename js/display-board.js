@@ -629,7 +629,7 @@ document.getElementById('gallery-file-input').addEventListener('change', async (
         galleryModal.classList.add('hidden');
         galleryTargetSlideId = null;
     } else {
-        alert(resultData.error || 'Upload failed');
+        Toast.show(resultData.error || 'Upload failed', 'error');
     }
 });
 

@@ -132,13 +132,6 @@ body:not(.edit-mode) .padding-row { display: none; }
     justify-content: flex-end;
 }
 
-#toast-container {
-    position: fixed; bottom: var(--space-lg); left: 50%; transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.8); color: #fff; padding: var(--space-sm) var(--space-lg); border-radius: var(--space-lg);
-    font-size: 1rem; font-weight: bold; display: flex; align-items: center; gap: 0.5rem;
-    opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 9999;
-}
-#toast-container.show { opacity: 1; }
 
 .radio-selector-group {
     display: flex;

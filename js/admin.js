@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.success) {
             checkAuth();
         } else {
-            alert('Login failed: ' + data.message);
+            Toast.show('Login failed: ' + data.message, 'error');
         }
     });
 
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
     createSlideForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const setId = slideSetSelect.value;
-        if (!setId) return alert("Select a set first");
+        if (!setId) return Toast.show("Select a set first", 'error');
 
         const type = slideType.value;
         const title = document.getElementById('slide-title').value;
@@ -571,7 +571,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.success) {
             loadAdminGallery(adminPagination.currentPage);
         } else {
-            alert('Failed to delete image: ' + (data.message || 'Unknown error'));
+            Toast.show('Failed to delete image: ' + (data.message || 'Unknown error'), 'error');
         }
     };
     
@@ -585,16 +585,16 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (data.success) {
                 if (data.debug && !data.debug.gd_loaded) {
-                    alert('Warning: The PHP GD library is STILL NOT loaded by the web server. Please ensure you edited the correct php.ini and fully restarted Apache in XAMPP.');
+                    Toast.show('Warning: The PHP GD library is STILL NOT loaded by the web server. Please ensure you edited the correct php.ini and fully restarted Apache in XAMPP.', 'error');
                 } else {
-                    alert(`Successfully generated ${data.count} new thumbnails!`);
+                    Toast.show(`Successfully generated ${data.count} new thumbnails!`, 'success');
                 }
                 loadAdminGallery(adminPagination.currentPage); // refresh grid to show new thumbs
             } else {
-                alert('Failed: ' + data.message);
+                Toast.show('Failed: ' + data.message, 'error');
             }
         } catch (e) {
-            alert('Error during regeneration.');
+            Toast.show('Error during regeneration.', 'error');
         }
         
         btnRegenThumbs.innerHTML = originalText;
@@ -740,10 +740,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     slideImagePreview.classList.remove('hidden');
                 }
             } else {
-                alert('Upload failed: ' + data.message);
+                Toast.show('Upload failed: ' + data.message, 'error');
             }
         } catch (err) {
-            alert('Upload error');
+            Toast.show('Upload error', 'error');
         }
         
         submitBtn.innerHTML = originalText;
