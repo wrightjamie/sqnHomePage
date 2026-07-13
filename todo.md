@@ -23,7 +23,7 @@ This document outlines the proposed order for implementing the pending features 
 ## 7. Print Stylesheet (`todo/print-stylesheet.md`)
 **Justification:** The print stylesheet relies heavily on a finalized, stable DOM structure, specifically requiring the hiding of complex UI elements like the floating hamburger menu and correctly formatting tables on `programme.php`. Implementing this last ensures we are applying print rules against a complete HTML structure, guaranteeing all elements are accounted for and styled appropriately for export.
 
-## 8. Global Notification (Toast) System (`todo/global_notification_system.md`)
+## 8. Global Notification (Toast) System (`todo/done/global_notification_system.md`) [DONE]
 **Justification:** This feature introduces a robust, global notification system for application-wide feedback. It provides a foundational UI feedback mechanism that should be established before building complex features like Role-Based Auth, User Management, and Secure System Reset, allowing them to leverage it for permission errors and form confirmations.
 
 ## 9. Role-Based Auth & Registration (`todo/role_based_auth.md`)
