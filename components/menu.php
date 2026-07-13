@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../api/utils.php';
 $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 <div id="bottom-right-controls">

@@ -33,3 +33,7 @@ Welcome! If you are an AI agent (such as Jules or Antigravity) working on this c
 ## 6. Code Documentation
 * **Self-Documenting Code & Comments:** Write readable, self-documenting code. Add clear, concise comments for complex logic.
 * **Docblocks:** Use appropriate docblocks (e.g., PHPDoc for PHP, JSDoc for JavaScript) for functions, classes, and methods to explain their purpose, parameters, and return types.
+
+## 7. Local Development
+* **Running the Server:** When starting the local development server for testing, always explicitly use the XAMPP PHP executable path to ensure the correct environment:
+  `C:\xampp\php\php.exe -S localhost:8000`

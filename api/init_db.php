@@ -123,7 +123,7 @@ try {
 
         $stmt = $pdo->prepare("INSERT INTO users (username, password_hash, display_name, status, role_id) VALUES (?, ?, ?, 'active', ?)");
         $stmt->execute([$username, $hash, 'Administrator', $adminRoleId]);
-        echo "Database initialized. Default user created (admin/admin).<br>";
+        // echo "Database initialized. Default user created (admin/admin).<br>";
     } else {
         // Migration: If admin user doesn't have a role, assign it
         $stmt = $pdo->query("SELECT id FROM roles WHERE name = 'Admin'");
@@ -131,7 +131,7 @@ try {
         if ($adminRoleId) {
             $pdo->prepare("UPDATE users SET role_id = ? WHERE role_id IS NULL AND (role = 'admin' OR username = 'admin')")->execute([$adminRoleId]);
         }
-        echo "Database already initialized.<br>";
+        // echo "Database already initialized.<br>";
     }
     
 } catch (PDOException $e) {
