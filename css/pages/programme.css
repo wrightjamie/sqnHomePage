@@ -17,6 +17,7 @@ body { overflow-y: auto; overflow-x: hidden; width: 100%; background: #fff; colo
 td.notes-col { font-size: 0.9em; }
 .date-col { width: 6%; font-weight: bold; }
 .uniform-col { width: 8%; font-weight: bold; }
+.duty-col { width: 8%; }
 
 .date-superscript {
     font-weight: normal; 
@@ -29,6 +30,15 @@ td.notes-col { font-size: 0.9em; }
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #fff; }
     .no-print { display: none !important; }
     .programme-container { padding: 0; max-width: 100%; }
+
+    #bottom-right-controls { display: none !important; }
+    .hamburger-menu { display: none !important; }
+
+    table.prog-table { width: 100%; page-break-inside: auto; border: 1px solid #000; }
+    tr { page-break-inside: avoid; page-break-after: auto; }
+    thead { display: table-header-group; }
+
+    .uniform-col { color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
 
 /* Edit Mode Styles */

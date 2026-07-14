@@ -124,23 +124,23 @@ function requirePermission($pdo, $permissionName) {
 /**
  * Standard JSON Success Response
  */
-function jsonResponse($data, $statusCode = 200) {
+function jsonResponse($data, $statusCode = 200, $exit = true) {
     http_response_code($statusCode);
     header('Content-Type: application/json');
     header('Cache-Control: no-cache, no-store, must-revalidate');
     header('Pragma: no-cache');
     header('Expires: 0');
     echo json_encode(['success' => true, 'data' => $data]);
-    exit;
+    if($exit) exit;
 }
 
 /**
  * Standard JSON Error Response
  */
-function jsonError($message, $statusCode = 400) {
+function jsonError($message, $statusCode = 400, $exit = true) {
     http_response_code($statusCode);
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'error' => $message]);
-    exit;
+    if($exit) exit;
 }
 ?>

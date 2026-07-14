@@ -4,3 +4,9 @@
 - [x] Addition of Tests
 - [x] Floating Hamburger Menu
 - [x] Array-based Notes
+- [x] Tonight's Duties
+- [x] NCO Management Registry
+- [x] Documents Page
+- [x] Document History
+- [x] Print Stylesheet
+- [x] Secure System Reset

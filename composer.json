@@ -1,0 +1,7 @@
+{
+    "name": "jules/aircadet",
+    "description": "Tests for Air Cadet Displayboard",
+    "require-dev": {
+        "phpunit/phpunit": "^10.0"
+    }
+}

@@ -409,6 +409,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let unifObj = config.uniforms.find(u => u.name === rowData.uniform);
         if (unifObj) unifColor = unifObj.color;
         
+        let dutyHtml = `<div class="duty-indicators text-xs text-muted mt-xs">NCO: ${rowData.duty_nco || '-'}<br>Cdt: ${rowData.duty_cadet || '-'}</div>`;
+
         let styleStr = '';
         if (unifColor) {
             styleStr = ` style="background-color: ${unifColor}; color: ${isLight(unifColor) ? '#000' : '#fff'}; text-shadow: ${isLight(unifColor) ? 'none' : '0.0625rem 0.0625rem 0.125rem #000'};"`;
@@ -421,6 +423,9 @@ document.addEventListener('DOMContentLoaded', () => {
             </td>
             <td class="uniform-col editable-cell" data-type="uniform"${styleStr}>
                 ${unifText}
+            </td>
+            <td class="duty-col editable-cell" data-type="duty">
+                ${dutyHtml}
             </td>
         `;
         
@@ -472,6 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const type = cell.dataset.type;
                 if (type === 'uniform') window.openUniformPopover(e, cell, rowData, tr, monthType);
                 else if (type === 'notes' || type === 'month-notes') window.openNotesPopover(e, cell, rowData, tr, monthType, type);
+                else if (type === 'duty') window.openDutyPopover(e, cell, rowData, tr, monthType);
                 else if (type === 'activity') window.openActivityPopover(e, cell, rowData, tr, monthType);
 
             });
@@ -484,6 +490,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 let acts = config.classifications.map(c => ({ classifications: [c], activity_type: '', name: '', instructor: '' }));
                 rowData.uniform = '';
                 rowData.notes = [];
+                rowData.duty_nco = '';
+                rowData.duty_cadet = '';
                 rowData.activities = acts;
                 
                 let monthType = 'curr';

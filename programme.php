@@ -38,6 +38,7 @@ require_once 'api/config.php';
                     <tr>
                         <th rowspan="2" class="date-col">Date</th>
                         <th rowspan="2" class="uniform-col">Uniform</th>
+                        <th rowspan="2" class="duty-col">Duties</th>
                         <th id="classifications-header" style="border-bottom: 0.0625rem solid #000;">Classifications</th>
                         <th rowspan="2" class="notes-col">Notes</th>
                     </tr>
@@ -82,6 +83,18 @@ require_once 'api/config.php';
     <div id="uniform-popover" class="popover-panel" popover>
         <h3>Select Uniform</h3>
         <div id="unif-grid" class="unif-grid"></div>
+    </div>
+
+    <div id="duty-popover" class="popover-panel" popover>
+        <h3>Edit Duties</h3>
+        <label class="form-label text-sm font-bold mb-xs">Duty NCO</label>
+        <select id="duty-nco-select" class="form-control mb-md"></select>
+
+        <label class="form-label text-sm font-bold mb-xs">Duty Cadet</label>
+        <input type="text" id="duty-cadet-input" placeholder="Duty Cadet" class="form-control mb-md">
+        <div class="popover-footer popover-footer-end">
+            <button id="btn-duty-save" class="btn btn-primary btn-sm" title="Done"><span class="material-symbols-outlined btn-icon-md">check</span></button>
+        </div>
     </div>
 
     <div id="notes-popover" class="popover-panel" popover>

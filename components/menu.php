@@ -26,6 +26,10 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         <a href="programme.php" class="menu-btn flex-center" title="Training Programme"><span class="material-symbols-outlined">calendar_month</span></a>
     <?php endif; ?>
 
+    <?php if ($currentPage !== 'documents.php'): ?>
+        <a href="documents.php" class="menu-btn flex-center" title="Documents"><span class="material-symbols-outlined">description</span></a>
+    <?php endif; ?>
+
     <?php if ($currentPage === 'home.php'): ?>
         <button id="btn-next-bg" class="menu-btn flex-center hidden" title="Next Background"><span class="material-symbols-outlined">image</span></button>
     <?php endif; ?>

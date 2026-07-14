@@ -371,6 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderParadeNights();
         populateRankPicker();
         renderStaff();
+        renderNcos();
     }
 
     btnSave.addEventListener('click', async () => {
@@ -407,3 +408,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 500);
 
 });
+
+    function renderNcos() {
+        apiFetch('api/ncos.php').then(ncos => {
+            const list = document.getElementById('nco-list');
+            if(!list) return;
+            list.innerHTML = '';
+            ncos.forEach(nco => {
+                const div = document.createElement('div');
+                div.className = 'admin-list-item flex-row gap-xs align-center mb-xs';
+                div.innerHTML = `
+                    <span class="flex-grow-1"><strong>${nco.rank}</strong> ${nco.name}</span>
+                    <button class="btn-clear-row btn-sm" title="Delete"><span class="material-symbols-outlined text-error">delete</span></button>
+                `;
+
+                div.querySelector('.btn-clear-row').addEventListener('click', async () => {
+                    if(confirm(`Remove ${nco.rank} ${nco.name}?`)) {
+                        await apiFetch('api/ncos.php', 'DELETE', {id: nco.id});
+                        renderNcos();
+                        if(typeof Toast !== 'undefined') Toast.show('NCO removed', 'success');
+                    }
+                });
+
+                list.appendChild(div);
+            });
+        });
+    }
+
+    // Add NCO
+    const btnAddNco = document.getElementById('btn-add-nco');
+    if (btnAddNco) {
+        btnAddNco.addEventListener('click', async () => {
+            const nameInput = document.getElementById('new-nco-name');
+            const rankInput = document.getElementById('new-nco-rank');
+            const name = nameInput.value.trim();
+            if (!name) return;
+
+            await apiFetch('api/ncos.php', 'POST', { name, rank: rankInput.value });
+            renderNcos();
+            nameInput.value = '';
+            nameInput.focus();
+            if(typeof Toast !== 'undefined') Toast.show('NCO Added', 'success');
+        });
+    }

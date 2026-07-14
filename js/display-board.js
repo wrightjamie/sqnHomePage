@@ -887,6 +887,18 @@ function renderProgrammeNight(container, data) {
             </div>`;
         }
     }
+
+    // Tonight's Duties
+    if (night.duty_nco || night.duty_cadet) {
+        html += `
+        <div class="prog-info-card prog-duties-card">
+            <h3><span class="material-symbols-outlined" style="vertical-align:middle;">assignment_ind</span> Duties</h3>
+            <div class="prog-duties-grid">
+                ${night.duty_nco ? `<div class="prog-duty-item"><span class="prog-duty-label">Duty NCO:</span> <strong>${night.duty_nco}</strong></div>` : ""}
+                ${night.duty_cadet ? `<div class="prog-duty-item"><span class="prog-duty-label">Duty Cadet:</span> <strong>${night.duty_cadet}</strong></div>` : ""}
+            </div>
+        </div>`;
+    }
     html += `</div>`;
     
     // Activities
@@ -931,6 +943,18 @@ function renderProgrammeNight(container, data) {
         </div>`;
     }
     
+
+    // Tonight's Duties
+    if (night.duty_nco || night.duty_cadet) {
+        html += `
+        <div class="prog-info-card prog-duties-card">
+            <h3><span class="material-symbols-outlined" style="vertical-align:middle;">assignment_ind</span> Duties</h3>
+            <div class="prog-duties-grid">
+                ${night.duty_nco ? `<div class="prog-duty-item"><span class="prog-duty-label">Duty NCO:</span> <strong>${night.duty_nco}</strong></div>` : ""}
+                ${night.duty_cadet ? `<div class="prog-duty-item"><span class="prog-duty-label">Duty Cadet:</span> <strong>${night.duty_cadet}</strong></div>` : ""}
+            </div>
+        </div>`;
+    }
     html += `</div>`; // end flex column
     container.innerHTML = html;
 }

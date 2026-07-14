@@ -24,3 +24,5 @@ uploads/*
 ehthumbs.db
 Thumbs.db
 data/sessions/
+node_modules/
+vendor/

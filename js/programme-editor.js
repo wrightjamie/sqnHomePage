@@ -86,6 +86,32 @@ window.openNotesPopover = function(e, cell, rowData, tr, monthType, type) {
     popover.showPopover();
 };
 
+window.openDutyPopover = function(e, cell, rowData, tr, monthType) {
+    activateCell(cell, rowData);
+
+    // Get popover (needs to be added to ProgState in programme.js or fetched here)
+    const popover = document.getElementById('duty-popover');
+
+    // We'll dynamically fetch NCOs if needed, or use a cached list. For now, let's fetch them if an NCO endpoint exists,
+    // but NCO registry comes in the NEXT step. For now, it can just be a text field or empty select that will be populated later.
+    // Oh wait, NCO Management Registry is also in my plan! I'll implement the API for it soon.
+    // Let's populate the select if window.ProgState.ncos is available, otherwise leave empty.
+
+    const select = document.getElementById('duty-nco-select');
+    select.value = rowData.duty_nco || '';
+
+    document.getElementById('duty-cadet-input').value = rowData.duty_cadet || '';
+
+    document.getElementById('btn-duty-save').onclick = () => {
+        rowData.duty_nco = select.value;
+        rowData.duty_cadet = document.getElementById('duty-cadet-input').value;
+        window.ProgState.refreshRow(tr, rowData);
+        popover.hidePopover();
+        window.ProgState.autoSave(monthType);
+    };
+    popover.showPopover();
+};
+
 window.openActivityPopover = function(e, cell, rowData, tr, monthType) {
     activateCell(cell, rowData);
     const popover = window.ProgState.actPopover;
