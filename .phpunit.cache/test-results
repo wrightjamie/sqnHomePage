@@ -1,1 +1,0 @@
-{"version":2,"defects":{"UtilsTest::testJsonResponse":8,"UtilsTest::testJsonError":8},"times":{"UtilsTest::testJsonResponse":0.003,"UtilsTest::testJsonError":0.01}}
