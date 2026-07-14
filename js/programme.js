@@ -339,16 +339,24 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        const noteContainer = document.getElementById('note-popular-btns');
+        const noteContainer = document.getElementById("note-popular-btns");
         if (noteContainer) {
-            noteContainer.innerHTML = '';
+            noteContainer.innerHTML = "";
+            const dlNotes = document.getElementById("dl-notes");
+            if (dlNotes) dlNotes.innerHTML = "";
             topNotes.forEach(name => {
-                const btn = document.createElement('button');
-                btn.className = 'btn btn-secondary btn-sm';
+                if (dlNotes) {
+                    const opt = document.createElement("option");
+                    opt.value = name;
+                    dlNotes.appendChild(opt);
+                }
+                const btn = document.createElement("button");
+                btn.className = "btn btn-secondary btn-sm";
                 btn.textContent = name;
                 btn.onclick = () => { 
-                    const ta = document.getElementById('note-text');
-                    ta.value = ta.value ? ta.value + '\n' + name : name; 
+                    if (window.ProgState && window.ProgState.appendNoteFromBtn) {
+                        window.ProgState.appendNoteFromBtn(name);
+                    }
                 };
                 noteContainer.appendChild(btn);
             });

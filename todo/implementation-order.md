@@ -2,13 +2,13 @@
 
 This document outlines the proposed order for implementing the pending features to ensure a logical progression based on existing code structure, appropriate timing of changes, and minimizing rework.
 
-## 1. Addition of Tests (`todo/addition_of_tests.md`)
+## 1. Addition of Tests (`todo/addition_of_tests.md`) [DONE]
 **Justification:** Establishing a comprehensive test suite (frontend and backend) should be the very first step. Doing this before introducing new features or refactoring ensures that existing functionality is protected against regressions during subsequent changes.
 
-## 2. Floating Hamburger Menu (`todo/floating_hamburger_menu.md`)
+## 2. Floating Hamburger Menu (`todo/floating_hamburger_menu.md`) [DONE]
 **Justification:** This feature alters the global navigation layout across the site, replacing the existing header/sidebar approach with a bottom-right floating menu. This foundational UI change should be implemented first so that all subsequent new pages and UI adjustments are built against the final layout, avoiding the need to refactor them later.
 
-## 3. Array-based Notes (`todo/array_based_notes.md`)
+## 3. Array-based Notes (`todo/array_based_notes.md`) [DONE]
 **Justification:** This feature modifies the core JSON data schema (converting notes from a string to an array) and requires significant updates to the UI rendering logic in both `programme.php` and `index.php`. Making these core data and structural changes early ensures that other UI additions on those same pages don't encounter integration conflicts or data structure mismatches later.
 
 ## 4. Tonight's Duties (`todo/tonights_duties.md`)

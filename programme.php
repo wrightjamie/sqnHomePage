@@ -86,7 +86,9 @@ require_once 'api/config.php';
 
     <div id="notes-popover" class="popover-panel" popover>
         <h3>Edit Notes</h3>
-        <textarea id="note-text" placeholder="Add note..."></textarea>
+        <div id="notes-list-editor" class="flex-col gap-xs mb-sm"></div>
+        <datalist id="dl-notes"></datalist>
+        <button id="btn-note-add" class="btn btn-secondary btn-sm mb-md" style="width:100%;"><span class="material-symbols-outlined">add</span> Add Note</button>
         <div class="popular-btns" id="note-popular-btns"></div>
         <div class="popover-footer popover-footer-end">
             <button id="btn-note-save" class="btn btn-primary btn-sm" title="Done"><span class="material-symbols-outlined btn-icon-md">check</span></button>

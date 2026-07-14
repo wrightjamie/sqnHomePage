@@ -799,7 +799,7 @@ function renderProgrammeNight(container, data) {
     const dateStr = data.date;
     const prevDate = data.prev_date;
     const nextDate = data.next_date;
-    const monthNotes = data.month_notes || [];
+    const monthNotes = data.month_comments || [];
 
     const slideId = container.getAttribute('data-slide-id');
     const d = new Date(dateStr);
@@ -872,11 +872,11 @@ function renderProgrammeNight(container, data) {
     if ((night.notes && night.notes.length > 0) || (monthNotes && monthNotes.length > 0)) {
         let notesHtml = '';
         if (night.notes && night.notes.length > 0) {
-            notesHtml += night.notes.filter(n => n.trim()).map(n => `<li>${n}</li>`).join('');
+            notesHtml += night.notes.map(n => typeof n === "string" ? n.trim() : n).filter(n => n).map(n => `<li>${n}</li>`).join("");
         }
         if (monthNotes && monthNotes.length > 0) {
             if (notesHtml) notesHtml += `<hr class="prog-notes-divider">`;
-            notesHtml += monthNotes.filter(n => n.trim()).map(n => `<li class="italic">${n}</li>`).join('');
+            notesHtml += monthNotes.map(n => typeof n === "string" ? n.trim() : n).filter(n => n).map(n => `<li class="italic">${n}</li>`).join("");
         }
 
         if (notesHtml) {

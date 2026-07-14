@@ -168,3 +168,6 @@ body:not(.edit-mode) .padding-row { display: none; }
 .classifications-header-col {
     border-bottom: 0.0625rem solid #000;
 }
+.note-input {
+    margin-bottom: 0 !important;
+}

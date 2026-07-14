@@ -33,21 +33,55 @@ window.openUniformPopover = function(e, cell, rowData, tr, monthType) {
 window.openNotesPopover = function(e, cell, rowData, tr, monthType, type) {
     activateCell(cell, rowData);
     const popover = window.ProgState.notesPopover;
-    let currentNotes = type === 'month-notes' ? (rowData.month_comments || []) : (rowData.notes || []);
+    let currentNotes = type === "month-notes" ? [...(rowData.month_comments || [])] : [...(rowData.notes || [])];
     
-    document.getElementById('note-text').value = currentNotes.join('\n');
-    document.getElementById('btn-note-save').onclick = () => {
-        let lines = document.getElementById('note-text').value.split('\n').map(l => l.trim()).filter(l => l);
-        
-        if (type === 'month-notes') {
+    const listContainer = document.getElementById("notes-list-editor");
+
+    function renderNoteList() {
+        listContainer.innerHTML = "";
+        currentNotes.forEach((note, idx) => {
+            const div = document.createElement("div");
+            div.className = "note-edit-item flex-row gap-xs align-center mb-xs";
+            div.innerHTML = `
+                <input type="text" class="form-control flex-grow-1 note-input" placeholder="Note..." list="dl-notes">
+                <button type="button" class="btn btn-secondary btn-sm flex-center note-up" ${idx === 0 ? "disabled" : ""}><span class="material-symbols-outlined">arrow_upward</span></button>
+                <button type="button" class="btn btn-secondary btn-sm flex-center note-down" ${idx === currentNotes.length - 1 ? "disabled" : ""}><span class="material-symbols-outlined">arrow_downward</span></button>
+                <button type="button" class="btn btn-secondary btn-sm flex-center note-del text-error"><span class="material-symbols-outlined">delete</span></button>
+            `;
+
+            div.querySelector(".note-input").value = note; // Safe programmatic assignment
+            div.querySelector(".note-input").addEventListener("change", (e) => { currentNotes[idx] = e.target.value; });
+            div.querySelector(".note-up").addEventListener("click", () => { [currentNotes[idx-1], currentNotes[idx]] = [currentNotes[idx], currentNotes[idx-1]]; renderNoteList(); });
+            div.querySelector(".note-down").addEventListener("click", () => { [currentNotes[idx+1], currentNotes[idx]] = [currentNotes[idx], currentNotes[idx+1]]; renderNoteList(); });
+            div.querySelector(".note-del").addEventListener("click", () => { currentNotes.splice(idx, 1); renderNoteList(); });
+            listContainer.appendChild(div);
+        });
+    }
+
+    renderNoteList();
+
+    document.getElementById("btn-note-add").onclick = () => {
+        currentNotes.push("");
+        renderNoteList();
+    };
+
+    window.ProgState.appendNoteFromBtn = (noteText) => {
+        currentNotes.push(noteText);
+        renderNoteList();
+    };
+
+    document.getElementById("btn-note-save").onclick = () => {
+        let lines = currentNotes.map(n => typeof n === "string" ? n.trim() : n).filter(l => l);
+        if (type === "month-notes") {
             rowData.month_comments = lines;
-            window.ProgState.monthNotesContainer.innerHTML = lines.filter(n => n).map(n => `• ${n}`).join('<br>') || '<em>No notes</em>';
+            window.ProgState.monthNotesContainer.innerHTML = lines.filter(n => n).map(n => `• ${n}`).join("<br>") || "<em>No notes</em>";
         } else {
             rowData.notes = lines;
             window.ProgState.refreshRow(tr, rowData);
         }
         popover.hidePopover();
         window.ProgState.autoSave(monthType);
+
     };
     popover.showPopover();
 };
