@@ -37,15 +37,17 @@ if (!empty($_SERVER['PATH_INFO'])) {
             padding: 0 var(--space-lg);
             color: white;
             justify-content: space-between;
+            background: linear-gradient(to bottom, var(--colour-footer) 0%, var(--colour-footer) calc(100% - 60px), transparent calc(100% - 60px), transparent 100%);
         }
 
         .header-swoosh-svg {
             position: absolute;
-            top: 0;
+            bottom: 0;
             left: 0;
             width: 100%;
-            height: 100%;
+            height: 60px;
             z-index: -1;
+            transform: scaleX(-1);
         }
 
         .doc-header-swoosh h1 {
