@@ -789,10 +789,40 @@ async function loadProgrammeSlidesData() {
                 container.innerHTML = `<div class="prog-empty-msg"><h2>No Programme Found</h2><p>For date: ${data ? data.date : 'Unknown'}</p></div>`;
             }
         } catch (e) {
+            console.error("loadProgrammeSlidesData error:", e);
             container.innerHTML = `<div class="prog-error-msg"><h2>Error loading programme</h2></div>`;
         }
     }
 }
+
+// Function to change the displayed date dynamically without saving to db
+window.shiftProgrammeSlideDate = function(btn, targetDate) {
+    const c = btn.closest('.programme-slide-container');
+    if (c) {
+        c.setAttribute('data-mode', 'specific');
+        c.setAttribute('data-date', targetDate);
+        window.loadProgrammeSlidesData();
+        
+        // Pause slideshow if not already paused
+        if (typeof isPaused !== 'undefined' && !isPaused) {
+            togglePause();
+            c.autoPaused = true;
+        }
+        
+        if (c.revertTimeout) clearTimeout(c.revertTimeout);
+        c.revertTimeout = setTimeout(() => {
+            c.setAttribute('data-mode', c.getAttribute('data-orig-mode'));
+            c.setAttribute('data-date', c.getAttribute('data-orig-date'));
+            window.loadProgrammeSlidesData();
+            
+            // Resume if we auto-paused it
+            if (c.autoPaused) {
+                if (typeof isPaused !== 'undefined' && isPaused) togglePause();
+                c.autoPaused = false;
+            }
+        }, DISPLAY_CONFIG.PROGRAMME_REVERT_TIMEOUT_MS);
+    }
+};
 
 function renderProgrammeNight(container, data) {
     const night = data.night;
@@ -809,37 +839,6 @@ function renderProgrammeNight(container, data) {
     let editActionHtml = '';
     if (typeof editMode !== 'undefined' && editMode) {
         editActionHtml = `<button class="btn-primary" style="margin-left:1rem;" onclick="openProgrammeSettings(${slideId})" title="Slide Settings"><span class="material-symbols-outlined">settings</span></button>`;
-    }
-    
-    // Function to change the displayed date dynamically without saving to db
-    if (!window.shiftProgrammeSlideDate) {
-        window.shiftProgrammeSlideDate = function(btn, targetDate) {
-            const c = btn.closest('.programme-slide-container');
-            if (c) {
-                c.setAttribute('data-mode', 'specific');
-                c.setAttribute('data-date', targetDate);
-                window.loadProgrammeSlidesData();
-                
-                // Pause slideshow if not already paused
-                if (typeof isPaused !== 'undefined' && !isPaused) {
-                    togglePause();
-                    c.autoPaused = true;
-                }
-                
-                if (c.revertTimeout) clearTimeout(c.revertTimeout);
-                c.revertTimeout = setTimeout(() => {
-                    c.setAttribute('data-mode', c.getAttribute('data-orig-mode'));
-                    c.setAttribute('data-date', c.getAttribute('data-orig-date'));
-                    window.loadProgrammeSlidesData();
-                    
-                    // Resume if we auto-paused it
-                    if (c.autoPaused) {
-                        if (typeof isPaused !== 'undefined' && isPaused) togglePause();
-                        c.autoPaused = false;
-                    }
-                }, DISPLAY_CONFIG.PROGRAMME_REVERT_TIMEOUT_MS);
-            }
-        };
     }
 
     let prevBtnHtml = prevDate ? `<button onclick="window.shiftProgrammeSlideDate(this, '${prevDate}')" class="prog-nav-btn prog-nav-left" title="Previous Parade Night"><span class="material-symbols-outlined">chevron_left</span></button>` : '';
@@ -944,17 +943,7 @@ function renderProgrammeNight(container, data) {
     }
     
 
-    // Tonight's Duties
-    if (night.duty_nco || night.duty_cadet) {
-        html += `
-        <div class="prog-info-card prog-duties-card">
-            <h3><span class="material-symbols-outlined" style="vertical-align:middle;">assignment_ind</span> Duties</h3>
-            <div class="prog-duties-grid">
-                ${night.duty_nco ? `<div class="prog-duty-item"><span class="prog-duty-label">Duty NCO:</span> <strong>${night.duty_nco}</strong></div>` : ""}
-                ${night.duty_cadet ? `<div class="prog-duty-item"><span class="prog-duty-label">Duty Cadet:</span> <strong>${night.duty_cadet}</strong></div>` : ""}
-            </div>
-        </div>`;
-    }
+    // Duties rendering removed from bottom to avoid duplication
     html += `</div>`; // end flex column
     container.innerHTML = html;
 }

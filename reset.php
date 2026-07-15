@@ -21,12 +21,14 @@ $stmt->execute([$_SESSION['user_id']]);
 if (!$stmt->fetch()) {
     die("Access Denied: Administrator privileges required.");
 }
+$stmt->closeCursor();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['password'])) {
         $stmt = $pdo->prepare("SELECT password_hash FROM users WHERE id = ?");
         $stmt->execute([$_SESSION['user_id']]);
         $hash = $stmt->fetchColumn();
+        $stmt->closeCursor();
 
         if (!$hash || !password_verify($_POST['password'], $hash)) {
             $message = "Incorrect password.";
@@ -85,10 +87,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST">
-            <label style="text-align:center; display:block;">Enter your <strong>Admin Password</strong> to confirm:</label>
-            <input type="password" name="password" placeholder="Password" autocomplete="off" required>
+            <label style="text-align:center; display:block; margin-bottom: 0.5rem;">Enter your <strong>Admin Password</strong> to confirm:</label>
+            <input type="password" class="form-control" name="password" placeholder="Password" autocomplete="off" required style="text-align: center; margin-bottom: 1rem;">
             
-            <button type="submit">NUKE DATABASE</button>
+            <button type="submit" class="btn text-error" style="width: 100%;">NUKE DATABASE</button>
         </form>
     </div>
 </body>

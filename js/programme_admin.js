@@ -438,8 +438,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add NCO
     const btnAddNco = document.getElementById('btn-add-nco');
     if (btnAddNco) {
-        btnAddNco.addEventListener('click', async () => {
-            const nameInput = document.getElementById('new-nco-name');
+        const nameInput = document.getElementById('new-nco-name');
+        
+        const addNco = async () => {
             const rankInput = document.getElementById('new-nco-rank');
             const name = nameInput.value.trim();
             if (!name) return;
@@ -449,5 +450,10 @@ document.addEventListener('DOMContentLoaded', () => {
             nameInput.value = '';
             nameInput.focus();
             if(typeof Toast !== 'undefined') Toast.show('NCO Added', 'success');
+        };
+
+        btnAddNco.addEventListener('click', addNco);
+        nameInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') addNco();
         });
     }

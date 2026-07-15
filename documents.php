@@ -102,11 +102,21 @@ require_once 'api/config.php';
             margin-bottom: var(--space-md);
         }
 
+        /* Override global navigation button colors for white background */
+        :root {
+            --nav-btn-bg: rgba(0,0,0,0.6);
+            --nav-btn-opacity: 0.7;
+            --nav-btn-hover-bg: rgba(0,0,0,0.9);
+            --nav-btn-hover-opacity: 1;
+        }
+
         @media print {
             body { background: white; margin: 0; }
             #bottom-right-controls, .no-print, .doc-header-swoosh { display: none !important; }
-            .doc-container { padding: 0; max-width: 100%; }
+            .doc-container { padding: 0; max-width: 100%; box-shadow: none; margin: 0; }
             h1 { page-break-before: always; }
+            .mb-md { margin-bottom: 0 !important; }
+            button { display: none !important; }
 
             /* Running header/footer via fixed position */
             @page {

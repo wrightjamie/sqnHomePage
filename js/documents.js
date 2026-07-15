@@ -3,11 +3,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let quill = null;
     let currentDoc = null;
 
+    let isEditMode = false;
+
     function renderList() {
         app.innerHTML = `
             <div class="flex-row justify-between align-center mb-lg">
                 <h2>Documents</h2>
-                ${window.Auth && window.Auth.hasPermission('manage_settings') ? `<button id="btn-new-doc" class="btn btn-primary"><span class="material-symbols-outlined">add</span> New Document</button>` : ''}
+                ${isEditMode ? `<button id="btn-new-doc" class="btn btn-primary"><span class="material-symbols-outlined">add</span> New Document</button>` : ''}
             </div>
             <div id="doc-list" class="flex-col gap-sm">Loading...</div>
         `;
@@ -76,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="btn btn-secondary" onclick="location.reload()"><span class="material-symbols-outlined">arrow_back</span> Back</button>
                     <div class="flex-row gap-sm">
                         <button class="btn btn-secondary" onclick="window.print()"><span class="material-symbols-outlined">print</span> Print</button>
-                        ${window.Auth && window.Auth.hasPermission('manage_settings') ? `<button id="btn-edit-doc" class="btn btn-primary"><span class="material-symbols-outlined">edit</span> Edit</button>` : ''}
+                        ${isEditMode ? `<button id="btn-edit-doc" class="btn btn-primary"><span class="material-symbols-outlined">edit</span> Edit</button>` : ''}
                     </div>
                 </div>
                 <div class="doc-view">
@@ -179,12 +181,18 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // Auto-check auth on init, if we fail to get profile, we assume not admin
-    if (window.Auth) {
-        window.Auth.checkSession().finally(() => {
-            renderList();
+    // Listen to global edit mode button
+    const btnEditMode = document.getElementById('btn-edit-mode');
+    if (btnEditMode) {
+        btnEditMode.addEventListener('click', () => {
+            isEditMode = !isEditMode;
+            if (currentDoc) {
+                renderView(currentDoc.id);
+            } else {
+                renderList();
+            }
         });
-    } else {
-        renderList();
     }
+
+    renderList();
 });

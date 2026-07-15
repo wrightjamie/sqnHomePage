@@ -60,9 +60,22 @@ window.openNotesPopover = function(e, cell, rowData, tr, monthType, type) {
 
     renderNoteList();
 
-    document.getElementById("btn-note-add").onclick = () => {
-        currentNotes.push("");
-        renderNoteList();
+    const newNoteInput = document.getElementById("new-note-input");
+    
+    const addNote = () => {
+        const val = newNoteInput.value.trim();
+        if (val) {
+            currentNotes.push(val);
+            renderNoteList();
+            newNoteInput.value = "";
+            newNoteInput.focus();
+        }
+    };
+
+    document.getElementById("btn-note-add").onclick = addNote;
+    
+    newNoteInput.onkeyup = (e) => {
+        if (e.key === 'Enter') addNote();
     };
 
     window.ProgState.appendNoteFromBtn = (noteText) => {
@@ -92,12 +105,20 @@ window.openDutyPopover = function(e, cell, rowData, tr, monthType) {
     // Get popover (needs to be added to ProgState in programme.js or fetched here)
     const popover = document.getElementById('duty-popover');
 
-    // We'll dynamically fetch NCOs if needed, or use a cached list. For now, let's fetch them if an NCO endpoint exists,
-    // but NCO registry comes in the NEXT step. For now, it can just be a text field or empty select that will be populated later.
-    // Oh wait, NCO Management Registry is also in my plan! I'll implement the API for it soon.
-    // Let's populate the select if window.ProgState.ncos is available, otherwise leave empty.
-
     const select = document.getElementById('duty-nco-select');
+    
+    // Fetch NCOs and populate the dropdown if empty
+    apiFetch('api/ncos.php').then(ncos => {
+        select.innerHTML = '<option value="">None</option>';
+        ncos.forEach(nco => {
+            const opt = document.createElement('option');
+            opt.value = `${nco.rank} ${nco.name}`;
+            opt.textContent = `${nco.rank} ${nco.name}`;
+            select.appendChild(opt);
+        });
+        select.value = rowData.duty_nco || '';
+    }).catch(e => console.error("Failed to fetch NCOs", e));
+
     select.value = rowData.duty_nco || '';
 
     document.getElementById('duty-cadet-input').value = rowData.duty_cadet || '';
@@ -241,14 +262,20 @@ window.setupDragAndDrop = function() {
                 let tempUniform = srcData.uniform;
                 let tempNotes = srcData.notes;
                 let tempActs = srcData.activities;
+                let tempDutyNco = srcData.duty_nco;
+                let tempDutyCadet = srcData.duty_cadet;
                 
                 srcData.uniform = tgtData.uniform;
                 srcData.notes = tgtData.notes;
                 srcData.activities = tgtData.activities;
+                srcData.duty_nco = tgtData.duty_nco;
+                srcData.duty_cadet = tgtData.duty_cadet;
                 
                 tgtData.uniform = tempUniform;
                 tgtData.notes = tempNotes;
                 tgtData.activities = tempActs;
+                tgtData.duty_nco = tempDutyNco;
+                tgtData.duty_cadet = tempDutyCadet;
                 
                 window.ProgState.refreshRow(dragSrcEl, srcData);
                 if (srcMonthType !== tgtMonthType) window.ProgState.autoSave(srcMonthType);
@@ -257,6 +284,8 @@ window.setupDragAndDrop = function() {
                 tgtData.uniform = srcData.uniform;
                 tgtData.notes = JSON.parse(JSON.stringify(srcData.notes));
                 tgtData.activities = JSON.parse(JSON.stringify(srcData.activities));
+                tgtData.duty_nco = srcData.duty_nco;
+                tgtData.duty_cadet = srcData.duty_cadet;
             }
             
             window.ProgState.refreshRow(targetTr, tgtData);

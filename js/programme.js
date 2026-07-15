@@ -424,9 +424,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <td class="uniform-col editable-cell" data-type="uniform"${styleStr}>
                 ${unifText}
             </td>
-            <td class="duty-col editable-cell" data-type="duty">
-                ${dutyHtml}
-            </td>
         `;
         
         // Classifications / Activities
@@ -458,6 +455,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let notesDisplay = (rowData.notes || []).filter(n => n).map(n => `• ${n}`).join('<br>');
         
         html += `
+            <td class="duty-col editable-cell" data-type="duty">
+                ${dutyHtml}
+            </td>
             <td class="notes-col editable-cell" data-type="notes">
                 ${notesDisplay}
             </td>
