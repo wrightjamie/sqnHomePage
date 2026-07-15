@@ -1,6 +1,6 @@
 <?php
 require_once 'api/config.php';
-$basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') . '/';
+$basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/') . '/';
 $slug = null;
 if (!empty($_SERVER['PATH_INFO'])) {
     $slug = trim($_SERVER['PATH_INFO'], '/');
