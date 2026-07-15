@@ -89,8 +89,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             let historyHtml = '';
             if (doc.history && doc.history.length > 0) {
                 historyHtml = `
-                    <div class="mt-xl">
-                        <h3>Record of Amendments</h3>
+                    <details class="mt-xl">
+                        <summary style="cursor:pointer; font-size:1.2rem; font-weight:bold; color:var(--raf-deep-blue); margin-bottom: 1rem;">Record of Amendments</summary>
                         <table class="doc-history-table">
                             <thead>
                                 <tr>
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 `).join('')}
                             </tbody>
                         </table>
-                    </div>
+                    </details>
                 `;
             }
 
@@ -151,21 +151,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <input type="text" id="doc-slug" class="form-control" style="flex:1; font-family:monospace;" placeholder="auto-generated-slug" value="${currentDoc.slug || ''}">
             </div>
 
-            <div class="flex-row gap-md mb-md align-end">
-                <div style="flex:1;">
-                    <label class="form-label font-bold mb-xs">Issue Number</label>
-                    <input type="text" id="doc-issue" class="form-control" value="${currentDoc.issue_number}">
-                </div>
-                <div style="flex:3;">
-                    <label class="form-label font-bold mb-xs">Amendment Summary (if changing Issue No.)</label>
-                    <input type="text" id="doc-summary" class="form-control" placeholder="e.g. Updated uniform policy">
-                </div>
-            </div>
-
-            <div class="mb-md text-sm text-muted p-sm" style="background:#f0f0f0; border-left:4px solid var(--raf-deep-blue);">
-                <strong>Versioning Guidance:</strong><br>
-                &bull; Point Releases (e.g., 1.1, 1.2): Strictly used for minor adjustments such as typos, clarifications, and quick corrections.<br>
-                &bull; Full Releases (e.g., 2.0, 3.0): Reserved exclusively for structural changes, significant updates, or the addition of entirely new training material.
+            <div class="mb-md flex-row justify-between align-center">
+                <span class="text-muted">Current Issue: <strong>${currentDoc.issue_number}</strong></span>
             </div>
 
             <div id="editor-container"></div>
@@ -204,23 +191,90 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         document.getElementById('btn-save-doc').onclick = () => {
-            const payload = {
-                title: titleInput.value,
-                content: quill.root.innerHTML,
-                issue_number: document.getElementById('doc-issue').value,
-                summary: document.getElementById('doc-summary').value,
-                slug: slugInput.value
-            };
+            const title = titleInput.value;
+            if (!title) { Toast.show('Title is required', 'error'); return; }
 
-            if (!payload.title) { Toast.show('Title is required', 'error'); return; }
+            const popupHtml = `
+                <div id="version-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; display:flex; align-items:center; justify-content:center;">
+                    <div style="background:white; padding:var(--space-xl); border-radius:var(--space-md); max-width:500px; width:100%;">
+                        <h2 style="margin-top:0;">Save Document</h2>
+                        <p class="mb-md">Current Version: <strong>${currentDoc.issue_number}</strong></p>
+                        
+                        <div class="flex-col gap-sm mb-lg">
+                            <label><input type="radio" name="version_type" value="none" checked> None / Minor Correction (No version bump)</label>
+                            <label><input type="radio" name="version_type" value="point"> Point Release (e.g. Typo fixes, minor clarifications)</label>
+                            <label><input type="radio" name="version_type" value="major"> Major Release (e.g. Structural changes, new material)</label>
+                        </div>
 
-            const method = currentDoc.id ? 'PUT' : 'POST';
-            if (currentDoc.id) payload.id = currentDoc.id;
+                        <div id="summary-container" style="display:none;" class="mb-lg">
+                            <label class="form-label font-bold mb-xs">Amendment Summary</label>
+                            <input type="text" id="modal-summary" class="form-control" placeholder="Briefly describe the changes">
+                        </div>
 
-            apiFetch('api/documents.php', method, payload).then((res) => {
-                Toast.show('Saved', 'success');
-                renderView(currentDoc.id || res.id);
+                        <div class="flex-row justify-end gap-md">
+                            <button class="btn btn-secondary" id="btn-modal-cancel">Cancel</button>
+                            <button class="btn btn-primary" id="btn-modal-save">Confirm Save</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', popupHtml);
+            const modal = document.getElementById('version-modal');
+            const radios = modal.querySelectorAll('input[name="version_type"]');
+            const summaryContainer = document.getElementById('summary-container');
+            const summaryInput = document.getElementById('modal-summary');
+
+            radios.forEach(r => {
+                r.addEventListener('change', () => {
+                    if (r.value === 'none') {
+                        summaryContainer.style.display = 'none';
+                    } else {
+                        summaryContainer.style.display = 'block';
+                        summaryInput.focus();
+                    }
+                });
             });
+
+            document.getElementById('btn-modal-cancel').onclick = () => modal.remove();
+
+            document.getElementById('btn-modal-save').onclick = () => {
+                const versionType = modal.querySelector('input[name="version_type"]:checked').value;
+                let newIssueNumber = currentDoc.issue_number;
+                
+                if (versionType !== 'none') {
+                    if (!summaryInput.value.trim()) {
+                        Toast.show('Summary is required for version changes', 'error');
+                        summaryInput.focus();
+                        return;
+                    }
+                    
+                    let parts = currentDoc.issue_number.split('.').map(Number);
+                    if (parts.length !== 2) parts = [1, 0];
+                    if (versionType === 'point') {
+                        newIssueNumber = \`\${parts[0]}.\${parts[1] + 1}\`;
+                    } else if (versionType === 'major') {
+                        newIssueNumber = \`\${parts[0] + 1}.0\`;
+                    }
+                }
+
+                const payload = {
+                    title: title,
+                    content: quill.root.innerHTML,
+                    issue_number: newIssueNumber,
+                    summary: summaryInput.value.trim(),
+                    slug: slugInput.value
+                };
+
+                const method = currentDoc.id ? 'PUT' : 'POST';
+                if (currentDoc.id) payload.id = currentDoc.id;
+
+                apiFetch('api/documents.php', method, payload).then((res) => {
+                    modal.remove();
+                    Toast.show('Saved', 'success');
+                    renderView(currentDoc.id || res.id);
+                });
+            };
         };
     }
 
