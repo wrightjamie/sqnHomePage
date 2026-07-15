@@ -15,13 +15,6 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS documents (
     slug TEXT UNIQUE
 )");
 
-// Migration to add slug column if it doesn't exist
-try {
-    $pdo->exec("ALTER TABLE documents ADD COLUMN slug TEXT UNIQUE");
-} catch (PDOException $e) {
-    // Column might already exist, ignore
-}
-
 if ($method === 'GET') {
     if (isset($_GET['id'])) {
         $stmt = $pdo->prepare("SELECT * FROM documents WHERE id = ?");
