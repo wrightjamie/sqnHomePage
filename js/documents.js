@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!title) { Toast.show('Title is required', 'error'); return; }
 
             const popupHtml = `
-                <dialog id="version-modal" style="padding:0; border:none; border-radius:var(--space-md); max-width:550px; width:100%; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+                <dialog id="version-modal" style="padding:0; border:none; border-radius:var(--space-md); max-width:550px; width:100%; box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin: auto !important;">
                     <div style="padding: 2rem; background:white;">
                         <h2 style="margin-top:0; color:var(--raf-deep-blue); font-size: 2rem; border-bottom: 2px solid var(--colour-primary); padding-bottom: 0.5rem; margin-bottom: 1rem;">Save Document</h2>
                         <p class="mb-lg" style="font-size: 1.1rem;">Current Version: <strong>${currentDoc.issue_number}</strong></p>
