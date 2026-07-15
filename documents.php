@@ -20,25 +20,32 @@ if (!empty($_SERVER['PATH_INFO'])) {
     <link rel="stylesheet" href="css/components.css">
     <style>
         .doc-container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
-            padding: var(--space-lg);
-            background: #fff;
-            color: #000;
-            min-height: 100vh;
+            background: white;
+            padding: var(--space-xl);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            min-height: calc(100vh - 140px); /* Fix double scrollbar by accounting for header height */
         }
 
         .doc-header-swoosh {
-            background-color: var(--colour-footer);
-            height: 120px;
+            height: 140px;
             width: 100%;
             position: relative;
-            overflow: hidden;
             display: flex;
             align-items: center;
             padding: 0 var(--space-lg);
             color: white;
             justify-content: space-between;
+        }
+
+        .header-swoosh-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
         }
 
         .doc-header-swoosh h1 {
@@ -84,60 +91,115 @@ if (!empty($_SERVER['PATH_INFO'])) {
         .doc-meta {
             color: var(--color-muted);
             font-size: 0.9rem;
+            margin-bottom: var(--space-md);
+            padding-bottom: var(--space-sm);
+            border-bottom: 1px solid #eee;
         }
 
-        .doc-view {
-            padding: var(--space-xl) 0;
+        .doc-content {
+            line-height: 1.6;
         }
 
         .doc-history-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: var(--space-xl);
-            font-size: 0.9rem;
+            margin-top: var(--space-md);
         }
 
         .doc-history-table th, .doc-history-table td {
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
             padding: var(--space-sm);
             text-align: left;
         }
 
         .doc-history-table th {
-            background: #f0f0f0;
+            background: #f4f4f4;
+            font-weight: bold;
         }
 
-        .doc-title-view {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            color: var(--raf-deep-blue);
+        /* Edit mode specific */
+        .edit-controls {
+            background: #f9f9f9;
+            padding: var(--space-md);
+            border-radius: var(--space-sm);
+            margin-bottom: var(--space-lg);
+            border: 1px solid #ddd;
         }
 
         #editor-container {
-            height: 400px;
-            margin-bottom: var(--space-md);
+            height: 500px;
+            margin-bottom: var(--space-lg);
         }
 
-        /* Override global navigation button colors for white background */
-        :root {
-            --nav-btn-bg: rgba(0,0,0,0.6);
-            --nav-btn-opacity: 0.7;
-            --nav-btn-hover-bg: rgba(0,0,0,0.9);
-            --nav-btn-hover-opacity: 1;
+        .ql-toolbar {
+            border-top-left-radius: var(--space-sm);
+            border-top-right-radius: var(--space-sm);
+            background: #f4f4f4;
+        }
+
+        .ql-container {
+            border-bottom-left-radius: var(--space-sm);
+            border-bottom-right-radius: var(--space-sm);
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        /* User Menu Override */
+        #top-right-controls {
+            z-index: 100 !important;
+        }
+        
+        #user-menu {
+            z-index: 101 !important;
+        }
+
+        /* Hide specific nav buttons that don't apply here */
+        #btn-toggle-play, #btn-fullscreen {
+            display: none !important;
+        }
+
+        /* Fix bottom right controls opacity logic for this page */
+        #bottom-right-controls {
+            opacity: 1; /* Always visible unlike index */
+        }
+
+        #bottom-right-controls:hover {
+            opacity: 1;
+        }
+
+        .nav-btn {
+            background: var(--nav-btn-bg);
+            opacity: 1;
+        }
+
+        .nav-btn:hover {
+            background: var(--nav-btn-hover);
+            opacity: 1;
         }
 
         @media print {
-            body { background: white; margin: 0; }
-            #bottom-right-controls, .no-print, .doc-header-swoosh { display: none !important; }
-            .doc-container { padding: 0; max-width: 100%; box-shadow: none; margin: 0; }
+            body { background: white; margin: 0; padding-top: 140px; }
+            #bottom-right-controls, .no-print { display: none !important; }
+            .doc-container { padding: 0; max-width: 100%; box-shadow: none; margin: 0; min-height: 0; }
             h1 { page-break-before: always; }
             .doc-amendments-section { page-break-before: always; break-before: page; }
             .mb-md { margin-bottom: 0 !important; }
             button { display: none !important; }
 
+            .doc-header-swoosh { 
+                position: fixed; 
+                top: 0; 
+                left: 0; 
+                width: 100%; 
+                z-index: 1000; 
+                height: 120px;
+                display: flex !important;
+            }
+
             /* Running header/footer via fixed position */
             @page {
                 margin: 20mm;
+                margin-top: 0;
             }
         }
     </style>
@@ -145,6 +207,10 @@ if (!empty($_SERVER['PATH_INFO'])) {
 <body>
 
     <div class="doc-header-swoosh no-print">
+        <svg class="header-swoosh-svg" viewBox="0 0 300 45" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="swoosh-inner" fill="var(--colour-footer)" d="M0 0 h300 V3.9 c-99.4-3.3 -187.2.1 -300 37 Z"></path>
+            <path class="swoosh-dividing" fill="var(--raf-accent-1)" d="M0 45 C35.4 32.2 163.2 4.4 300 18.1 V3.9 c-99.4-3.3 -187.2.1 -300 37 V45 Z"></path>
+        </svg>
         <h1>Squadron Documents</h1>
         <img src="images/rafac-logo.svg" alt="RAFAC">
     </div>
