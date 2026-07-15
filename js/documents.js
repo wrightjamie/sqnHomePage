@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             docs.forEach(doc => {
                 const div = document.createElement('div');
                 div.className = 'doc-list-item flex-row justify-between align-center';
+                div.style.cursor = 'pointer';
                 
                 let controlsHtml = '';
                 if (canManage) {
@@ -47,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 div.innerHTML = `
-                    <div style="flex:1; cursor:pointer;" class="doc-list-click-target">
+                    <div style="flex:1;">
                         <div style="font-size:1.2rem; font-weight:bold; color:var(--raf-deep-blue);">${doc.title}</div>
                         <div class="doc-meta mt-xs">Issue ${doc.issue_number} | ${doc.issue_date}</div>
                     </div>
@@ -55,13 +56,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <span class="material-symbols-outlined text-muted" style="pointer-events:none;">chevron_right</span>
                 `;
 
-                div.querySelector('.doc-list-click-target').onclick = () => renderView(doc.id);
+                div.onclick = () => renderView(doc.id);
                 
                 if (canManage) {
                     div.querySelector('.btn-edit-inline').onclick = (e) => {
                         e.stopPropagation();
                         // Fetch full doc to edit
-                        apiFetch(\`api/documents.php?id=\${doc.id}\`).then(fullDoc => renderEditor(fullDoc));
+                        apiFetch(`api/documents.php?id=${doc.id}`).then(fullDoc => renderEditor(fullDoc));
                     };
                     div.querySelector('.btn-del-inline').onclick = (e) => {
                         e.stopPropagation();
@@ -81,8 +82,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    function renderView(id) {
-        apiFetch(\`api/documents.php?id=\${id}\`).then(doc => {
+    function renderView(id, isSlug = false) {
+        const queryParam = isSlug ? 'slug' : 'id';
+        apiFetch(`api/documents.php?${queryParam}=${id}`).then(doc => {
             currentDoc = doc;
             let historyHtml = '';
             if (doc.history && doc.history.length > 0) {
@@ -144,6 +146,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             <input type="text" id="doc-title" class="form-control mb-md" style="font-size:1.5rem; font-weight:bold;" placeholder="Document Title" value="${currentDoc.title}">
 
+            <div class="flex-row align-center mb-md" style="font-size: 1.2rem;">
+                <span class="text-muted" style="margin-right: 4px;">documents.php/</span>
+                <input type="text" id="doc-slug" class="form-control" style="flex:1; font-family:monospace;" placeholder="auto-generated-slug" value="${currentDoc.slug || ''}">
+            </div>
+
             <div class="flex-row gap-md mb-md align-end">
                 <div style="flex:1;">
                     <label class="form-label font-bold mb-xs">Issue Number</label>
@@ -181,6 +188,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             quill.root.innerHTML = currentDoc.content;
         }
 
+        const titleInput = document.getElementById('doc-title');
+        const slugInput = document.getElementById('doc-slug');
+        let slugManuallyEdited = !!currentDoc.slug;
+        slugInput.addEventListener('input', () => { slugManuallyEdited = true; });
+        titleInput.addEventListener('input', () => {
+            if (!slugManuallyEdited) {
+                slugInput.value = titleInput.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            }
+        });
+
         document.getElementById('btn-cancel-edit').onclick = () => {
             if (currentDoc.id) renderView(currentDoc.id);
             else renderList();
@@ -188,10 +205,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.getElementById('btn-save-doc').onclick = () => {
             const payload = {
-                title: document.getElementById('doc-title').value,
+                title: titleInput.value,
                 content: quill.root.innerHTML,
                 issue_number: document.getElementById('doc-issue').value,
-                summary: document.getElementById('doc-summary').value
+                summary: document.getElementById('doc-summary').value,
+                slug: slugInput.value
             };
 
             if (!payload.title) { Toast.show('Title is required', 'error'); return; }
@@ -206,5 +224,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
     }
 
-    renderList();
+    if (window.initialDocSlug) {
+        renderView(window.initialDocSlug, true);
+    } else {
+        renderList();
+    }
 });

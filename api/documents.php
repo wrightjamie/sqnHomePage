@@ -11,8 +11,16 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS documents (
     content TEXT NOT NULL,
     issue_number TEXT DEFAULT '1.0',
     issue_date DATE,
-    history TEXT DEFAULT '[]'
+    history TEXT DEFAULT '[]',
+    slug TEXT UNIQUE
 )");
+
+// Migration to add slug column if it doesn't exist
+try {
+    $pdo->exec("ALTER TABLE documents ADD COLUMN slug TEXT UNIQUE");
+} catch (PDOException $e) {
+    // Column might already exist, ignore
+}
 
 if ($method === 'GET') {
     if (isset($_GET['id'])) {
@@ -24,13 +32,41 @@ if ($method === 'GET') {
             jsonResponse($doc);
         }
         jsonError('Document not found', 404);
+    } elseif (isset($_GET['slug'])) {
+        $stmt = $pdo->prepare("SELECT * FROM documents WHERE slug = ?");
+        $stmt->execute([$_GET['slug']]);
+        $doc = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($doc) {
+            $doc['history'] = json_decode($doc['history'], true) ?? [];
+            jsonResponse($doc);
+        }
+        jsonError('Document not found', 404);
     } else {
-        $stmt = $pdo->query("SELECT id, title, issue_number, issue_date FROM documents ORDER BY title");
+        $stmt = $pdo->query("SELECT id, title, issue_number, issue_date, slug FROM documents ORDER BY title ASC");
         jsonResponse($stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 }
 
 requirePermission($pdo, 'manage_settings'); // Reusing existing admin permission
+
+function generateUniqueSlug($pdo, $slug, $excludeId = null) {
+    if (empty($slug)) $slug = 'doc';
+    $originalSlug = $slug;
+    $count = 1;
+    while (true) {
+        if ($excludeId) {
+            $stmt = $pdo->prepare("SELECT id FROM documents WHERE slug = ? AND id != ?");
+            $stmt->execute([$slug, $excludeId]);
+        } else {
+            $stmt = $pdo->prepare("SELECT id FROM documents WHERE slug = ?");
+            $stmt->execute([$slug]);
+        }
+        if (!$stmt->fetch()) break;
+        $slug = $originalSlug . '-' . $count;
+        $count++;
+    }
+    return $slug;
+}
 
 if ($method === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
@@ -41,6 +77,9 @@ if ($method === 'POST') {
     $issueNumber = $data['issue_number'] ?? '1.0';
     $issueDate = date('Y-m-d');
 
+    $slugInput = !empty($data['slug']) ? $data['slug'] : trim(preg_replace('/[^a-z0-9]+/', '-', strtolower($data['title'])), '-');
+    $slug = generateUniqueSlug($pdo, $slugInput);
+
     $history = [];
     if (!empty($data['summary'])) {
         $history[] = [
@@ -50,16 +89,17 @@ if ($method === 'POST') {
         ];
     }
 
-    $stmt = $pdo->prepare("INSERT INTO documents (title, content, issue_number, issue_date, history) VALUES (?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO documents (title, content, issue_number, issue_date, history, slug) VALUES (?, ?, ?, ?, ?, ?)");
     $stmt->execute([
         trim($data['title']),
         trim($data['content']),
         $issueNumber,
         $issueDate,
-        json_encode($history)
+        json_encode($history),
+        $slug
     ]);
 
-    jsonResponse(['id' => $pdo->lastInsertId()]);
+    jsonResponse(['id' => $pdo->lastInsertId(), 'slug' => $slug]);
 }
 
 if ($method === 'PUT') {
@@ -77,6 +117,9 @@ if ($method === 'PUT') {
     $issueDate = $data['issue_date'] ?? date('Y-m-d');
     $history = json_decode($oldDoc['history'], true) ?? [];
 
+    $slugInput = !empty($data['slug']) ? $data['slug'] : trim(preg_replace('/[^a-z0-9]+/', '-', strtolower($data['title'])), '-');
+    $slug = generateUniqueSlug($pdo, $slugInput, $data['id']);
+
     if ($issueNumber !== $oldDoc['issue_number']) {
         $issueDate = date('Y-m-d'); // Auto update date on version bump
         if (!empty($data['summary'])) {
@@ -88,13 +131,14 @@ if ($method === 'PUT') {
         }
     }
 
-    $stmt = $pdo->prepare("UPDATE documents SET title = ?, content = ?, issue_number = ?, issue_date = ?, history = ? WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE documents SET title = ?, content = ?, issue_number = ?, issue_date = ?, history = ?, slug = ? WHERE id = ?");
     $stmt->execute([
         trim($data['title']),
         trim($data['content']),
         $issueNumber,
         $issueDate,
         json_encode($history),
+        $slug,
         $data['id']
     ]);
 

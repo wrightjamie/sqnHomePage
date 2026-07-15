@@ -1,9 +1,15 @@
 <?php
 require_once 'api/config.php';
+$basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') . '/';
+$slug = null;
+if (!empty($_SERVER['PATH_INFO'])) {
+    $slug = trim($_SERVER['PATH_INFO'], '/');
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <base href="<?= htmlspecialchars($basePath) ?>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Squadron Documents</title>
@@ -143,6 +149,9 @@ require_once 'api/config.php';
     <script src="js/utils.js"></script>
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
+    <script>
+        window.initialDocSlug = <?= json_encode($slug) ?>;
+    </script>
     <script src="js/documents.js"></script>
 </body>
 </html>
