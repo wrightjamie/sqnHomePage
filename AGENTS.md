@@ -24,6 +24,7 @@ Welcome! If you are an AI agent (such as Jules or Antigravity) working on this c
 * **Brand Guidelines:** Styling must strictly adhere to RAF brand guidelines.
 * **Color Palette:** Always use the predefined CSS variables (e.g., RAF Deep Blue, RAF Red) defined in `css/core.css`. Do not hardcode brand colors.
 * **Modern CSS:** Utilize modern CSS features (e.g., CSS Grid, Flexbox, Custom Properties) for clean, maintainable, and responsive designs.
+* **Native UI Elements:** Prefer native HTML elements (e.g., `<dialog>` for modals and popovers) over custom `<div>` overlays to ensure better accessibility, semantic correctness, and built-in functionality (like the `::backdrop` pseudo-element and `showModal()`).
 
 ## 5. Workflow & Directives
 * **Feature Tracking:** Task progress, to-do items, and future feature requests are tracked in `task.md`, `todo.md`, and individual markdown files within the `todo/` directory.
