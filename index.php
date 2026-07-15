@@ -31,10 +31,10 @@ require_once 'api/config.php';
     
     <!-- Brand Swoosh Sidebar -->
     <header id="swoosh-sidebar">
-        <svg viewBox="0 0 45 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path class="swoosh-inner" d="M0 0v300H3.9c-3.3-99.4.1-187.2 37-300Z"></path>
-            <path class="swoosh-dividing" d="M45 0C32.2 35.4 4.4 163.2 18.1 300H3.9c-3.3-99.4.1-187.2 37-300H45Z"></path>
-        </svg>
+        <?php 
+            $swooshOrientation = 'vertical';
+            include 'components/swoosh.php'; 
+        ?>
         
         <!-- Logo Top Left -->
         <div id="logo-container">

@@ -209,10 +209,11 @@ if (!empty($_SERVER['PATH_INFO'])) {
 <body>
 
     <div class="doc-header-swoosh no-print">
-        <svg class="header-swoosh-svg" viewBox="0 0 300 45" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path class="swoosh-inner" fill="var(--colour-footer)" d="M0 0 h300 V3.9 c-99.4-3.3 -187.2.1 -300 37 Z"></path>
-            <path class="swoosh-dividing" fill="var(--raf-accent-1)" d="M0 45 C35.4 32.2 163.2 4.4 300 18.1 V3.9 c-99.4-3.3 -187.2.1 -300 37 V45 Z"></path>
-        </svg>
+        <?php 
+            $swooshOrientation = 'horizontal';
+            $swooshClass = 'header-swoosh-svg';
+            include 'components/swoosh.php'; 
+        ?>
         <h1>Squadron Documents</h1>
         <img src="images/rafac-logo.svg" alt="RAFAC">
     </div>
