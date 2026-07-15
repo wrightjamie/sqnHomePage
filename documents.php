@@ -52,6 +52,7 @@ if (!empty($_SERVER['PATH_INFO'])) {
             height: 80px;
             z-index: 2;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+            margin-right: 60px; /* Prevent overlap with top-right menu */
         }
 
         .doc-list-item {
