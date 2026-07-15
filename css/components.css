@@ -457,6 +457,7 @@
     flex-direction: column;
     align-items: flex-end;
     outline: none;
+    padding-bottom: 20px;
 }
 
 .user-trigger {

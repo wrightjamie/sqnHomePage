@@ -1,15 +1,22 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const app = document.getElementById('app-root');
     let quill = null;
     let currentDoc = null;
+    let canManage = false;
 
-    let isEditMode = false;
+    // Check permissions
+    try {
+        const status = await Auth.checkStatus();
+        canManage = status.logged_in && status.permissions && status.permissions.includes('manage_settings');
+    } catch (e) {
+        canManage = false;
+    }
 
     function renderList() {
         app.innerHTML = `
             <div class="flex-row justify-between align-center mb-lg">
                 <h2>Documents</h2>
-                ${isEditMode ? `<button id="btn-new-doc" class="btn btn-primary"><span class="material-symbols-outlined">add</span> New Document</button>` : ''}
+                ${canManage ? `<button id="btn-new-doc" class="btn btn-primary"><span class="material-symbols-outlined">add</span> New Document</button>` : ''}
             </div>
             <div id="doc-list" class="flex-col gap-sm">Loading...</div>
         `;
@@ -27,15 +34,46 @@ document.addEventListener('DOMContentLoaded', () => {
             list.innerHTML = '';
             docs.forEach(doc => {
                 const div = document.createElement('div');
-                div.className = 'doc-list-item';
+                div.className = 'doc-list-item flex-row justify-between align-center';
+                
+                let controlsHtml = '';
+                if (canManage) {
+                    controlsHtml = `
+                        <div class="flex-row gap-xs no-print" style="margin-left:auto; margin-right:1rem;">
+                            <button class="btn btn-secondary btn-edit-inline" style="padding: 0.25rem 0.5rem;"><span class="material-symbols-outlined" style="font-size:1rem;">edit</span></button>
+                            <button class="btn btn-secondary btn-del-inline text-error" style="padding: 0.25rem 0.5rem;"><span class="material-symbols-outlined" style="font-size:1rem;">delete</span></button>
+                        </div>
+                    `;
+                }
+
                 div.innerHTML = `
-                    <div>
+                    <div style="flex:1; cursor:pointer;" class="doc-list-click-target">
                         <div style="font-size:1.2rem; font-weight:bold; color:var(--raf-deep-blue);">${doc.title}</div>
                         <div class="doc-meta mt-xs">Issue ${doc.issue_number} | ${doc.issue_date}</div>
                     </div>
-                    <span class="material-symbols-outlined text-muted">chevron_right</span>
+                    ${controlsHtml}
+                    <span class="material-symbols-outlined text-muted" style="pointer-events:none;">chevron_right</span>
                 `;
-                div.onclick = () => renderView(doc.id);
+
+                div.querySelector('.doc-list-click-target').onclick = () => renderView(doc.id);
+                
+                if (canManage) {
+                    div.querySelector('.btn-edit-inline').onclick = (e) => {
+                        e.stopPropagation();
+                        // Fetch full doc to edit
+                        apiFetch(\`api/documents.php?id=\${doc.id}\`).then(fullDoc => renderEditor(fullDoc));
+                    };
+                    div.querySelector('.btn-del-inline').onclick = (e) => {
+                        e.stopPropagation();
+                        if (confirm('Are you sure you want to delete this document?')) {
+                            apiFetch('api/documents.php', 'DELETE', {id: doc.id}).then(() => {
+                                Toast.show('Deleted', 'success');
+                                renderList();
+                            });
+                        }
+                    };
+                }
+
                 list.appendChild(div);
             });
         }).catch(e => {
@@ -44,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderView(id) {
-        apiFetch(`api/documents.php?id=${id}`).then(doc => {
+        apiFetch(\`api/documents.php?id=\${id}\`).then(doc => {
             currentDoc = doc;
             let historyHtml = '';
             if (doc.history && doc.history.length > 0) {
@@ -78,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="btn btn-secondary" onclick="location.reload()"><span class="material-symbols-outlined">arrow_back</span> Back</button>
                     <div class="flex-row gap-sm">
                         <button class="btn btn-secondary" onclick="window.print()"><span class="material-symbols-outlined">print</span> Print</button>
-                        ${isEditMode ? `<button id="btn-edit-doc" class="btn btn-primary"><span class="material-symbols-outlined">edit</span> Edit</button>` : ''}
+                        ${canManage ? `<button id="btn-edit-doc" class="btn btn-primary"><span class="material-symbols-outlined">edit</span> Edit</button>` : ''}
                     </div>
                 </div>
                 <div class="doc-view">
@@ -119,13 +157,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <div class="mb-md text-sm text-muted p-sm" style="background:#f0f0f0; border-left:4px solid var(--raf-deep-blue);">
                 <strong>Versioning Guidance:</strong><br>
-                • Point Releases (e.g., 1.1, 1.2): Strictly used for minor adjustments such as typos, clarifications, and quick corrections.<br>
-                • Full Releases (e.g., 2.0, 3.0): Reserved exclusively for structural changes, significant updates, or the addition of entirely new training material.
+                &bull; Point Releases (e.g., 1.1, 1.2): Strictly used for minor adjustments such as typos, clarifications, and quick corrections.<br>
+                &bull; Full Releases (e.g., 2.0, 3.0): Reserved exclusively for structural changes, significant updates, or the addition of entirely new training material.
             </div>
 
             <div id="editor-container"></div>
-
-            ${currentDoc.id ? `<button id="btn-del-doc" class="btn text-error mt-lg"><span class="material-symbols-outlined">delete</span> Delete Document</button>` : ''}
         `;
 
         quill = new Quill('#editor-container', {
@@ -150,17 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
             else renderList();
         };
 
-        if (document.getElementById('btn-del-doc')) {
-            document.getElementById('btn-del-doc').onclick = () => {
-                if (confirm('Are you sure you want to delete this document?')) {
-                    apiFetch('api/documents.php', 'DELETE', {id: currentDoc.id}).then(() => {
-                        Toast.show('Deleted', 'success');
-                        renderList();
-                    });
-                }
-            };
-        }
-
         document.getElementById('btn-save-doc').onclick = () => {
             const payload = {
                 title: document.getElementById('doc-title').value,
@@ -179,19 +204,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderView(currentDoc.id || res.id);
             });
         };
-    }
-
-    // Listen to global edit mode button
-    const btnEditMode = document.getElementById('btn-edit-mode');
-    if (btnEditMode) {
-        btnEditMode.addEventListener('click', () => {
-            isEditMode = !isEditMode;
-            if (currentDoc) {
-                renderView(currentDoc.id);
-            } else {
-                renderList();
-            }
-        });
     }
 
     renderList();
