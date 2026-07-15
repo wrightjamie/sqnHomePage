@@ -72,6 +72,11 @@ if (!empty($_SERVER['PATH_INFO'])) {
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
+        dialog::backdrop {
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(3px);
+        }
+
         .doc-amendments-section {
             margin-top: 5rem;
         }

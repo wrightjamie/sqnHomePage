@@ -195,12 +195,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!title) { Toast.show('Title is required', 'error'); return; }
 
             const popupHtml = `
-                <div id="version-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(3px);">
-                    <div style="background:white; padding:var(--space-xl); border-radius:var(--space-md); max-width:550px; width:100%; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+                <dialog id="version-modal" style="padding:0; border:none; border-radius:var(--space-md); max-width:550px; width:100%; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+                    <div style="padding: 2rem; background:white;">
                         <h2 style="margin-top:0; color:var(--raf-deep-blue); font-size: 2rem; border-bottom: 2px solid var(--colour-primary); padding-bottom: 0.5rem; margin-bottom: 1rem;">Save Document</h2>
                         <p class="mb-lg" style="font-size: 1.1rem;">Current Version: <strong>${currentDoc.issue_number}</strong></p>
                         
-                        <div class="flex-col gap-sm mb-xl">
+                        <div class="flex-col gap-sm" style="margin-bottom: 1.5rem;">
                             <label style="display:flex; align-items:center; padding: 0.75rem; background:#f9f9f9; border:1px solid #ddd; border-radius:var(--space-sm); cursor:pointer;">
                                 <input type="radio" name="version_type" value="none" checked style="margin-right: 1rem; transform: scale(1.2);"> 
                                 <div><strong style="font-size: 1.1rem;">None / Minor Correction</strong><br><span class="text-muted text-sm">No version bump</span></div>
@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             </label>
                         </div>
 
-                        <div id="summary-container" style="display:none;" class="mb-lg">
+                        <div id="summary-container" style="display:none; margin-bottom: 1.5rem;">
                             <label class="form-label font-bold mb-xs" style="color:var(--raf-deep-blue);">Amendment Summary</label>
                             <input type="text" id="modal-summary" class="form-control" placeholder="Briefly describe the changes" style="font-size: 1.1rem;">
                         </div>
@@ -225,11 +225,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <button class="btn btn-primary" id="btn-modal-save" style="padding: 0.5rem 1.5rem;">Confirm Save</button>
                         </div>
                     </div>
-                </div>
+                </dialog>
             `;
 
             document.body.insertAdjacentHTML('beforeend', popupHtml);
             const modal = document.getElementById('version-modal');
+            modal.showModal();
+            document.body.style.overflow = 'hidden';
+
             const radios = modal.querySelectorAll('input[name="version_type"]');
             const summaryContainer = document.getElementById('summary-container');
             const summaryInput = document.getElementById('modal-summary');
@@ -245,7 +248,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
             });
 
-            document.getElementById('btn-modal-cancel').onclick = () => modal.remove();
+            document.getElementById('btn-modal-cancel').onclick = () => {
+                document.body.style.overflow = '';
+                modal.close();
+                modal.remove();
+            };
 
             document.getElementById('btn-modal-save').onclick = () => {
                 const versionType = modal.querySelector('input[name="version_type"]:checked').value;
@@ -279,6 +286,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (currentDoc.id) payload.id = currentDoc.id;
 
                 apiFetch('api/documents.php', method, payload).then((res) => {
+                    document.body.style.overflow = '';
+                    modal.close();
                     modal.remove();
                     Toast.show('Saved', 'success');
                     renderView(currentDoc.id || res.id);
