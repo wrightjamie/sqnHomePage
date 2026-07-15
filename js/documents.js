@@ -252,9 +252,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     let parts = currentDoc.issue_number.split('.').map(Number);
                     if (parts.length !== 2) parts = [1, 0];
                     if (versionType === 'point') {
-                        newIssueNumber = \`\${parts[0]}.\${parts[1] + 1}\`;
+                        newIssueNumber = `${parts[0]}.${parts[1] + 1}`;
                     } else if (versionType === 'major') {
-                        newIssueNumber = \`\${parts[0] + 1}.0\`;
+                        newIssueNumber = `${parts[0] + 1}.0`;
                     }
                 }
 
