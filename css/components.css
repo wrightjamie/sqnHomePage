@@ -124,8 +124,8 @@
 /* Menu Buttons (Circular) */
 .menu-btn {
     position: relative;
-    background: rgba(0,0,0,0.3);
-    color: white;
+    background: var(--nav-btn-bg, rgba(0,0,0,0.3));
+    color: var(--nav-btn-icon-color, white);
     border: none;
     width: 50px;
     height: 50px;
@@ -133,12 +133,12 @@
     cursor: pointer;
     text-decoration: none;
     transition: background 0.3s, transform 0.2s, opacity 0.3s;
-    opacity: 0.3;
+    opacity: var(--nav-btn-opacity, 0.3);
 }
 .menu-btn:hover, .menu-btn:active {
-    background: rgba(0,0,0,0.7);
+    background: var(--nav-btn-hover-bg, rgba(0,0,0,0.7));
     transform: scale(1.1);
-    opacity: 1;
+    opacity: var(--nav-btn-hover-opacity, 1);
 }
 
 /* Button Group (used in pagination and toolbars) */
@@ -269,18 +269,18 @@
     position: relative;
     height: 50px;
     width: var(--menu-collapsed-width);
-    background: rgba(0,0,0,0.3);
+    background: var(--nav-btn-bg, rgba(0,0,0,0.3));
     border-radius: 25px;
     overflow: hidden;
     transition: width 0.3s ease, background 0.3s ease, opacity 0.3s ease;
-    opacity: 0.3;
+    opacity: var(--nav-btn-opacity, 0.3);
     outline: none;
 }
 .expandable-menu:hover,
 .expandable-menu:focus-within {
     width: max-content;
-    background: rgba(0,0,0,0.7);
-    opacity: 1;
+    background: var(--nav-btn-hover-bg, rgba(0,0,0,0.7));
+    opacity: var(--nav-btn-hover-opacity, 1);
 }
 
 .expandable-menu-trigger {
@@ -289,7 +289,7 @@
     left: 0;
     width: var(--menu-collapsed-width);
     height: 50px;
-    color: white;
+    color: var(--nav-btn-icon-color, white);
     transition: opacity 0.3s;
     cursor: pointer;
     z-index: 10;
@@ -317,7 +317,7 @@
 
 .expandable-menu-items button {
     background: transparent;
-    color: white;
+    color: var(--nav-btn-icon-color, white);
     border: none;
     border-right: 1px solid rgba(255,255,255,0.2);
     width: 50px;
@@ -332,13 +332,19 @@
     border-right: none;
 }
 .expandable-menu-items button:hover {
-    background: rgba(255,255,255,0.2);
+    background: var(--nav-item-hover-bg, rgba(255,255,255,0.2));
 }
 .expandable-menu-items button span { font-size: 30px; }
 
 
 /* Focus Target Button */
 .focus-target-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    border: none;
+}
+
     position: absolute;
     top: 8px;
     right: 8px;
@@ -401,4 +407,114 @@
 
 @keyframes spin {
     100% { transform: rotate(360deg); }
+}
+
+/* Hamburger Menu (Vertical Expandable) */
+.hamburger-menu { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 50px; width: 50px; border-radius: 25px; background: transparent; transition: height 0.3s ease, opacity 0.3s ease; opacity: var(--nav-btn-opacity, 0.3); overflow: hidden; outline: none; }
+.hamburger-menu:hover, .hamburger-menu:focus-within { height: 450px; background: transparent; opacity: var(--nav-btn-hover-opacity, 1); overflow: visible; }
+.hamburger-trigger { position: absolute; bottom: 0; width: 50px; height: 50px; color: var(--nav-btn-icon-color, white); cursor: pointer; transition: opacity 0.3s; z-index: 10; display: flex; align-items: center; justify-content: center; background: var(--nav-btn-bg, rgba(0,0,0,0.3)); border-radius: 25px; }
+.hamburger-trigger span { font-size: 30px; }
+.hamburger-menu:hover .hamburger-trigger, .hamburger-menu:focus-within .hamburger-trigger { opacity: 0; pointer-events: none; }
+.hamburger-items { display: flex; flex-direction: column-reverse; pointer-events: none; padding-bottom: 50px; width: 100%; align-items: center; }
+.hamburger-menu:hover .hamburger-items, .hamburger-menu:focus-within .hamburger-items { pointer-events: auto; }
+.hamburger-items > * { margin: 0; color: var(--nav-btn-icon-color, white); text-decoration: none; background: var(--nav-btn-hover-bg, rgba(0,0,0,0.7)) !important; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; border-radius: 25px; opacity: 0; transform: translateY(20px); transition: opacity 0.2s ease, transform 0.2s ease; margin-bottom: 4px; }
+.hamburger-menu:hover .hamburger-items > * { opacity: 1; transform: translateY(0); }
+.hamburger-items > *:hover { background: var(--nav-item-hover-bg, rgba(255,255,255,0.2)) !important; }
+
+/* Staggered transition delays for "expanding" effect using modern CSS */
+.hamburger-items {
+    --delay: 0.04s;
+}
+.hamburger-items > * {
+    transition-delay: calc((sibling-index() - 1) * var(--delay));
+}
+
+
+/* Bottom Right Controls Container */
+#bottom-right-controls {
+    position: fixed;
+    bottom: var(--space-lg);
+    right: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-sm);
+    z-index: 1000;
+}
+
+
+/* Top Right User Controls */
+#top-right-controls {
+    position: fixed;
+    top: var(--space-lg);
+    right: var(--space-lg);
+    z-index: 1000;
+}
+
+.user-dropdown {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    outline: none;
+    padding-bottom: 20px;
+}
+
+.user-trigger {
+    background: var(--nav-btn-bg, rgba(0,0,0,0.3));
+    color: var(--nav-btn-icon-color, white);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s, opacity 0.3s;
+    opacity: var(--nav-btn-opacity, 0.3);
+}
+.user-dropdown:hover .user-trigger,
+.user-dropdown:focus-within .user-trigger {
+    background: var(--nav-btn-hover-bg, rgba(0,0,0,0.7));
+    opacity: var(--nav-btn-hover-opacity, 1);
+}
+.user-trigger span { font-size: 30px; }
+
+.user-dropdown-items {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--nav-btn-hover-bg, rgba(0,0,0,0.7));
+    border-radius: var(--space-sm);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    min-width: 150px;
+}
+.user-dropdown:hover .user-dropdown-items,
+.user-dropdown:focus-within .user-dropdown-items {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.user-dropdown-btn {
+    background: transparent;
+    color: var(--nav-btn-icon-color, white);
+    border: none;
+    padding: var(--space-sm) var(--space-md);
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    width: 100%;
+    transition: background 0.2s;
+    text-decoration: none;
+    font-size: 1rem;
+    font-family: inherit;
+}
+.user-dropdown-btn:hover {
+    background: var(--nav-item-hover-bg, rgba(255,255,255,0.2));
 }

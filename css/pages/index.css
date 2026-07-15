@@ -538,3 +538,26 @@ body {
     background: rgba(255, 255, 255, 0.4);
     transform: scale(1.1);
 }
+
+/* Duties Card */
+.prog-duties-card {
+    flex: 1;
+    min-width: 300px;
+    border-left: 4px solid var(--colour-accent);
+}
+.prog-duties-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    font-size: 1.1rem;
+}
+.prog-duty-item {
+    display: flex;
+    flex-direction: column;
+}
+.prog-duty-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}

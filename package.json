@@ -1,0 +1,14 @@
+{
+  "name": "aircadet-displayboard",
+  "version": "1.0.0",
+  "description": "Tests for Air Cadet Displayboard",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  }
+}

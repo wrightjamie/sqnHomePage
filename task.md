@@ -1,3 +1,12 @@
 - [x] Complete transition of API endpoints to jsonResponse/jsonError
 - [x] Refactor JS fetch logic to use apiFetch wrapper
 - [x] Refactor JS logic for Auth to use new Auth object
+- [x] Addition of Tests
+- [x] Floating Hamburger Menu
+- [x] Array-based Notes
+- [x] Tonight's Duties
+- [x] NCO Management Registry
+- [x] Documents Page
+- [x] Document History
+- [x] Print Stylesheet
+- [x] Secure System Reset

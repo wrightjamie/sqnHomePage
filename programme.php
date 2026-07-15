@@ -39,6 +39,7 @@ require_once 'api/config.php';
                         <th rowspan="2" class="date-col">Date</th>
                         <th rowspan="2" class="uniform-col">Uniform</th>
                         <th id="classifications-header" style="border-bottom: 0.0625rem solid #000;">Classifications</th>
+                        <th rowspan="2" class="duty-col">Duties</th>
                         <th rowspan="2" class="notes-col">Notes</th>
                     </tr>
                     <tr id="classifications-subheader">
@@ -84,10 +85,27 @@ require_once 'api/config.php';
         <div id="unif-grid" class="unif-grid"></div>
     </div>
 
+    <div id="duty-popover" class="popover-panel" popover>
+        <h3>Edit Duties</h3>
+        <label class="form-label text-sm font-bold mb-xs">Duty NCO</label>
+        <select id="duty-nco-select" class="form-control mb-md"></select>
+
+        <label class="form-label text-sm font-bold mb-xs">Duty Cadet</label>
+        <input type="text" id="duty-cadet-input" placeholder="Duty Cadet" class="form-control mb-md">
+        <div class="popover-footer popover-footer-end">
+            <button id="btn-duty-save" class="btn btn-primary btn-sm" title="Done"><span class="material-symbols-outlined btn-icon-md">check</span></button>
+        </div>
+    </div>
+
     <div id="notes-popover" class="popover-panel" popover>
         <h3>Edit Notes</h3>
-        <textarea id="note-text" placeholder="Add note..."></textarea>
-        <div class="popular-btns" id="note-popular-btns"></div>
+        <div id="notes-list-editor" class="flex-col gap-xs mb-sm"></div>
+        <datalist id="dl-notes"></datalist>
+        <div class="flex-row gap-xs mb-md">
+            <input type="text" id="new-note-input" class="form-control flex-grow-1" placeholder="Type a note..." list="dl-notes">
+            <button id="btn-note-add" class="btn btn-primary btn-sm flex-center" title="Add Note"><span class="material-symbols-outlined btn-icon-md">add</span></button>
+        </div>
+        <div class="popular-btns flex-row flex-wrap gap-xs mb-sm" id="note-popular-btns"></div>
         <div class="popover-footer popover-footer-end">
             <button id="btn-note-save" class="btn btn-primary btn-sm" title="Done"><span class="material-symbols-outlined btn-icon-md">check</span></button>
         </div>
@@ -96,6 +114,7 @@ require_once 'api/config.php';
     <!-- Interactive UI Layer -->
     <?php include 'components/menu.php'; ?>
 
+    <script src="js/utils.js"></script>
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/programme-editor.js"></script>

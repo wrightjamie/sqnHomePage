@@ -184,6 +184,7 @@ require_once 'api/config.php';
                     <button class="sub-tab-btn" data-subtarget="subtab-classifications">Classifications</button>
                     <button class="sub-tab-btn" data-subtarget="subtab-parades">Parade Nights</button>
                     <button class="sub-tab-btn" data-subtarget="subtab-staff">Staff</button>
+                    <button class="sub-tab-btn" data-subtarget="subtab-ncos">NCOs</button>
                 </div>
 
                 <div id="subtab-uniforms" class="sub-tab-content">
@@ -235,6 +236,18 @@ require_once 'api/config.php';
 
                         <input type="text" id="new-staff-name" placeholder="Staff Name (e.g. Smith)" class="flex-grow-1" style="border-radius: 0;">
                         <button class="btn w-auto" type="button" id="btn-add-staff"><span class="material-symbols-outlined">add</span></button>
+                    </div>
+                </div>
+
+                <!-- NCO Sub-Tab -->
+                <div id="subtab-ncos" class="sub-tab-content hidden">
+                    <h4 class="mb-sm text-muted">Manage Duty NCOs</h4>
+                    <div id="nco-list" class="flex-col gap-xs mb-md admin-list-container" style="max-height: 300px; overflow-y: auto;">
+                    </div>
+                    <div class="flex-row">
+                        <select id="new-nco-rank" class="form-control" style="width: auto; margin-right: var(--space-xs);"><option value="Cpl">Cpl</option><option value="Sgt">Sgt</option><option value="FS">FS</option><option value="CWO">CWO</option></select>
+                        <input type="text" id="new-nco-name" placeholder="NCO Name (e.g. Jones)" class="flex-grow-1" style="border-radius: 0;">
+                        <button class="btn w-auto" type="button" id="btn-add-nco"><span class="material-symbols-outlined">add</span></button>
                     </div>
                 </div>
             </div> <!-- End tab-programme -->

@@ -60,6 +60,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isInstalled) {
             `key` TEXT PRIMARY KEY,
             `value` TEXT NOT NULL
         )");
+
+        // Create documents table
+        $pdo->exec("CREATE TABLE IF NOT EXISTS documents (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL,
+            issue_number TEXT DEFAULT '1.0',
+            issue_date DATE,
+            history TEXT DEFAULT '[]',
+            slug TEXT UNIQUE
+        )");
         
         // Admin User is created in init_db.php or we can create it explicitly here
         // The init_db.php script handles base schema and users. Let's include it to make sure the schema is created correctly.

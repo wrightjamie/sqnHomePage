@@ -339,16 +339,24 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        const noteContainer = document.getElementById('note-popular-btns');
+        const noteContainer = document.getElementById("note-popular-btns");
         if (noteContainer) {
-            noteContainer.innerHTML = '';
+            noteContainer.innerHTML = "";
+            const dlNotes = document.getElementById("dl-notes");
+            if (dlNotes) dlNotes.innerHTML = "";
             topNotes.forEach(name => {
-                const btn = document.createElement('button');
-                btn.className = 'btn btn-secondary btn-sm';
+                if (dlNotes) {
+                    const opt = document.createElement("option");
+                    opt.value = name;
+                    dlNotes.appendChild(opt);
+                }
+                const btn = document.createElement("button");
+                btn.className = "btn btn-secondary btn-sm";
                 btn.textContent = name;
                 btn.onclick = () => { 
-                    const ta = document.getElementById('note-text');
-                    ta.value = ta.value ? ta.value + '\n' + name : name; 
+                    if (window.ProgState && window.ProgState.appendNoteFromBtn) {
+                        window.ProgState.appendNoteFromBtn(name);
+                    }
                 };
                 noteContainer.appendChild(btn);
             });
@@ -401,6 +409,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let unifObj = config.uniforms.find(u => u.name === rowData.uniform);
         if (unifObj) unifColor = unifObj.color;
         
+        let dutyHtml = `<div class="duty-indicators text-xs text-muted mt-xs">NCO: ${rowData.duty_nco || '-'}<br>Cdt: ${rowData.duty_cadet || '-'}</div>`;
+
         let styleStr = '';
         if (unifColor) {
             styleStr = ` style="background-color: ${unifColor}; color: ${isLight(unifColor) ? '#000' : '#fff'}; text-shadow: ${isLight(unifColor) ? 'none' : '0.0625rem 0.0625rem 0.125rem #000'};"`;
@@ -445,6 +455,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let notesDisplay = (rowData.notes || []).filter(n => n).map(n => `• ${n}`).join('<br>');
         
         html += `
+            <td class="duty-col editable-cell" data-type="duty">
+                ${dutyHtml}
+            </td>
             <td class="notes-col editable-cell" data-type="notes">
                 ${notesDisplay}
             </td>
@@ -464,6 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const type = cell.dataset.type;
                 if (type === 'uniform') window.openUniformPopover(e, cell, rowData, tr, monthType);
                 else if (type === 'notes' || type === 'month-notes') window.openNotesPopover(e, cell, rowData, tr, monthType, type);
+                else if (type === 'duty') window.openDutyPopover(e, cell, rowData, tr, monthType);
                 else if (type === 'activity') window.openActivityPopover(e, cell, rowData, tr, monthType);
 
             });
@@ -476,6 +490,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 let acts = config.classifications.map(c => ({ classifications: [c], activity_type: '', name: '', instructor: '' }));
                 rowData.uniform = '';
                 rowData.notes = [];
+                rowData.duty_nco = '';
+                rowData.duty_cadet = '';
                 rowData.activities = acts;
                 
                 let monthType = 'curr';

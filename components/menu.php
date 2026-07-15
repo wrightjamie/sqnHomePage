@@ -3,6 +3,33 @@ require_once __DIR__ . '/../api/utils.php';
 $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 <div id="bottom-right-controls">
+    <div class="hamburger-menu" tabindex="0">
+        <div class="hamburger-trigger" title="Menu">
+            <span class="material-symbols-outlined">menu</span>
+        </div>
+        <div class="hamburger-items">
+            <?php if ($currentPage !== 'index.php'): ?>
+                <a href="index.php" class="menu-btn flex-center" title="Display Board"><span class="material-symbols-outlined">slideshow</span></a>
+            <?php endif; ?>
+
+            <?php if ($currentPage !== 'home.php'): ?>
+                <a href="home.php" class="menu-btn flex-center" title="Home"><span class="material-symbols-outlined">home</span></a>
+            <?php endif; ?>
+
+            <?php if ($currentPage !== 'programme.php'): ?>
+                <a href="programme.php" class="menu-btn flex-center" title="Training Programme"><span class="material-symbols-outlined">calendar_month</span></a>
+            <?php endif; ?>
+
+            <?php if ($currentPage !== 'documents.php'): ?>
+                <a href="documents.php" class="menu-btn flex-center" title="Documents"><span class="material-symbols-outlined">description</span></a>
+            <?php endif; ?>
+
+            <?php if ($currentPage === 'home.php'): ?>
+                <button id="btn-next-bg" class="menu-btn flex-center hidden" title="Next Background"><span class="material-symbols-outlined">image</span></button>
+            <?php endif; ?>
+        </div>
+    </div>
+    
     <?php if ($currentPage === 'index.php'): ?>
         <div id="controls-wrapper" class="expandable-menu flex-center" tabindex="0">
             <div class="expandable-menu-trigger flex-center" title="Slideshow Controls">
@@ -14,34 +41,35 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 <button id="btn-next" class="flex-center" title="Next Slide"><span class="material-symbols-outlined">skip_next</span></button>
             </div>
         </div>
-    <?php else: ?>
-        <a href="index.php" class="menu-btn flex-center" title="Display Board"><span class="material-symbols-outlined">slideshow</span></a>
     <?php endif; ?>
+</div>
 
-    <?php if ($currentPage !== 'home.php'): ?>
-        <a href="home.php" class="menu-btn flex-center" title="Home"><span class="material-symbols-outlined">home</span></a>
-    <?php endif; ?>
+<div id="top-right-controls" class="no-print">
+    <div class="user-dropdown" tabindex="0">
+        <div class="user-trigger flex-center" title="User Menu">
+            <span class="material-symbols-outlined">person</span>
+        </div>
+        <div class="user-dropdown-items">
+            <button id="btn-login-trigger" class="user-dropdown-btn <?php if($isLoggedIn) echo 'hidden'; ?>" title="Login">
+                <span class="material-symbols-outlined">login</span> Login
+            </button>
+            
+            <?php if ($isLoggedIn): ?>
+                <?php if ($currentPage === 'programme.php' && hasPermission($pdo, 'edit_programme')): ?>
+                    <button id="btn-toggle-edit" class="user-dropdown-btn" title="Edit Programme"><span class="material-symbols-outlined">edit</span> Edit</button>
+                <?php elseif ($currentPage === 'index.php' && hasPermission($pdo, 'edit_slides')): ?>
+                    <button id="btn-edit-mode" class="user-dropdown-btn" title="Edit Slides"><span class="material-symbols-outlined">edit</span> Edit</button>
+                <?php elseif ($currentPage === 'documents.php'): ?>
+                    <!-- Edit Mode for documents is moving to inline buttons per feedback, so no toggle here -->
+                <?php elseif (hasPermission($pdo, 'edit_slides')): ?>
+                    <button id="btn-edit-mode" class="user-dropdown-btn" title="Edit Mode"><span class="material-symbols-outlined">edit</span> Edit</button>
+                <?php endif; ?>
 
-    <?php if ($currentPage !== 'programme.php'): ?>
-        <a href="programme.php" class="menu-btn flex-center" title="Training Programme"><span class="material-symbols-outlined">calendar_month</span></a>
-    <?php endif; ?>
-
-    <?php if ($currentPage === 'home.php'): ?>
-        <button id="btn-next-bg" class="menu-btn flex-center hidden" title="Next Background"><span class="material-symbols-outlined">image</span></button>
-    <?php endif; ?>
-
-    <button id="btn-login-trigger" class="menu-btn flex-center <?php if($isLoggedIn) echo 'hidden'; ?>" title="Login"><span class="material-symbols-outlined">login</span></button>
-    
-    <?php if ($currentPage === 'programme.php'): ?>
-        <button id="btn-toggle-edit" class="menu-btn flex-center <?php if(!$isLoggedIn || !hasPermission($pdo, 'edit_programme')) echo 'hidden'; ?>" title="Edit Programme"><span class="material-symbols-outlined">edit</span></button>
-    <?php elseif ($currentPage === 'index.php'): ?>
-        <button id="btn-edit-mode" class="menu-btn flex-center <?php if(!$isLoggedIn || !hasPermission($pdo, 'edit_slides')) echo 'hidden'; ?>" title="Edit Slides"><span class="material-symbols-outlined">edit</span></button>
-    <?php else: ?>
-        <button id="btn-edit-mode" class="menu-btn flex-center <?php if(!$isLoggedIn || !hasPermission($pdo, 'edit_slides')) echo 'hidden'; ?>" title="Edit Mode"><span class="material-symbols-outlined">edit</span></button>
-    <?php endif; ?>
-
-    <a href="admin.php" id="link-admin" class="menu-btn flex-center <?php if(!$isLoggedIn) echo 'hidden'; ?>" title="Admin Panel"><span class="material-symbols-outlined">settings</span></a>
-    <button id="btn-logout" class="menu-btn flex-center <?php if(!$isLoggedIn) echo 'hidden'; ?>" title="Logout"><span class="material-symbols-outlined">logout</span></button>
+                <a href="admin.php" id="link-admin" class="user-dropdown-btn" title="Admin Panel"><span class="material-symbols-outlined">settings</span> Settings</a>
+                <button id="btn-logout" class="user-dropdown-btn" title="Logout"><span class="material-symbols-outlined">logout</span> Logout</button>
+            <?php endif; ?>
+        </div>
+    </div>
 </div>
 
 <!-- Login Modal -->

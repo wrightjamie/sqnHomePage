@@ -789,17 +789,47 @@ async function loadProgrammeSlidesData() {
                 container.innerHTML = `<div class="prog-empty-msg"><h2>No Programme Found</h2><p>For date: ${data ? data.date : 'Unknown'}</p></div>`;
             }
         } catch (e) {
+            console.error("loadProgrammeSlidesData error:", e);
             container.innerHTML = `<div class="prog-error-msg"><h2>Error loading programme</h2></div>`;
         }
     }
 }
+
+// Function to change the displayed date dynamically without saving to db
+window.shiftProgrammeSlideDate = function(btn, targetDate) {
+    const c = btn.closest('.programme-slide-container');
+    if (c) {
+        c.setAttribute('data-mode', 'specific');
+        c.setAttribute('data-date', targetDate);
+        window.loadProgrammeSlidesData();
+        
+        // Pause slideshow if not already paused
+        if (typeof isPaused !== 'undefined' && !isPaused) {
+            togglePause();
+            c.autoPaused = true;
+        }
+        
+        if (c.revertTimeout) clearTimeout(c.revertTimeout);
+        c.revertTimeout = setTimeout(() => {
+            c.setAttribute('data-mode', c.getAttribute('data-orig-mode'));
+            c.setAttribute('data-date', c.getAttribute('data-orig-date'));
+            window.loadProgrammeSlidesData();
+            
+            // Resume if we auto-paused it
+            if (c.autoPaused) {
+                if (typeof isPaused !== 'undefined' && isPaused) togglePause();
+                c.autoPaused = false;
+            }
+        }, DISPLAY_CONFIG.PROGRAMME_REVERT_TIMEOUT_MS);
+    }
+};
 
 function renderProgrammeNight(container, data) {
     const night = data.night;
     const dateStr = data.date;
     const prevDate = data.prev_date;
     const nextDate = data.next_date;
-    const monthNotes = data.month_notes || [];
+    const monthNotes = data.month_comments || [];
 
     const slideId = container.getAttribute('data-slide-id');
     const d = new Date(dateStr);
@@ -809,37 +839,6 @@ function renderProgrammeNight(container, data) {
     let editActionHtml = '';
     if (typeof editMode !== 'undefined' && editMode) {
         editActionHtml = `<button class="btn-primary" style="margin-left:1rem;" onclick="openProgrammeSettings(${slideId})" title="Slide Settings"><span class="material-symbols-outlined">settings</span></button>`;
-    }
-    
-    // Function to change the displayed date dynamically without saving to db
-    if (!window.shiftProgrammeSlideDate) {
-        window.shiftProgrammeSlideDate = function(btn, targetDate) {
-            const c = btn.closest('.programme-slide-container');
-            if (c) {
-                c.setAttribute('data-mode', 'specific');
-                c.setAttribute('data-date', targetDate);
-                window.loadProgrammeSlidesData();
-                
-                // Pause slideshow if not already paused
-                if (typeof isPaused !== 'undefined' && !isPaused) {
-                    togglePause();
-                    c.autoPaused = true;
-                }
-                
-                if (c.revertTimeout) clearTimeout(c.revertTimeout);
-                c.revertTimeout = setTimeout(() => {
-                    c.setAttribute('data-mode', c.getAttribute('data-orig-mode'));
-                    c.setAttribute('data-date', c.getAttribute('data-orig-date'));
-                    window.loadProgrammeSlidesData();
-                    
-                    // Resume if we auto-paused it
-                    if (c.autoPaused) {
-                        if (typeof isPaused !== 'undefined' && isPaused) togglePause();
-                        c.autoPaused = false;
-                    }
-                }, DISPLAY_CONFIG.PROGRAMME_REVERT_TIMEOUT_MS);
-            }
-        };
     }
 
     let prevBtnHtml = prevDate ? `<button onclick="window.shiftProgrammeSlideDate(this, '${prevDate}')" class="prog-nav-btn prog-nav-left" title="Previous Parade Night"><span class="material-symbols-outlined">chevron_left</span></button>` : '';
@@ -872,11 +871,11 @@ function renderProgrammeNight(container, data) {
     if ((night.notes && night.notes.length > 0) || (monthNotes && monthNotes.length > 0)) {
         let notesHtml = '';
         if (night.notes && night.notes.length > 0) {
-            notesHtml += night.notes.filter(n => n.trim()).map(n => `<li>${n}</li>`).join('');
+            notesHtml += night.notes.map(n => typeof n === "string" ? n.trim() : n).filter(n => n).map(n => `<li>${n}</li>`).join("");
         }
         if (monthNotes && monthNotes.length > 0) {
             if (notesHtml) notesHtml += `<hr class="prog-notes-divider">`;
-            notesHtml += monthNotes.filter(n => n.trim()).map(n => `<li class="italic">${n}</li>`).join('');
+            notesHtml += monthNotes.map(n => typeof n === "string" ? n.trim() : n).filter(n => n).map(n => `<li class="italic">${n}</li>`).join("");
         }
 
         if (notesHtml) {
@@ -886,6 +885,18 @@ function renderProgrammeNight(container, data) {
                 <ul class="prog-notes-list">${notesHtml}</ul>
             </div>`;
         }
+    }
+
+    // Tonight's Duties
+    if (night.duty_nco || night.duty_cadet) {
+        html += `
+        <div class="prog-info-card prog-duties-card">
+            <h3><span class="material-symbols-outlined" style="vertical-align:middle;">assignment_ind</span> Duties</h3>
+            <div class="prog-duties-grid">
+                ${night.duty_nco ? `<div class="prog-duty-item"><span class="prog-duty-label">Duty NCO:</span> <strong>${night.duty_nco}</strong></div>` : ""}
+                ${night.duty_cadet ? `<div class="prog-duty-item"><span class="prog-duty-label">Duty Cadet:</span> <strong>${night.duty_cadet}</strong></div>` : ""}
+            </div>
+        </div>`;
     }
     html += `</div>`;
     
@@ -931,6 +942,8 @@ function renderProgrammeNight(container, data) {
         </div>`;
     }
     
+
+    // Duties rendering removed from bottom to avoid duplication
     html += `</div>`; // end flex column
     container.innerHTML = html;
 }
