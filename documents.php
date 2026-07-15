@@ -72,6 +72,10 @@ if (!empty($_SERVER['PATH_INFO'])) {
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
+        .doc-amendments-section {
+            margin-top: 5rem;
+        }
+
         .doc-meta {
             color: var(--color-muted);
             font-size: 0.9rem;
@@ -122,6 +126,7 @@ if (!empty($_SERVER['PATH_INFO'])) {
             #bottom-right-controls, .no-print, .doc-header-swoosh { display: none !important; }
             .doc-container { padding: 0; max-width: 100%; box-shadow: none; margin: 0; }
             h1 { page-break-before: always; }
+            .doc-amendments-section { page-break-before: always; break-before: page; }
             .mb-md { margin-bottom: 0 !important; }
             button { display: none !important; }
 

@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             let historyHtml = '';
             if (doc.history && doc.history.length > 0) {
                 historyHtml = `
-                    <details class="mt-xl">
+                    <details class="doc-amendments-section">
                         <summary style="cursor:pointer; font-size:1.2rem; font-weight:bold; color:var(--raf-deep-blue); margin-bottom: 1rem;">Record of Amendments</summary>
                         <table class="doc-history-table">
                             <thead>
@@ -195,25 +195,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!title) { Toast.show('Title is required', 'error'); return; }
 
             const popupHtml = `
-                <div id="version-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; display:flex; align-items:center; justify-content:center;">
-                    <div style="background:white; padding:var(--space-xl); border-radius:var(--space-md); max-width:500px; width:100%;">
-                        <h2 style="margin-top:0;">Save Document</h2>
-                        <p class="mb-md">Current Version: <strong>${currentDoc.issue_number}</strong></p>
+                <div id="version-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(3px);">
+                    <div style="background:white; padding:var(--space-xl); border-radius:var(--space-md); max-width:550px; width:100%; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+                        <h2 style="margin-top:0; color:var(--raf-deep-blue); font-size: 2rem; border-bottom: 2px solid var(--colour-primary); padding-bottom: 0.5rem; margin-bottom: 1rem;">Save Document</h2>
+                        <p class="mb-lg" style="font-size: 1.1rem;">Current Version: <strong>${currentDoc.issue_number}</strong></p>
                         
-                        <div class="flex-col gap-sm mb-lg">
-                            <label><input type="radio" name="version_type" value="none" checked> None / Minor Correction (No version bump)</label>
-                            <label><input type="radio" name="version_type" value="point"> Point Release (e.g. Typo fixes, minor clarifications)</label>
-                            <label><input type="radio" name="version_type" value="major"> Major Release (e.g. Structural changes, new material)</label>
+                        <div class="flex-col gap-sm mb-xl">
+                            <label style="display:flex; align-items:center; padding: 0.75rem; background:#f9f9f9; border:1px solid #ddd; border-radius:var(--space-sm); cursor:pointer;">
+                                <input type="radio" name="version_type" value="none" checked style="margin-right: 1rem; transform: scale(1.2);"> 
+                                <div><strong style="font-size: 1.1rem;">None / Minor Correction</strong><br><span class="text-muted text-sm">No version bump</span></div>
+                            </label>
+                            <label style="display:flex; align-items:center; padding: 0.75rem; background:#f9f9f9; border:1px solid #ddd; border-radius:var(--space-sm); cursor:pointer;">
+                                <input type="radio" name="version_type" value="point" style="margin-right: 1rem; transform: scale(1.2);"> 
+                                <div><strong style="font-size: 1.1rem;">Point Release</strong><br><span class="text-muted text-sm">Typo fixes, minor clarifications (e.g. 1.0 &rarr; 1.1)</span></div>
+                            </label>
+                            <label style="display:flex; align-items:center; padding: 0.75rem; background:#f9f9f9; border:1px solid #ddd; border-radius:var(--space-sm); cursor:pointer;">
+                                <input type="radio" name="version_type" value="major" style="margin-right: 1rem; transform: scale(1.2);"> 
+                                <div><strong style="font-size: 1.1rem;">Major Release</strong><br><span class="text-muted text-sm">Structural changes, new material (e.g. 1.1 &rarr; 2.0)</span></div>
+                            </label>
                         </div>
 
                         <div id="summary-container" style="display:none;" class="mb-lg">
-                            <label class="form-label font-bold mb-xs">Amendment Summary</label>
-                            <input type="text" id="modal-summary" class="form-control" placeholder="Briefly describe the changes">
+                            <label class="form-label font-bold mb-xs" style="color:var(--raf-deep-blue);">Amendment Summary</label>
+                            <input type="text" id="modal-summary" class="form-control" placeholder="Briefly describe the changes" style="font-size: 1.1rem;">
                         </div>
 
                         <div class="flex-row justify-end gap-md">
-                            <button class="btn btn-secondary" id="btn-modal-cancel">Cancel</button>
-                            <button class="btn btn-primary" id="btn-modal-save">Confirm Save</button>
+                            <button class="btn btn-secondary" id="btn-modal-cancel" style="padding: 0.5rem 1.5rem;">Cancel</button>
+                            <button class="btn btn-primary" id="btn-modal-save" style="padding: 0.5rem 1.5rem;">Confirm Save</button>
                         </div>
                     </div>
                 </div>
