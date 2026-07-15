@@ -27,21 +27,6 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             <?php if ($currentPage === 'home.php'): ?>
                 <button id="btn-next-bg" class="menu-btn flex-center hidden" title="Next Background"><span class="material-symbols-outlined">image</span></button>
             <?php endif; ?>
-
-            <button id="btn-login-trigger" class="menu-btn flex-center <?php if($isLoggedIn) echo 'hidden'; ?>" title="Login"><span class="material-symbols-outlined">login</span></button>
-            
-            <?php if ($currentPage === 'programme.php'): ?>
-                <button id="btn-toggle-edit" class="menu-btn flex-center <?php if(!$isLoggedIn || !hasPermission($pdo, 'edit_programme')) echo 'hidden'; ?>" title="Edit Programme"><span class="material-symbols-outlined">edit</span></button>
-            <?php elseif ($currentPage === 'index.php'): ?>
-                <button id="btn-edit-mode" class="menu-btn flex-center <?php if(!$isLoggedIn || !hasPermission($pdo, 'edit_slides')) echo 'hidden'; ?>" title="Edit Slides"><span class="material-symbols-outlined">edit</span></button>
-            <?php elseif ($currentPage === 'documents.php'): ?>
-                <button id="btn-edit-mode" class="menu-btn flex-center <?php if(!$isLoggedIn || !hasPermission($pdo, 'manage_settings')) echo 'hidden'; ?>" title="Edit Documents"><span class="material-symbols-outlined">edit</span></button>
-            <?php else: ?>
-                <button id="btn-edit-mode" class="menu-btn flex-center <?php if(!$isLoggedIn || !hasPermission($pdo, 'edit_slides')) echo 'hidden'; ?>" title="Edit Mode"><span class="material-symbols-outlined">edit</span></button>
-            <?php endif; ?>
-
-            <a href="admin.php" id="link-admin" class="menu-btn flex-center <?php if(!$isLoggedIn) echo 'hidden'; ?>" title="Admin Panel"><span class="material-symbols-outlined">settings</span></a>
-            <button id="btn-logout" class="menu-btn flex-center <?php if(!$isLoggedIn) echo 'hidden'; ?>" title="Logout"><span class="material-symbols-outlined">logout</span></button>
         </div>
     </div>
     
@@ -57,6 +42,34 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             </div>
         </div>
     <?php endif; ?>
+</div>
+
+<div id="top-right-controls" class="no-print">
+    <div class="user-dropdown" tabindex="0">
+        <div class="user-trigger flex-center" title="User Menu">
+            <span class="material-symbols-outlined">person</span>
+        </div>
+        <div class="user-dropdown-items">
+            <button id="btn-login-trigger" class="user-dropdown-btn <?php if($isLoggedIn) echo 'hidden'; ?>" title="Login">
+                <span class="material-symbols-outlined">login</span> Login
+            </button>
+            
+            <?php if ($isLoggedIn): ?>
+                <?php if ($currentPage === 'programme.php' && hasPermission($pdo, 'edit_programme')): ?>
+                    <button id="btn-toggle-edit" class="user-dropdown-btn" title="Edit Programme"><span class="material-symbols-outlined">edit</span> Edit</button>
+                <?php elseif ($currentPage === 'index.php' && hasPermission($pdo, 'edit_slides')): ?>
+                    <button id="btn-edit-mode" class="user-dropdown-btn" title="Edit Slides"><span class="material-symbols-outlined">edit</span> Edit</button>
+                <?php elseif ($currentPage === 'documents.php'): ?>
+                    <!-- Edit Mode for documents is moving to inline buttons per feedback, so no toggle here -->
+                <?php elseif (hasPermission($pdo, 'edit_slides')): ?>
+                    <button id="btn-edit-mode" class="user-dropdown-btn" title="Edit Mode"><span class="material-symbols-outlined">edit</span> Edit</button>
+                <?php endif; ?>
+
+                <a href="admin.php" id="link-admin" class="user-dropdown-btn" title="Admin Panel"><span class="material-symbols-outlined">settings</span> Settings</a>
+                <button id="btn-logout" class="user-dropdown-btn" title="Logout"><span class="material-symbols-outlined">logout</span> Logout</button>
+            <?php endif; ?>
+        </div>
+    </div>
 </div>
 
 <!-- Login Modal -->
