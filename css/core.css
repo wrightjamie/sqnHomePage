@@ -56,6 +56,8 @@
     --space-sm: 0.625rem;  /* 10px */
     --space-md: 0.9375rem; /* 15px */
     --space-lg: 1.25rem;   /* 20px */
+    --space-xl: 2rem;      /* 32px */
+    --space-xxl: 3rem;     /* 48px */
     /* Z-Index Scale */
     --z-base: 1;          /* Base elements */
     --z-elevated: 10;     /* Elevated elements, active slides */

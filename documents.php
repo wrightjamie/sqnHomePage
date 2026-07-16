@@ -37,7 +37,7 @@ if (!empty($_SERVER['PATH_INFO'])) {
             padding: 0 var(--space-lg);
             color: white;
             justify-content: space-between;
-            background: linear-gradient(to bottom, var(--colour-footer) 0%, var(--colour-footer) calc(100% - 60px), transparent calc(100% - 60px), transparent 100%);
+            background: linear-gradient(to bottom, #ff0000 0%, #ff0000 calc(100% - 60px), transparent calc(100% - 60px), transparent 100%);
         }
 
         .header-swoosh-svg {
