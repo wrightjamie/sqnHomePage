@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function renderList() {
+        document.getElementById('header-title').textContent = 'Squadron Documents';
         app.innerHTML = `
             <div class="flex-row justify-between align-center mb-lg">
                 <h2>Documents</h2>
@@ -86,6 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const queryParam = isSlug ? 'slug' : 'id';
         apiFetch(`api/documents.php?${queryParam}=${id}`).then(doc => {
             currentDoc = doc;
+            document.getElementById('header-title').textContent = doc.title;
             let historyHtml = '';
             if (doc.history && doc.history.length > 0) {
                 historyHtml = `

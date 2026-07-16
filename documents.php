@@ -53,16 +53,34 @@ if (!empty($_SERVER['PATH_INFO'])) {
 
         .doc-header-swoosh h1 {
             margin: 0;
-            font-size: 2.5rem;
+            font-size: 2.2rem; /* Slightly reduced to fit better with the new subtitle */
             z-index: 2;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .doc-header-swoosh h2 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: bold;
+            z-index: 2;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            margin-bottom: 0.5rem;
+        }
+
+        .header-titles {
+            display: flex;
+            flex-direction: column;
+            z-index: 2;
+            flex: 1;
         }
 
         .doc-header-swoosh img {
             height: 80px;
             z-index: 2;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-            margin-right: 60px; /* Prevent overlap with top-right menu */
+            margin-right: 60px; /* Prevent overlap with top-right menu if it was at the top */
         }
 
         .doc-list-item {
@@ -150,6 +168,7 @@ if (!empty($_SERVER['PATH_INFO'])) {
         /* User Menu Override */
         #top-right-controls {
             z-index: 100 !important;
+            top: 160px !important;
         }
         
         #user-menu {
@@ -184,7 +203,8 @@ if (!empty($_SERVER['PATH_INFO'])) {
             body { background: white; margin: 0; padding-top: 140px; }
             #bottom-right-controls, .no-print { display: none !important; }
             .doc-container { padding: 0; max-width: 100%; box-shadow: none; margin: 0; min-height: 0; }
-            h1 { page-break-before: always; }
+            h1, h2 { page-break-before: auto; }
+            h1 { font-size: 2rem !important; }
             .doc-amendments-section { page-break-before: always; break-before: page; }
             .mb-md { margin-bottom: 0 !important; }
             button { display: none !important; }
@@ -215,7 +235,10 @@ if (!empty($_SERVER['PATH_INFO'])) {
             $swooshClass = 'header-swoosh-svg';
             include 'components/swoosh.php'; 
         ?>
-        <h1>Squadron Documents</h1>
+        <div class="header-titles">
+            <h2>2459 (Poulton-le-Fylde) Squadron ATC</h2>
+            <h1 id="header-title">Squadron Documents</h1>
+        </div>
         <img src="images/rafac-logo.svg" alt="RAFAC">
     </div>
 
