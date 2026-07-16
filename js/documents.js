@@ -124,7 +124,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </div>
                 <div class="doc-view">
-                    <h1 class="doc-title-view">${doc.title}</h1>
                     <div class="doc-meta mb-lg" style="border-bottom: 2px solid var(--raf-deep-blue); padding-bottom: 0.5rem;">Issue ${doc.issue_number} | ${doc.issue_date}</div>
                     <div class="ql-editor" style="padding:0;">${doc.content}</div>
                     ${historyHtml}

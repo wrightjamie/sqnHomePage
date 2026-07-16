@@ -213,6 +213,12 @@ if (!empty($_SERVER['PATH_INFO'])) {
                 z-index: 1000; 
                 height: 120px;
                 display: flex !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .doc-header-swoosh img {
+                margin-right: 0 !important;
             }
 
             /* Running header/footer via fixed position */
