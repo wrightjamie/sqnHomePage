@@ -24,13 +24,13 @@ if (!empty($_SERVER['PATH_INFO'])) {
             margin: 0 auto;
             padding: var(--space-xl);
             padding-top: 80px; /* Push content down to clear the overflowing swoosh */
-            min-height: calc(100vh - 140px); /* Fix double scrollbar by accounting for header height */
+            min-height: calc(100vh - 120px); /* Fix double scrollbar by accounting for header height */
             position: relative;
             z-index: 2;
         }
 
         .doc-header-swoosh {
-            height: 140px;
+            height: 120px;
             width: 100%;
             position: relative;
             display: flex;
@@ -54,13 +54,13 @@ if (!empty($_SERVER['PATH_INFO'])) {
 
         .doc-header-swoosh h1 {
             margin: 0;
-            font-size: 2.2rem;
+            font-size: 2.8rem;
             z-index: 2;
         }
 
         .doc-header-swoosh h2 {
             margin: 0;
-            font-size: 1rem;
+            font-size: 1.2rem;
             font-weight: bold;
             z-index: 2;
         }
