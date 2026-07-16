@@ -19,14 +19,21 @@ if (!empty($_SERVER['PATH_INFO'])) {
     <link rel="stylesheet" href="css/core.css">
     <link rel="stylesheet" href="css/components.css">
     <style>
-        .doc-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: var(--space-xl);
-            padding-top: 80px; /* Push content down to clear the overflowing swoosh */
-            min-height: calc(100vh - 120px); /* Fix double scrollbar by accounting for header height */
-            position: relative;
-            z-index: 2;
+        @media screen {
+            body {
+                overflow: hidden; /* Stop whole page scrolling */
+            }
+            .doc-container {
+                max-width: 1000px;
+                margin: 0 auto;
+                padding: var(--space-xl);
+                padding-top: 80px; /* Push content down to clear the overflowing swoosh */
+                height: calc(100vh - 120px);
+                overflow-y: auto;
+                scrollbar-width: thin;
+                position: relative;
+                z-index: 2;
+            }
         }
 
         .doc-header-swoosh {

@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     [{ 'header': [1, 2, 3, false] }],
                     ['bold', 'italic', 'underline'],
                     [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    ['link', 'image', 'video'],
+                    ['link', 'image'],
                     ['clean']
                 ]
             }
