@@ -1,3 +1,13 @@
+let isSlugView = false;
+
+function formatPrintDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    const month = d.toLocaleString('en-GB', { month: 'short' });
+    const year = d.getFullYear().toString().slice(-2);
+    return `${month} ${year}`;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const app = document.getElementById('app-root');
     let quill = null;
@@ -124,10 +134,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </div>
                 <div class="doc-view">
-                    <div class="doc-meta mb-lg" style="border-bottom: 2px solid var(--raf-deep-blue); padding-bottom: 0.5rem;">Issue ${doc.issue_number} | ${doc.issue_date}</div>
+                    <div class="doc-meta mb-lg no-print" style="border-bottom: 2px solid var(--raf-deep-blue); padding-bottom: 0.5rem;">Issue ${doc.issue_number} | ${doc.issue_date}</div>
                     <div class="ql-editor" style="padding:0;">${doc.content}</div>
                     ${historyHtml}
                 </div>
+                <div class="print-only-footer">Issue ${doc.issue_number} | ${formatPrintDate(doc.issue_date)}</div>
             `;
 
             if (document.getElementById('btn-edit-doc')) {

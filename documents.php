@@ -225,7 +225,21 @@ if (!empty($_SERVER['PATH_INFO'])) {
             @page {
                 margin: 20mm;
                 margin-top: 0;
+                margin-bottom: 25mm; /* Extra space for footer */
             }
+
+            .print-only-footer {
+                display: block !important;
+                position: fixed;
+                bottom: 0;
+                right: 0;
+                font-size: 0.9rem;
+                color: #555;
+            }
+        }
+
+        .print-only-footer {
+            display: none;
         }
     </style>
 </head>
