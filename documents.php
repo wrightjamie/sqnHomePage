@@ -22,10 +22,10 @@ if (!empty($_SERVER['PATH_INFO'])) {
         .doc-container {
             max-width: 1000px;
             margin: 0 auto;
-            background: white;
             padding: var(--space-xl);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             min-height: calc(100vh - 140px); /* Fix double scrollbar by accounting for header height */
+            position: relative;
+            z-index: 2;
         }
 
         .doc-header-swoosh {
@@ -37,12 +37,13 @@ if (!empty($_SERVER['PATH_INFO'])) {
             padding: 0 var(--space-lg);
             color: white;
             justify-content: space-between;
-            background: linear-gradient(to bottom, #ff0000 0%, #ff0000 calc(100% - 60px), transparent calc(100% - 60px), transparent 100%);
+            background-color: var(--raf-supp-4);
+            z-index: 1;
         }
 
         .header-swoosh-svg {
             position: absolute;
-            bottom: 0;
+            bottom: -60px;
             left: 0;
             width: 100%;
             height: 60px;

@@ -4,8 +4,8 @@ $swooshClass = $swooshClass ?? "";
 ?>
 <?php if ($swooshOrientation === "horizontal"): ?>
 <svg class="<?= htmlspecialchars($swooshClass) ?>" viewBox="0 0 300 45" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <path class="swoosh-inner" fill="#00ff00" d="M0 0 h300 V3.9 c-99.4-3.3 -187.2.1 -300 37 Z"></path>
-    <path class="swoosh-dividing" fill="#0000ff" d="M0 45 C35.4 32.2 163.2 4.4 300 18.1 V3.9 c-99.4-3.3 -187.2.1 -300 37 V45 Z"></path>
+    <path class="swoosh-inner" fill="var(--raf-supp-4)" d="M0 0 h300 V3.9 c-99.4-3.3 -187.2.1 -300 37 Z"></path>
+    <path class="swoosh-dividing" fill="var(--raf-nav-2)" d="M0 45 C35.4 32.2 163.2 4.4 300 18.1 V3.9 c-99.4-3.3 -187.2.1 -300 37 V45 Z"></path>
 </svg>
 <?php else: ?>
 <svg class="<?= htmlspecialchars($swooshClass) ?>" viewBox="0 0 45 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
