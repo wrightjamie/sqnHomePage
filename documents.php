@@ -23,6 +23,7 @@ if (!empty($_SERVER['PATH_INFO'])) {
             max-width: 1000px;
             margin: 0 auto;
             padding: var(--space-xl);
+            padding-top: 80px; /* Push content down to clear the overflowing swoosh */
             min-height: calc(100vh - 140px); /* Fix double scrollbar by accounting for header height */
             position: relative;
             z-index: 2;
@@ -53,10 +54,8 @@ if (!empty($_SERVER['PATH_INFO'])) {
 
         .doc-header-swoosh h1 {
             margin: 0;
-            font-size: 2.2rem; /* Slightly reduced to fit better with the new subtitle */
+            font-size: 2.2rem;
             z-index: 2;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid rgba(255,255,255,0.3);
         }
 
         .doc-header-swoosh h2 {
@@ -64,14 +63,12 @@ if (!empty($_SERVER['PATH_INFO'])) {
             font-size: 1rem;
             font-weight: bold;
             z-index: 2;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid rgba(255,255,255,0.3);
-            margin-bottom: 0.5rem;
         }
 
         .header-titles {
             display: flex;
             flex-direction: column;
+            gap: 0.25rem;
             z-index: 2;
             flex: 1;
         }
@@ -168,7 +165,6 @@ if (!empty($_SERVER['PATH_INFO'])) {
         /* User Menu Override */
         #top-right-controls {
             z-index: 100 !important;
-            top: 160px !important;
         }
         
         #user-menu {
