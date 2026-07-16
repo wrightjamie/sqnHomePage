@@ -20,15 +20,16 @@ if (!empty($_SERVER['PATH_INFO'])) {
     <link rel="stylesheet" href="css/components.css">
     <style>
         @media screen {
-            body {
+            html, body {
                 overflow: hidden; /* Stop whole page scrolling */
+                height: 100%;
             }
             .doc-container {
                 max-width: 1000px;
                 margin: 0 auto;
                 padding: var(--space-xl);
                 padding-top: 80px; /* Push content down to clear the overflowing swoosh */
-                height: calc(100vh - 120px);
+                height: calc(100% - 120px);
                 display: flex;
                 flex-direction: column;
                 position: relative;
