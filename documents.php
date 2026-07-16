@@ -29,10 +29,32 @@ if (!empty($_SERVER['PATH_INFO'])) {
                 padding: var(--space-xl);
                 padding-top: 80px; /* Push content down to clear the overflowing swoosh */
                 height: calc(100vh - 120px);
-                overflow-y: auto;
-                scrollbar-width: thin;
+                display: flex;
+                flex-direction: column;
                 position: relative;
                 z-index: 2;
+            }
+            .doc-view, #doc-list {
+                flex: 1;
+                overflow-y: auto;
+                scrollbar-width: thin;
+                padding-right: var(--space-sm);
+            }
+            
+            /* Quill editor container flex styling */
+            .ql-toolbar {
+                flex-shrink: 0;
+            }
+            .ql-container {
+                flex: 1;
+                overflow-y: auto;
+                min-height: 0;
+            }
+            #editor-container {
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+                min-height: 0; /* Important for nested flex scrolling */
             }
         }
 
@@ -152,7 +174,6 @@ if (!empty($_SERVER['PATH_INFO'])) {
         }
 
         #editor-container {
-            height: 500px;
             margin-bottom: var(--space-lg);
         }
 
