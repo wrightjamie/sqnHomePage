@@ -208,13 +208,15 @@ if (!empty($_SERVER['PATH_INFO'])) {
             .doc-header-swoosh { 
                 position: fixed; 
                 top: 0; 
-                left: 0; 
-                width: 100%; 
+                left: -20mm; /* Push into left page margin */
+                width: calc(100% + 40mm); /* Span entire page width */
                 z-index: 1000; 
                 height: 120px;
                 display: flex !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
+                padding-left: calc(var(--space-lg) + 20mm) !important; /* Keep text aligned to original margin */
+                padding-right: calc(var(--space-lg) + 20mm) !important; /* Keep logo aligned to original margin */
             }
 
             .doc-header-swoosh img {
