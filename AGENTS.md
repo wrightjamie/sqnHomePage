@@ -19,6 +19,7 @@ Welcome! If you are an AI agent (such as Jules or Antigravity) working on this c
 ## 3. Data Storage & Structure
 * **General Database:** SQLite is used for primary database storage (files are located in the `data/` directory).
 * **Training Schedules:** The project uses a file-based monthly JSON datastore for training schedules. All data for a given month is stored in a single JSON file.
+* **Database Updates (CRITICAL):** When modifying the database schema, ALWAYS increment the target version in `api/config.php` and add the corresponding upgrade queries to the migration sequence in `api/update.php`. This ensures all deployments can automatically upgrade their schema.
 
 ## 4. Design & Styling (Modern CSS)
 * **Brand Guidelines:** Styling must strictly adhere to RAF brand guidelines.

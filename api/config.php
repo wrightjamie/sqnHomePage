@@ -41,4 +41,25 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $isLoggedIn = isset($_SESSION['user_id']);
+
+// Check Database Version (Cache in session to avoid querying on every request)
+$target_db_version = 1;
+
+if (!isset($_SESSION['db_version_checked']) || $_SESSION['db_version_checked'] < $target_db_version) {
+    // Ensure settings table exists first to prevent errors on fresh install
+    $tableExists = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='settings'")->fetch();
+    
+    if ($tableExists) {
+        $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'db_version'");
+        $stmt->execute();
+        $dbVersionRow = $stmt->fetch();
+        $currentVersion = $dbVersionRow ? (int)$dbVersionRow['value'] : 0;
+        
+        if ($currentVersion < $target_db_version) {
+            require_once __DIR__ . '/update.php';
+        }
+        
+        $_SESSION['db_version_checked'] = $target_db_version;
+    }
+}
 ?>

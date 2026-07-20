@@ -343,6 +343,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isInstalled) {
         ];
         $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (`key`, `value`) VALUES ('programme_config', ?)");
         $stmt->execute([json_encode($defaultProgrammeConfig)]);
+        
+        // Establish initial database version
+        $pdo->exec("INSERT OR IGNORE INTO settings (`key`, `value`) VALUES ('db_version', '1')");
         // ----------------------------------------
 
         $isInstalled = true;
