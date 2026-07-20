@@ -1,5 +1,5 @@
 /* css/pages/programme.css */
-body { overflow-y: auto; overflow-x: hidden; width: 100%; background: #fff; color: #000; }
+body { overflow-y: auto; overflow-x: hidden; width: 100%; background: #fff; color: #000; --nav-item-hover-bg: rgba(0,0,0,0.1); --nav-btn-icon-color-hover: #000; }
 .programme-container { padding: var(--space-sm); max-width: 1200px; margin: 0 auto; min-height: 100vh; position: relative; }
 
 /* Table Styles */
