@@ -371,8 +371,10 @@ body {
     z-index: 20;
     pointer-events: none; /* Let clicks pass through */
 }
+.swoosh-mobile { display: none; }
+.swoosh-desktop { display: block; }
 
-#swoosh-sidebar svg {
+#swoosh-sidebar .swoosh-desktop svg {
     position: absolute;
     left: 100%;
     top: 0;
@@ -560,4 +562,81 @@ body {
     color: rgba(255, 255, 255, 0.7);
     text-transform: uppercase;
     letter-spacing: 1px;
+}
+
+@media (max-width: 768px) {
+    .swoosh-desktop { display: none !important; }
+    .swoosh-mobile { display: block !important; }
+    
+    #swoosh-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        background-color: var(--colour-footer);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 var(--space-md);
+        box-sizing: border-box;
+    }
+
+    #swoosh-sidebar .swoosh-mobile svg.header-swoosh-svg {
+        position: absolute;
+        bottom: -8vw; /* Adjusted swoosh curve depth */
+        left: 0;
+        width: 100%;
+        height: 8vw;
+        z-index: -1;
+        transform: scaleX(-1);
+    }
+
+    #swoosh-sidebar .swoosh-mobile .swoosh-inner { fill: var(--colour-footer) !important; }
+    #swoosh-sidebar .swoosh-mobile .swoosh-dividing { fill: var(--colour-divider) !important; }
+
+    #logo-container {
+        position: static;
+        width: clamp(80px, 18vw, 100px);
+        height: auto;
+        margin: 0;
+        margin-right: 70px; /* Prevent overlap with user menu dropdown */
+        margin-left: var(--space-sm); /* Spacing from titles */
+    }
+
+    .header-titles {
+        flex: 1;
+        display: flex;
+        justify-content: flex-start;
+        padding-left: var(--space-sm);
+        padding-right: var(--space-sm);
+    }
+
+    .swoosh-sidebar-text {
+        position: static;
+        writing-mode: horizontal-tb;
+        font-size: clamp(1.5rem, 7vw, 2.5rem);
+        margin: 0;
+        color: white; 
+        text-transform: none;
+        letter-spacing: normal;
+        font-weight: bold;
+    }
+
+    .slide {
+        padding: calc(110px + 8vw) var(--space-md) 100px var(--space-md) !important;
+        box-sizing: border-box;
+        overflow-y: auto; /* Allow scrolling if content is too tall */
+    }
+
+    .slide h1 {
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+    }
+
+    .slide-image-container img {
+        max-height: 35vh;
+        width: 100%;
+        object-fit: cover;
+    }
 }

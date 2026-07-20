@@ -31,17 +31,28 @@ require_once 'api/config.php';
     
     <!-- Brand Swoosh Sidebar -->
     <header id="swoosh-sidebar">
-        <?php 
-            $swooshOrientation = 'vertical';
-            include 'components/swoosh.php'; 
-        ?>
+        <div class="swoosh-desktop">
+            <?php 
+                $swooshOrientation = 'vertical';
+                include 'components/swoosh.php'; 
+            ?>
+        </div>
+        <div class="swoosh-mobile">
+            <?php 
+                $swooshOrientation = 'horizontal';
+                $swooshClass = 'header-swoosh-svg';
+                include 'components/swoosh.php'; 
+            ?>
+        </div>
         
-        <!-- Logo Top Left -->
+        <div class="header-titles">
+            <h1 class="swoosh-sidebar-text">2459 Squadron</h1>
+        </div>
+
+        <!-- Logo -->
         <div id="logo-container">
             <img src="images/rafac-logo.svg" alt="RAF Air Cadets">
         </div>
-
-        <h1 class="swoosh-sidebar-text">2459 Squadron</h1>
     </header>
 
     <!-- Modals -->
