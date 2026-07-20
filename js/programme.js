@@ -381,6 +381,27 @@ document.addEventListener('DOMContentLoaded', () => {
         nextRows.forEach((r, i) => tableBody.appendChild(createRow(r, 'padding-row next-month')));
         
         setupDragAndDrop();
+
+        if (window.innerWidth <= 768) {
+            scrollToNextParadeNight();
+        }
+    }
+    
+    function scrollToNextParadeNight() {
+        const today = isoDate(new Date());
+        const rows = document.querySelectorAll('#prog-body tr');
+        let targetRow = null;
+        for (let row of rows) {
+            if (row.dataset.date >= today) {
+                targetRow = row;
+                break;
+            }
+        }
+        if (targetRow) {
+            setTimeout(() => {
+                targetRow.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+            }, 100);
+        }
     }
     
     function createRow(rowData, classes, currentIndex = -1) {
@@ -413,15 +434,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let styleStr = '';
         if (unifColor) {
-            styleStr = ` style="background-color: ${unifColor}; color: ${isLight(unifColor) ? '#000' : '#fff'}; text-shadow: ${isLight(unifColor) ? 'none' : '0.0625rem 0.0625rem 0.125rem #000'};"`;
+            styleStr = ` style="background-color: ${unifColor}; color: ${isLight(unifColor) ? '#000' : '#fff'};"`;
         }
         
         let html = `
-            <td class="date-col">
+            <td class="date-col" data-label="Date">
                 ${controlsHtml}
                 ${formatDateShort(dateObj)}
             </td>
-            <td class="uniform-col editable-cell" data-type="uniform"${styleStr}>
+            <td class="uniform-col editable-cell" data-type="uniform" data-label="Uniform"${styleStr}>
                 ${unifText}
             </td>
         `;
@@ -443,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let instStr = act.instructor ? `<div class="activity-instructor">${act.instructor}</div>` : '';
             
             html += `
-                <td class="editable-cell" data-type="activity" data-col="${colIdx}" colspan="${colspan}">
+                <td class="editable-cell" data-type="activity" data-col="${colIdx}" colspan="${colspan}" data-label="${act.classifications.join(' & ')}">
                     <div class="activity-title" style="color: ${textColor};">${act.name || ''}</div>
                     ${instStr}
                 </td>
@@ -455,10 +476,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let notesDisplay = (rowData.notes || []).filter(n => n).map(n => `• ${n}`).join('<br>');
         
         html += `
-            <td class="duty-col editable-cell" data-type="duty">
+            <td class="duty-col editable-cell" data-type="duty" data-label="Duties">
                 ${dutyHtml}
             </td>
-            <td class="notes-col editable-cell" data-type="notes">
+            <td class="notes-col editable-cell" data-type="notes" data-label="Notes">
                 ${notesDisplay}
             </td>
         `;

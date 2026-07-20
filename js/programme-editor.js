@@ -27,6 +27,14 @@ window.openUniformPopover = function(e, cell, rowData, tr, monthType) {
         window.ProgState.refreshRow(tr, rowData);
         window.ProgState.autoSave(monthType);
     };
+    
+    document.getElementById('btn-unif-clear').onclick = () => {
+        rowData.uniform = '';
+        popover.hidePopover();
+        window.ProgState.refreshRow(tr, rowData);
+        window.ProgState.autoSave(monthType);
+    };
+    
     popover.showPopover();
 };
 
@@ -94,8 +102,20 @@ window.openNotesPopover = function(e, cell, rowData, tr, monthType, type) {
         }
         popover.hidePopover();
         window.ProgState.autoSave(monthType);
-
     };
+    
+    document.getElementById("btn-note-clear").onclick = () => {
+        if (type === "month-notes") {
+            rowData.month_comments = [];
+            window.ProgState.monthNotesContainer.innerHTML = "<em>No notes</em>";
+        } else {
+            rowData.notes = [];
+            window.ProgState.refreshRow(tr, rowData);
+        }
+        popover.hidePopover();
+        window.ProgState.autoSave(monthType);
+    };
+    
     popover.showPopover();
 };
 
@@ -130,6 +150,15 @@ window.openDutyPopover = function(e, cell, rowData, tr, monthType) {
         popover.hidePopover();
         window.ProgState.autoSave(monthType);
     };
+    
+    document.getElementById('btn-duty-clear').onclick = () => {
+        rowData.duty_nco = '';
+        rowData.duty_cadet = '';
+        window.ProgState.refreshRow(tr, rowData);
+        popover.hidePopover();
+        window.ProgState.autoSave(monthType);
+    };
+    
     popover.showPopover();
 };
 
@@ -188,6 +217,15 @@ window.openActivityPopover = function(e, cell, rowData, tr, monthType) {
         const actTypeSelected = document.querySelector('input[name="act-type-radio"]:checked');
         act.activity_type = actTypeSelected ? actTypeSelected.value : '';
         act.instructor = document.getElementById('act-instructor').value;
+        popover.hidePopover();
+        window.ProgState.refreshRow(tr, rowData);
+        window.ProgState.autoSave(monthType);
+    };
+    
+    document.getElementById('btn-act-clear').onclick = () => {
+        act.name = '';
+        act.activity_type = '';
+        act.instructor = '';
         popover.hidePopover();
         window.ProgState.refreshRow(tr, rowData);
         window.ProgState.autoSave(monthType);

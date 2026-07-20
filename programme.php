@@ -71,7 +71,8 @@ require_once 'api/config.php';
         <select id="act-instructor" class="form-control"></select>
         <div class="popular-btns mb-md flex-wrap gap-xs" id="staff-popular-btns"></div>
         
-        <div class="popover-footer">
+        <div class="popover-footer flex-between">
+            <button id="btn-act-clear" class="btn btn-secondary btn-sm" title="Clear"><span class="material-symbols-outlined btn-icon-md text-error">delete</span></button>
             <div class="flex-row gap-xs">
                 <button id="btn-act-merge" class="btn btn-secondary btn-sm" title="Merge Left"><span class="material-symbols-outlined btn-icon-md">keyboard_double_arrow_left</span></button>
                 <button id="btn-act-split" class="btn btn-secondary btn-sm" title="Split"><span class="material-symbols-outlined btn-icon-md">splitscreen</span></button>
@@ -82,7 +83,10 @@ require_once 'api/config.php';
     
     <div id="uniform-popover" class="popover-panel" popover>
         <h3>Select Uniform</h3>
-        <div id="unif-grid" class="unif-grid"></div>
+        <div id="unif-grid" class="unif-grid mb-sm"></div>
+        <div class="popover-footer popover-footer-start">
+            <button id="btn-unif-clear" class="btn btn-secondary btn-sm" title="Clear"><span class="material-symbols-outlined btn-icon-md text-error">delete</span></button>
+        </div>
     </div>
 
     <div id="duty-popover" class="popover-panel" popover>
@@ -92,7 +96,8 @@ require_once 'api/config.php';
 
         <label class="form-label text-sm font-bold mb-xs">Duty Cadet</label>
         <input type="text" id="duty-cadet-input" placeholder="Duty Cadet" class="form-control mb-md">
-        <div class="popover-footer popover-footer-end">
+        <div class="popover-footer flex-between">
+            <button id="btn-duty-clear" class="btn btn-secondary btn-sm" title="Clear"><span class="material-symbols-outlined btn-icon-md text-error">delete</span></button>
             <button id="btn-duty-save" class="btn btn-primary btn-sm" title="Done"><span class="material-symbols-outlined btn-icon-md">check</span></button>
         </div>
     </div>
@@ -106,7 +111,8 @@ require_once 'api/config.php';
             <button id="btn-note-add" class="btn btn-primary btn-sm flex-center" title="Add Note"><span class="material-symbols-outlined btn-icon-md">add</span></button>
         </div>
         <div class="popular-btns flex-row flex-wrap gap-xs mb-sm" id="note-popular-btns"></div>
-        <div class="popover-footer popover-footer-end">
+        <div class="popover-footer flex-between">
+            <button id="btn-note-clear" class="btn btn-secondary btn-sm" title="Clear"><span class="material-symbols-outlined btn-icon-md text-error">delete</span></button>
             <button id="btn-note-save" class="btn btn-primary btn-sm" title="Done"><span class="material-symbols-outlined btn-icon-md">check</span></button>
         </div>
     </div>

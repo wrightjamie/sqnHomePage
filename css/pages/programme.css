@@ -181,3 +181,91 @@ body:not(.edit-mode) .padding-row { display: none; }
 .note-input {
     margin-bottom: 0 !important;
 }
+
+/* --- Mobile CSS Carousel --- */
+@media (max-width: 768px) {
+    .prog-table thead {
+        display: none;
+    }
+
+    .prog-table, .prog-table tbody {
+        display: flex;
+    }
+    
+    .prog-table { border: none; }
+
+    .prog-table tbody {
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        overscroll-behavior-x: contain;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        gap: var(--space-md);
+        padding-bottom: var(--space-sm);
+        width: 100%;
+    }
+
+    .prog-table tr {
+        display: flex;
+        flex-direction: column;
+        flex: 0 0 min(85vw, 300px); 
+        scroll-snap-align: center;
+        scroll-snap-stop: always;
+        background: #fff;
+        border: 2px solid #000;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
+    }
+    
+    .prog-row.row-even td, .prog-row.row-odd td {
+        background-color: transparent;
+    }
+
+    .prog-table td {
+        display: block;
+        width: 100%;
+        text-align: left;
+        border: none;
+        border-bottom: 1px solid #eee;
+        padding: var(--space-sm);
+        position: relative;
+    }
+
+    .prog-table td:last-child {
+        border-bottom: none;
+    }
+
+    .prog-table td.date-col {
+        background-color: var(--raf-deep-blue);
+        color: #fff;
+        text-align: center;
+        font-size: 1.2rem;
+        padding: var(--space-sm);
+    }
+    
+    .prog-table td:not(.date-col)::before {
+        content: attr(data-label);
+        display: block;
+        font-weight: bold;
+        color: var(--color-muted);
+        text-transform: uppercase;
+        font-size: 0.7em;
+        margin-bottom: 2px;
+    }
+    
+    .row-controls {
+        position: absolute;
+        right: 5px;
+        left: auto;
+        top: 5px;
+        flex-direction: row;
+        width: auto;
+        background: rgba(255,255,255,0.9);
+        border-radius: 4px;
+        padding: 2px;
+        z-index: 10;
+    }
+    .edit-mode .prog-row:hover .row-controls { display: flex; }
+}
