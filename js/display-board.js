@@ -386,13 +386,15 @@ document.addEventListener('keydown', (e) => {
 const btnLoginTrigger = document.getElementById('btn-login-trigger');
 const linkAdmin = document.getElementById('link-admin');
 
-btnEditMode.addEventListener('click', () => {
-    if (!editMode) {
-        enterEditMode();
-    } else {
-        exitEditMode();
-    }
-});
+if (btnEditMode) {
+    btnEditMode.addEventListener('click', () => {
+        if (!editMode) {
+            enterEditMode();
+        } else {
+            exitEditMode();
+        }
+    });
+}
 
 // Load slides on start
 loadActiveSet();

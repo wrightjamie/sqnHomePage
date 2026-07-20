@@ -287,22 +287,50 @@ require_once 'api/config.php';
 
             <!-- Users Tab -->
             <div id="tab-users" class="tab-content hidden">
-                <div class="mb-lg">
-                    <h3 class="mb-sm">User Management</h3>
+                <div class="tabs mb-lg">
+                    <button class="sub-tab-btn active" data-subtarget="subtab-user-list">Manage Users</button>
+                    <button class="sub-tab-btn" data-subtarget="subtab-role-list" id="subtab-btn-roles" style="display:none;">Manage Roles</button>
+                </div>
+                
+                <div id="subtab-user-list" class="sub-tab-content">
+                    <div class="mb-lg">
+                        <h3 class="mb-sm">User Management</h3>
+                        <div style="overflow-x: auto;">
+                            <table class="w-100" style="text-align: left; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--color-border);">
+                                        <th class="p-sm">ID</th>
+                                        <th class="p-sm">Username</th>
+                                        <th class="p-sm">Display Name</th>
+                                        <th class="p-sm">Status</th>
+                                        <th class="p-sm">Role</th>
+                                        <th class="p-sm">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body">
+                                    <!-- Users injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="subtab-role-list" class="sub-tab-content hidden">
+                    <div class="flex-row justify-between align-center mb-md">
+                        <h3 class="m-0">Role Capabilities</h3>
+                        <button class="btn btn-primary w-auto m-0" id="btn-save-roles" title="Save Roles">
+                            <span class="material-symbols-outlined">save</span> Save Roles
+                        </button>
+                    </div>
                     <div style="overflow-x: auto;">
                         <table class="w-100" style="text-align: left; border-collapse: collapse;">
                             <thead>
-                                <tr style="border-bottom: 2px solid var(--color-border);">
-                                    <th class="p-sm">ID</th>
-                                    <th class="p-sm">Username</th>
-                                    <th class="p-sm">Display Name</th>
-                                    <th class="p-sm">Status</th>
-                                    <th class="p-sm">Role</th>
-                                    <th class="p-sm">Actions</th>
+                                <tr id="roles-table-head" style="border-bottom: 2px solid var(--color-border);">
+                                    <!-- Dynamic headers -->
                                 </tr>
                             </thead>
-                            <tbody id="users-table-body">
-                                <!-- Users injected here -->
+                            <tbody id="roles-table-body">
+                                <!-- Roles injected here -->
                             </tbody>
                         </table>
                     </div>

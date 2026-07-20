@@ -17,12 +17,15 @@ try {
         $currentVersion = 1;
     }
 
-    // Future upgrades should follow this pattern:
-    // if ($currentVersion < 2) {
-    //     $pdo->exec("ALTER TABLE example ADD COLUMN new_column TEXT");
-    //     $pdo->exec("UPDATE settings SET value = '2' WHERE key = 'db_version'");
-    //     $currentVersion = 2;
-    // }
+    if ($currentVersion < 2) {
+        // Version 2: Role Management Permissions
+        $pdo->exec("INSERT OR IGNORE INTO permissions (name) VALUES ('manage_roles')");
+        $pdo->exec("INSERT OR IGNORE INTO role_permissions (role_id, permission_id) 
+            SELECT r.id, p.id FROM roles r, permissions p WHERE r.name = 'Admin' AND p.name = 'manage_roles'");
+        
+        $pdo->exec("UPDATE settings SET value = '2' WHERE key = 'db_version'");
+        $currentVersion = 2;
+    }
 
 } catch (PDOException $e) {
     die("Database Update Error: " . $e->getMessage());

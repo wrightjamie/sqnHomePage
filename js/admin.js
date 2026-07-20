@@ -67,6 +67,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     document.getElementById('tab-btn-users').style.display = 'none';
                 }
+
+                if (currentUserPermissions.includes('manage_roles')) {
+                    document.getElementById('subtab-btn-roles').style.display = 'inline-block';
+                    if (typeof loadRolesMatrix === 'function') loadRolesMatrix();
+                } else {
+                    const rolesTab = document.getElementById('subtab-btn-roles');
+                    if (rolesTab) rolesTab.style.display = 'none';
+                }
             } else {
                 loginSection.classList.remove('hidden');
                 adminSection.classList.add('hidden');
@@ -946,8 +954,84 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // expose loadUsers for the checkAuth scope workaround if needed
+    // --- Roles Management ---
+    const btnSaveRoles = document.getElementById('btn-save-roles');
+    
+    async function loadRolesMatrix() {
+        if (!currentUserPermissions.includes('manage_roles')) return;
+        const rolesTab = document.getElementById('subtab-btn-roles');
+        if (rolesTab) rolesTab.style.display = 'inline-block';
+        
+        try {
+            const data = await apiFetch('api/roles.php?action=list');
+            if (data.roles && data.permissions) {
+                const thead = document.getElementById('roles-table-head');
+                const tbody = document.getElementById('roles-table-body');
+                
+                // Build headers
+                let headHtml = '<th class="p-sm">Role</th>';
+                data.permissions.forEach(p => {
+                    headHtml += `<th class="p-sm" style="text-align: center;">${p.name}</th>`;
+                });
+                thead.innerHTML = headHtml;
+                
+                // Build body
+                tbody.innerHTML = '';
+                data.roles.forEach(role => {
+                    let rowHtml = `<tr><td class="p-sm"><strong>${role.name}</strong></td>`;
+                    const rolePerms = data.role_permissions[role.id] || [];
+                    
+                    data.permissions.forEach(p => {
+                        const isChecked = rolePerms.includes(p.id) ? 'checked' : '';
+                        const disabled = (role.name === 'Admin' && p.name === 'manage_roles') ? 'disabled' : ''; 
+                        
+                        rowHtml += `<td class="p-sm" style="text-align: center;">
+                            <input type="checkbox" class="role-perm-checkbox" data-role-id="${role.id}" data-perm-id="${p.id}" ${isChecked} ${disabled}>
+                        </td>`;
+                    });
+                    rowHtml += '</tr>';
+                    tbody.insertAdjacentHTML('beforeend', rowHtml);
+                });
+            }
+        } catch(e) {
+            console.error("Error loading roles", e);
+        }
+    }
+
+    if (btnSaveRoles) {
+        btnSaveRoles.addEventListener('click', async () => {
+            const originalText = btnSaveRoles.innerHTML;
+            btnSaveRoles.innerHTML = '<span class="material-symbols-outlined loading-spinner">autorenew</span> Saving...';
+            btnSaveRoles.disabled = true;
+
+            try {
+                const rolesMap = {};
+                document.querySelectorAll('.role-perm-checkbox').forEach(cb => {
+                    const rId = cb.getAttribute('data-role-id');
+                    const pId = parseInt(cb.getAttribute('data-perm-id'));
+                    if (!rolesMap[rId]) rolesMap[rId] = [];
+                    if (cb.checked || cb.disabled) { 
+                        rolesMap[rId].push(pId);
+                    }
+                });
+
+                for (const [rId, pIds] of Object.entries(rolesMap)) {
+                    await apiFetch('api/roles.php?action=update', 'POST', { role_id: rId, permission_ids: [...new Set(pIds)] });
+                }
+                
+                Toast.show('Roles updated successfully', 'success');
+            } catch(e) {
+                Toast.show('Failed to update roles', 'error');
+            }
+            
+            btnSaveRoles.innerHTML = originalText;
+            btnSaveRoles.disabled = false;
+        });
+    }
+
+    // expose loadUsers and loadRolesMatrix for the checkAuth scope workaround if needed
     window.loadUsers = loadUsers;
+    window.loadRolesMatrix = loadRolesMatrix;
 
     checkAuth();
 });

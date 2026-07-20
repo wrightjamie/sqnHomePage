@@ -43,7 +43,7 @@ if (session_status() === PHP_SESSION_NONE) {
 $isLoggedIn = isset($_SESSION['user_id']);
 
 // Check Database Version (Cache in session to avoid querying on every request)
-$target_db_version = 1;
+$target_db_version = 2;
 
 if (!isset($_SESSION['db_version_checked']) || $_SESSION['db_version_checked'] < $target_db_version) {
     // Ensure settings table exists first to prevent errors on fresh install
