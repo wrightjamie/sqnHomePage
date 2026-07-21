@@ -38,7 +38,7 @@ if ($isLoggedIn) {
             <input type="password" id="reg-password" placeholder="Password" class="form-control" required>
 
             <button type="submit" class="btn-primary w-100">Register</button>
-            <a href="index.php" class="btn-secondary w-100 text-center" style="display: block; text-decoration: none; box-sizing: border-box;">Cancel</a>
+            <a href="index.php" class="btn btn-secondary w-100 text-center d-block border-box" >Cancel</a>
         </form>
     </div>
 

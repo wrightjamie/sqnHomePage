@@ -35,13 +35,13 @@ requirePagePermission($pdo, 'view_programme');
             </div>
         </div>
         
-        <div style="position: relative;">
+        <div class="position-relative">
             <table class="prog-table" id="prog-table">
                 <thead>
                     <tr>
                         <th rowspan="2" class="date-col">Date</th>
                         <th rowspan="2" class="uniform-col">Uniform</th>
-                        <th id="classifications-header" style="border-bottom: 0.0625rem solid #000;">Classifications</th>
+                        <th id="classifications-header" class="border-bottom-black">Classifications</th>
                         <th rowspan="2" class="duty-col">Duties</th>
                         <th rowspan="2" class="notes-col">Notes</th>
                     </tr>

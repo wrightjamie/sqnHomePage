@@ -80,17 +80,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="reset-box">
         <h1>DANGER: Reset Database</h1>
         <p class="warning">This will DELETE ALL slides, slide sets, users, documents, and settings. This action cannot be undone.</p>
-        <p style="text-align:center; font-size: 0.9em; margin-bottom: 1.25rem;">(Please delete this file before deploying to production!)</p>
+        <p class="text-center margin-bottom-md" >(Please delete this file before deploying to production!)</p>
         
         <?php if ($message): ?>
             <div class="message"><?php echo $message; ?></div>
         <?php endif; ?>
 
         <form method="POST">
-            <label style="text-align:center; display:block; margin-bottom: 0.5rem;">Enter your <strong>Admin Password</strong> to confirm:</label>
-            <input type="password" class="form-control" name="password" placeholder="Password" autocomplete="off" required style="text-align: center; margin-bottom: 1rem;">
+            <label class="text-center d-block margin-bottom-sm">Enter your <strong>Admin Password</strong> to confirm:</label>
+            <input type="password" class="form-control" name="password" placeholder="Password" autocomplete="off" required class="text-center margin-bottom-lg">
             
-            <button type="submit" class="btn text-error" style="width: 100%;">NUKE DATABASE</button>
+            <button type="submit" class="btn text-error w-100">NUKE DATABASE</button>
         </form>
     </div>
 </body>

@@ -180,7 +180,7 @@ function renderSlide(slide) {
 
             let qrHtml = `
                 <div class="slide-qr-container flex-col align-center mt-lg mb-lg">
-                    <div class="qr-svg-wrapper flex-center" style="max-width: 400px; width: 100%; aspect-ratio: 1; background: transparent;">
+                    <div class="qr-svg-wrapper flex-center">
                         ${qrSvg}
                     </div>
                     ${descriptionHtml}
@@ -537,9 +537,9 @@ function openReorderModal() {
         const title = JSON.parse(s.content).title || 'Untitled Slide';
         const typeIcon = s.type === 'image' ? 'image' : (s.type === 'text' ? 'article' : 'feed');
         return `
-        <div class="set-item reorder-item" draggable="true" data-id="${s.id}" style="justify-content: flex-start;">
+        <div class="set-item reorder-item reorder-item-flex-start" draggable="true" data-id="${s.id}">
             <span class="material-symbols-outlined drag-handle mr-sm">drag_indicator</span>
-            <span class="material-symbols-outlined mr-sm" title="${s.type}" style="color: #888; font-size: 1.125rem;">${typeIcon}</span>
+            <span class="material-symbols-outlined mr-sm icon-muted" title="${s.type}">${typeIcon}</span>
             <span>${title}</span>
         </div>`;
     }).join('');
@@ -586,10 +586,10 @@ async function fetchGallery() {
     if (data && data.images) {
         galleryImagesCache = data.images;
         grid.innerHTML = data.images.map(img => `
-            <div class="gallery-img-container" style="position: relative;">
+            <div class="gallery-img-container position-relative">
                 <img src="${img.thumb_url}" class="gallery-img-item" title="${img.filename}" onclick="selectGalleryImage('${img.url}', ${img.focus_x || 50}, ${img.focus_y || 50})">
                 <button class="focus-target-btn" onclick="openFocusSelector('${img.id}')" title="Set Focus Point">
-                    <span class="material-symbols-outlined" style="font-size: 20px;">center_focus_strong</span>
+                    <span class="material-symbols-outlined font-size-20">center_focus_strong</span>
                 </button>
             </div>
         `).join('');
@@ -840,14 +840,14 @@ function renderProgrammeNight(container, data) {
     
     let editActionHtml = '';
     if (typeof editMode !== 'undefined' && editMode) {
-        editActionHtml = `<button class="btn-primary" style="margin-left:1rem;" onclick="openProgrammeSettings(${slideId})" title="Slide Settings"><span class="material-symbols-outlined">settings</span></button>`;
+        editActionHtml = `<button class="btn-primary ml-md" onclick="openProgrammeSettings(${slideId})" title="Slide Settings"><span class="material-symbols-outlined">settings</span></button>`;
     }
 
     let prevBtnHtml = prevDate ? `<button onclick="window.shiftProgrammeSlideDate(this, '${prevDate}')" class="prog-nav-btn prog-nav-left" title="Previous Parade Night"><span class="material-symbols-outlined">chevron_left</span></button>` : '';
     let nextBtnHtml = nextDate ? `<button onclick="window.shiftProgrammeSlideDate(this, '${nextDate}')" class="prog-nav-btn prog-nav-right" title="Next Parade Night"><span class="material-symbols-outlined">chevron_right</span></button>` : '';
 
     let html = `<div class="prog-slide-header">
-        <div style="display:flex; align-items:center;">
+        <div class="flex-align-center">
             ${prevBtnHtml}
             ${nextBtnHtml}
             <h2 class="prog-slide-date-title">${dateFormatted}</h2>
@@ -865,7 +865,7 @@ function renderProgrammeNight(container, data) {
     if (night.uniform) {
         html += `
         <div class="prog-info-card prog-uniform-card">
-            <h3><span class="material-symbols-outlined" style="vertical-align:middle;">checkroom</span> Uniform</h3>
+            <h3><span class="material-symbols-outlined vertical-align-middle">checkroom</span> Uniform</h3>
             <div class="prog-uniform-text">${night.uniform}</div>
         </div>`;
     }
@@ -883,7 +883,7 @@ function renderProgrammeNight(container, data) {
         if (notesHtml) {
             html += `
             <div class="prog-info-card prog-notes-card">
-                <h3><span class="material-symbols-outlined" style="vertical-align:middle;">info</span> Notes</h3>
+                <h3><span class="material-symbols-outlined vertical-align-middle">info</span> Notes</h3>
                 <ul class="prog-notes-list">${notesHtml}</ul>
             </div>`;
         }
@@ -893,7 +893,7 @@ function renderProgrammeNight(container, data) {
     if (night.duty_nco || night.duty_cadet) {
         html += `
         <div class="prog-info-card prog-duties-card">
-            <h3><span class="material-symbols-outlined" style="vertical-align:middle;">assignment_ind</span> Duties</h3>
+            <h3><span class="material-symbols-outlined vertical-align-middle">assignment_ind</span> Duties</h3>
             <div class="prog-duties-grid">
                 ${night.duty_nco ? `<div class="prog-duty-item"><span class="prog-duty-label">Duty NCO:</span> <strong>${night.duty_nco}</strong></div>` : ""}
                 ${night.duty_cadet ? `<div class="prog-duty-item"><span class="prog-duty-label">Duty Cadet:</span> <strong>${night.duty_cadet}</strong></div>` : ""}
@@ -970,12 +970,12 @@ function openProgrammeSettings(slideId) {
                     <option value="specific">Specific Date</option>
                 </select>
                 
-                <div id="prog-slide-date-container" style="display:none;">
+                <div id="prog-slide-date-container" class="hidden">
                     <label class="prog-form-label">Specific Date</label>
                     <input type="date" id="prog-slide-date" class="prog-form-input">
                 </div>
                 
-                <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+                <div class="flex-justify-end">
                     <button class="btn btn-secondary" onclick="document.getElementById('prog-settings-modal').classList.add('hidden')">Cancel</button>
                     <button class="btn btn-primary" onclick="saveProgrammeSettings()">Save</button>
                 </div>
