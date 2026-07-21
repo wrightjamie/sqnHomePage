@@ -38,24 +38,7 @@ requirePagePermission($pdo, 'view_home');
   <?php include 'components/menu.php'; ?>
 
   <!-- Gallery Modal for background picking -->
-  <div id="gallery-modal" class="modal hidden">
-      <div class="modal-content modal-lg flex-col">
-          <div class="flex-row justify-between align-center mb-md">
-              <h2>Image Gallery</h2>
-              <div>
-                <button id="btn-upload-new" class="btn-primary">Upload New</button>
-                <button id="btn-close-gallery" class="btn-secondary">Close</button>
-              </div>
-              <input type="file" id="gallery-file-input" class="hidden" accept="image/*">
-          </div>
-          <div id="gallery-grid" class="gallery-grid">
-              <!-- Images injected here -->
-          </div>
-          <div id="gallery-pagination" class="flex-center gap-sm mt-md">
-              <!-- Pagination injected here -->
-          </div>
-      </div>
-  </div>
+    <?php include 'components/gallery.php'; ?>
 
   <script src="js/utils.js"></script>
   <script src="js/api.js"></script>

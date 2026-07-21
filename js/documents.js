@@ -189,16 +189,95 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div id="editor-container"></div>
         `;
 
+        const galleryModal = document.getElementById('gallery-modal');
+        let currentRange = null;
+
+        const loadGallery = async (page) => {
+            try {
+                const data = await apiFetch(`api/images.php?action=list&page=${page}`);
+                const grid = document.getElementById('gallery-grid');
+                grid.innerHTML = data.images.map(img => `
+                    <div class="gallery-item" style="position:relative; cursor:pointer;" onclick="selectDocGalleryImage('${img.url}')">
+                        <img src="${img.thumb_url || img.url}" alt="${img.title || ''}" style="width:100%; height:7.5rem; object-fit:cover; border-radius:0.25rem; box-shadow:0 0.125rem 0.25rem rgba(0,0,0,0.2);">
+                    </div>
+                `).join('');
+
+                if (typeof Pagination !== 'undefined') {
+                    const pag = new Pagination('gallery-pagination', loadGallery);
+                    pag.render(data.page, data.pages);
+                }
+            } catch(e) {
+                console.error("Gallery load error", e);
+            }
+        };
+
+        window.selectDocGalleryImage = (url) => {
+            if (currentRange && quill) {
+                quill.insertEmbed(currentRange.index, 'image', url);
+            }
+            if (galleryModal) galleryModal.classList.add('hidden');
+        };
+
+        const imageHandler = () => {
+            if (quill) {
+                currentRange = quill.getSelection(true);
+                if (galleryModal) {
+                    galleryModal.classList.remove('hidden');
+                    loadGallery(1);
+                }
+            }
+        };
+
+        if (document.getElementById('btn-close-gallery')) {
+            document.getElementById('btn-close-gallery').onclick = () => {
+                if (galleryModal) galleryModal.classList.add('hidden');
+            };
+        }
+
+        if (document.getElementById('btn-upload-new')) {
+            document.getElementById('btn-upload-new').onclick = () => {
+                document.getElementById('gallery-file-input').click();
+            };
+        }
+
+        if (document.getElementById('gallery-file-input')) {
+            document.getElementById('gallery-file-input').onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const formData = new FormData();
+                formData.append('image_file', file);
+                try {
+                    const res = await fetch('api/images.php?action=upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await res.json();
+                    if (data.url) {
+                        loadGallery(1);
+                    } else {
+                        Toast.show(data.error || 'Upload failed', 'error');
+                    }
+                } catch (err) {
+                    Toast.show('Upload failed', 'error');
+                }
+            };
+        }
+
         quill = new Quill('#editor-container', {
             theme: 'snow',
             modules: {
-                toolbar: [
-                    [{ 'header': [1, 2, 3, false] }],
-                    ['bold', 'italic', 'underline'],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    ['link', 'image'],
-                    ['clean']
-                ]
+                toolbar: {
+                    container: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link', 'image'],
+                        ['clean']
+                    ],
+                    handlers: {
+                        image: imageHandler
+                    }
+                }
             }
         });
 
