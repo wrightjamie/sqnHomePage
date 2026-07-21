@@ -1,5 +1,9 @@
 <?php
 require_once 'api/config.php';
+require_once 'api/utils.php';
+
+requirePagePermission($pdo, 'view_documents');
+
 $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/') . '/';
 $slug = null;
 if (!empty($_SERVER['PATH_INFO'])) {

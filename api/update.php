@@ -27,6 +27,23 @@ try {
         $currentVersion = 2;
     }
 
+    if ($currentVersion < 3) {
+        // Version 3: View Permissions and Guest Role
+        $pdo->exec("INSERT OR IGNORE INTO roles (name) VALUES ('Guest')");
+
+        $viewPerms = ['view_home', 'view_displayboard', 'view_programme', 'view_documents'];
+        foreach ($viewPerms as $perm) {
+            $pdo->exec("INSERT OR IGNORE INTO permissions (name) VALUES ('$perm')");
+
+            // Give view permission to ALL roles by default to prevent breaking existing setups
+            $pdo->exec("INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
+                SELECT r.id, p.id FROM roles r, permissions p WHERE p.name = '$perm'");
+        }
+
+        $pdo->exec("UPDATE settings SET value = '3' WHERE key = 'db_version'");
+        $currentVersion = 3;
+    }
+
 } catch (PDOException $e) {
     die("Database Update Error: " . $e->getMessage());
 }

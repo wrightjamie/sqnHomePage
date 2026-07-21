@@ -1,6 +1,9 @@
 <?php
 // index.php
 require_once 'api/config.php';
+require_once 'api/utils.php';
+
+requirePagePermission($pdo, 'view_displayboard');
 ?>
 <!DOCTYPE html>
 <html lang="en">

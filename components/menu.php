@@ -8,19 +8,19 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             <span class="material-symbols-outlined">menu</span>
         </div>
         <div class="hamburger-items">
-            <?php if ($currentPage !== 'index.php'): ?>
+            <?php if ($currentPage !== 'index.php' && hasPermission($pdo, 'view_displayboard')): ?>
                 <a href="index.php" class="menu-btn flex-center" title="Display Board"><span class="material-symbols-outlined">slideshow</span></a>
             <?php endif; ?>
 
-            <?php if ($currentPage !== 'home.php'): ?>
+            <?php if ($currentPage !== 'home.php' && hasPermission($pdo, 'view_home')): ?>
                 <a href="home.php" class="menu-btn flex-center" title="Home"><span class="material-symbols-outlined">home</span></a>
             <?php endif; ?>
 
-            <?php if ($currentPage !== 'programme.php'): ?>
+            <?php if ($currentPage !== 'programme.php' && hasPermission($pdo, 'view_programme')): ?>
                 <a href="programme.php" class="menu-btn flex-center" title="Training Programme"><span class="material-symbols-outlined">calendar_month</span></a>
             <?php endif; ?>
 
-            <?php if ($currentPage !== 'documents.php'): ?>
+            <?php if ($currentPage !== 'documents.php' && hasPermission($pdo, 'view_documents')): ?>
                 <a href="documents.php" class="menu-btn flex-center" title="Documents"><span class="material-symbols-outlined">description</span></a>
             <?php endif; ?>
 

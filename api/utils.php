@@ -93,11 +93,22 @@ function handleImageUpload($pdo, $fileField = 'image_file', $title = '', $descri
     return null;
 }
 /**
- * Checks if the currently logged in user has a specific permission.
+ * Checks if the currently logged in user (or Guest) has a specific permission.
  * Returns true/false.
  */
 function hasPermission($pdo, $permissionName) {
-    if (!isset($_SESSION['user_id'])) return false;
+    if (!isset($_SESSION['user_id'])) {
+        // Unauthenticated user -> Check Guest role
+        $stmt = $pdo->prepare("
+            SELECT 1
+            FROM roles r
+            JOIN role_permissions rp ON r.id = rp.role_id
+            JOIN permissions p ON rp.permission_id = p.id
+            WHERE r.name = 'Guest' AND p.name = ?
+        ");
+        $stmt->execute([$permissionName]);
+        return $stmt->fetch() !== false;
+    }
 
     $stmt = $pdo->prepare("
         SELECT 1
@@ -109,6 +120,26 @@ function hasPermission($pdo, $permissionName) {
     $stmt->execute([$_SESSION['user_id'], $permissionName]);
 
     return $stmt->fetch() !== false;
+}
+
+/**
+ * Checks if the user has permission to view a page.
+ * If not, redirects to a login prompt.
+ */
+function requirePagePermission($pdo, $permissionName) {
+    if (!hasPermission($pdo, $permissionName)) {
+        if (isset($_SESSION['user_id'])) {
+            http_response_code(403);
+            die("<h1>403 Forbidden</h1><p>You do not have the required role permissions to view this page.</p><a href='index.php'>Return to Home</a>");
+        } else {
+            $currentPage = $_SERVER['REQUEST_URI'] ?? basename($_SERVER['PHP_SELF']);
+            // Strip any leading slashes or directories to keep it relative to root for safety
+            $currentPage = ltrim(str_replace(dirname($_SERVER['PHP_SELF']), '', $currentPage), '/');
+            if (empty($currentPage)) $currentPage = 'index.php';
+            header("Location: login.php?redirect=" . urlencode($currentPage));
+            die();
+        }
+    }
 }
 
 /**

@@ -85,28 +85,37 @@ try {
     // Seed default roles and permissions if they don't exist
     $stmt = $pdo->query("SELECT COUNT(*) FROM roles");
     if ($stmt->fetchColumn() == 0) {
-        $pdo->exec("INSERT INTO roles (name) VALUES ('Admin'), ('Staff'), ('NCO')");
+        $pdo->exec("INSERT INTO roles (name) VALUES ('Admin'), ('Staff'), ('NCO'), ('Guest')");
 
         $pdo->exec("INSERT INTO permissions (name) VALUES
             ('manage_users'),
             ('manage_settings'),
             ('edit_slides'),
-            ('edit_programme')
+            ('edit_programme'),
+            ('view_home'),
+            ('view_displayboard'),
+            ('view_programme'),
+            ('view_documents')
         ");
 
         // Admin gets all
         $pdo->exec("INSERT INTO role_permissions (role_id, permission_id)
             SELECT r.id, p.id FROM roles r, permissions p WHERE r.name = 'Admin'");
 
-        // Staff gets edit_slides and edit_programme
+        // Staff gets edit_slides and edit_programme and views
         $pdo->exec("INSERT INTO role_permissions (role_id, permission_id)
             SELECT r.id, p.id FROM roles r, permissions p
-            WHERE r.name = 'Staff' AND p.name IN ('edit_slides', 'edit_programme')");
+            WHERE r.name = 'Staff' AND p.name IN ('edit_slides', 'edit_programme', 'view_home', 'view_displayboard', 'view_programme', 'view_documents')");
 
-        // NCO gets edit_programme
+        // NCO gets edit_programme and views
         $pdo->exec("INSERT INTO role_permissions (role_id, permission_id)
             SELECT r.id, p.id FROM roles r, permissions p
-            WHERE r.name = 'NCO' AND p.name = 'edit_programme'");
+            WHERE r.name = 'NCO' AND p.name IN ('edit_programme', 'view_home', 'view_displayboard', 'view_programme', 'view_documents')");
+
+        // Guest gets views
+        $pdo->exec("INSERT INTO role_permissions (role_id, permission_id)
+            SELECT r.id, p.id FROM roles r, permissions p
+            WHERE r.name = 'Guest' AND p.name IN ('view_home', 'view_displayboard', 'view_programme', 'view_documents')");
     }
 
     // Seed default admin user if none exist

@@ -1,5 +1,8 @@
 <?php
 require_once 'api/config.php';
+require_once 'api/utils.php';
+
+requirePagePermission($pdo, 'view_programme');
 ?>
 <!DOCTYPE html>
 <html lang="en">
