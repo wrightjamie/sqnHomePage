@@ -49,11 +49,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 div.style.cursor = 'pointer';
                 
                 let controlsHtml = '';
-                if (canManage) {
+                const canEditDoc = canManage || doc.can_edit;
+                if (canEditDoc) {
                     controlsHtml = `
                         <div class="flex-row gap-xs no-print" style="margin-left:auto; margin-right:1rem;">
                             <button class="btn btn-secondary btn-edit-inline" style="padding: 0.25rem 0.5rem;"><span class="material-symbols-outlined" style="font-size:1rem;">edit</span></button>
-                            <button class="btn btn-secondary btn-del-inline text-error" style="padding: 0.25rem 0.5rem;"><span class="material-symbols-outlined" style="font-size:1rem;">delete</span></button>
+                            ${canManage ? `<button class="btn btn-secondary btn-del-inline text-error" style="padding: 0.25rem 0.5rem;"><span class="material-symbols-outlined" style="font-size:1rem;">delete</span></button>` : ''}
                         </div>
                     `;
                 }
@@ -67,23 +68,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <span class="material-symbols-outlined text-muted" style="pointer-events:none;">chevron_right</span>
                 `;
 
-                div.onclick = () => renderView(doc.id);
+                div.onclick = () => {
+                    window.history.pushState({}, '', `?d=${doc.slug}`);
+                    renderView(doc.slug, true);
+                };
                 
-                if (canManage) {
+                if (canEditDoc) {
                     div.querySelector('.btn-edit-inline').onclick = (e) => {
                         e.stopPropagation();
                         // Fetch full doc to edit
                         apiFetch(`api/documents.php?id=${doc.id}`).then(fullDoc => renderEditor(fullDoc));
                     };
-                    div.querySelector('.btn-del-inline').onclick = (e) => {
-                        e.stopPropagation();
-                        if (confirm('Are you sure you want to delete this document?')) {
-                            apiFetch('api/documents.php', 'DELETE', {id: doc.id}).then(() => {
-                                Toast.show('Deleted', 'success');
-                                renderList();
-                            });
-                        }
-                    };
+                    if (canManage) {
+                        div.querySelector('.btn-del-inline').onclick = (e) => {
+                            e.stopPropagation();
+                            if (confirm('Are you sure you want to delete this document?')) {
+                                apiFetch('api/documents.php', 'DELETE', {id: doc.id}).then(() => {
+                                    Toast.show('Deleted', 'success');
+                                    renderList();
+                                });
+                            }
+                        };
+                    }
                 }
 
                 list.appendChild(div);
@@ -127,10 +133,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             app.innerHTML = `
                 <div class="no-print mb-md flex-row justify-between align-center">
-                    <button class="btn btn-secondary" onclick="location.reload()"><span class="material-symbols-outlined">arrow_back</span> Back</button>
+                    <button class="btn btn-secondary" id="btn-back-to-list"><span class="material-symbols-outlined">arrow_back</span> Back</button>
                     <div class="flex-row gap-sm">
                         <button class="btn btn-secondary" onclick="window.print()"><span class="material-symbols-outlined">print</span> Print</button>
-                        ${canManage ? `<button id="btn-edit-doc" class="btn btn-primary"><span class="material-symbols-outlined">edit</span> Edit</button>` : ''}
+                        ${(canManage || doc.can_edit) ? `<button id="btn-edit-doc" class="btn btn-primary"><span class="material-symbols-outlined">edit</span> Edit</button>` : ''}
                     </div>
                 </div>
                 <div class="doc-view">
@@ -141,6 +147,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="print-only-footer">Issue ${doc.issue_number} | ${formatPrintDate(doc.issue_date)}</div>
             `;
 
+            document.getElementById('btn-back-to-list').onclick = () => {
+                window.history.pushState({}, '', window.location.pathname);
+                renderList();
+            };
+
             if (document.getElementById('btn-edit-doc')) {
                 document.getElementById('btn-edit-doc').onclick = () => renderEditor(doc);
             }
@@ -148,12 +159,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function renderEditor(doc = null) {
-        currentDoc = doc || { title: '', content: '', issue_number: '1.0', history: [] };
+        currentDoc = doc || { title: '', content: '', issue_number: '1.0', history: [], access_roles: '{}' };
+
+        let accessRoles = {};
+        try {
+            accessRoles = typeof currentDoc.access_roles === 'string' ? JSON.parse(currentDoc.access_roles) : (currentDoc.access_roles || {});
+        } catch (e) { accessRoles = {}; }
 
         app.innerHTML = `
             <div class="mb-md flex-row justify-between align-center">
                 <button class="btn btn-secondary" id="btn-cancel-edit">Cancel</button>
-                <button class="btn btn-primary" id="btn-save-doc">Save</button>
+                <div class="flex-row gap-sm align-center">
+                    ${canManage ? `<button class="btn btn-secondary" id="btn-doc-access"><span class="material-symbols-outlined">security</span> Access</button>` : ''}
+                    <button class="btn btn-primary" id="btn-save-doc">Save</button>
+                </div>
             </div>
 
             <input type="text" id="doc-title" class="form-control mb-md" style="font-size:1.5rem; font-weight:bold;" placeholder="Document Title" value="${currentDoc.title}">
@@ -198,9 +217,93 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         document.getElementById('btn-cancel-edit').onclick = () => {
-            if (currentDoc.id) renderView(currentDoc.id);
-            else renderList();
+            if (currentDoc.id) {
+                window.history.pushState({}, '', `?d=${currentDoc.slug}`);
+                renderView(currentDoc.slug, true);
+            }
+            else {
+                window.history.pushState({}, '', window.location.pathname);
+                renderList();
+            }
         };
+
+        if (canManage) {
+            document.getElementById('btn-doc-access').onclick = async () => {
+                let roles = [];
+                try {
+                    const res = await apiFetch('api/roles.php?action=basic_list');
+                    roles = res.roles || [];
+                } catch (e) {
+                    console.error("Failed to fetch roles", e);
+                    return;
+                }
+
+                const guestAccess = accessRoles['guest'] || 'view';
+
+                let rolesHtml = `
+                    <div class="flex-row justify-between align-center mb-sm" style="border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">
+                        <strong>Guest (Not logged in)</strong>
+                        <select class="form-control role-access-select" data-role="guest" style="width: auto;">
+                            <option value="view" ${guestAccess === 'view' ? 'selected' : ''}>View</option>
+                            <option value="hidden" ${guestAccess === 'hidden' ? 'selected' : ''}>Hidden</option>
+                        </select>
+                    </div>
+                `;
+
+                roles.forEach(r => {
+                    const rAccess = accessRoles[r.id] || 'view';
+                    rolesHtml += `
+                        <div class="flex-row justify-between align-center mb-sm" style="border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">
+                            <strong>${r.name}</strong>
+                            <select class="form-control role-access-select" data-role="${r.id}" style="width: auto;">
+                                <option value="view" ${rAccess === 'view' ? 'selected' : ''}>View (Default)</option>
+                                <option value="edit" ${rAccess === 'edit' ? 'selected' : ''}>Edit</option>
+                                <option value="hidden" ${rAccess === 'hidden' ? 'selected' : ''}>Hidden</option>
+                            </select>
+                        </div>
+                    `;
+                });
+
+                const accessModalHtml = `
+                    <dialog id="access-modal" style="padding:0; border:none; border-radius:var(--space-md); max-width:500px; width:100%; box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin: auto !important;">
+                        <div style="padding: 2rem; background:white;">
+                            <h2 style="margin-top:0; color:var(--raf-deep-blue); font-size: 1.8rem; border-bottom: 2px solid var(--colour-primary); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">Access Permissions</h2>
+                            <p class="text-muted mb-md">Set who can view or edit this document.</p>
+
+                            <div class="flex-col gap-xs mb-lg" style="max-height: 40vh; overflow-y: auto;">
+                                ${rolesHtml}
+                            </div>
+
+                            <div class="flex-row justify-end gap-md">
+                                <button class="btn btn-primary" id="btn-access-done" style="padding: 0.5rem 1.5rem;">Done</button>
+                            </div>
+                        </div>
+                    </dialog>
+                `;
+
+                document.body.insertAdjacentHTML('beforeend', accessModalHtml);
+                const modal = document.getElementById('access-modal');
+                modal.showModal();
+                document.body.style.overflow = 'hidden';
+
+                document.getElementById('btn-access-done').onclick = () => {
+                    const selects = modal.querySelectorAll('.role-access-select');
+                    selects.forEach(sel => {
+                        const roleId = sel.dataset.role;
+                        const val = sel.value;
+                        if (val === 'view') {
+                            delete accessRoles[roleId]; // Clean up default 'view'
+                        } else {
+                            accessRoles[roleId] = val;
+                        }
+                    });
+
+                    document.body.style.overflow = '';
+                    modal.close();
+                    modal.remove();
+                };
+            };
+        }
 
         document.getElementById('btn-save-doc').onclick = () => {
             const title = titleInput.value;
@@ -291,7 +394,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     content: quill.root.innerHTML,
                     issue_number: newIssueNumber,
                     summary: summaryInput.value.trim(),
-                    slug: slugInput.value
+                    slug: slugInput.value,
+                    access_roles: accessRoles
                 };
 
                 const method = currentDoc.id ? 'PUT' : 'POST';
@@ -302,15 +406,32 @@ document.addEventListener('DOMContentLoaded', async () => {
                     modal.close();
                     modal.remove();
                     Toast.show('Saved', 'success');
-                    renderView(currentDoc.id || res.id);
+
+                    const savedSlug = slugInput.value || res.slug;
+                    window.history.pushState({}, '', `?d=${savedSlug}`);
+                    renderView(savedSlug, true);
                 });
             };
         };
     }
 
-    if (window.initialDocSlug) {
-        renderView(window.initialDocSlug, true);
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialDocSlug = urlParams.get('d');
+
+    if (initialDocSlug) {
+        renderView(initialDocSlug, true);
     } else {
         renderList();
     }
+
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', (e) => {
+        const params = new URLSearchParams(window.location.search);
+        const slug = params.get('d');
+        if (slug) {
+            renderView(slug, true);
+        } else {
+            renderList();
+        }
+    });
 });
