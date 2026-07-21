@@ -475,7 +475,7 @@ body {
 .edit-toolbar {
     position: absolute;
     top: var(--space-lg);
-    right: var(--space-lg);
+    right: 80px;
     background: rgba(0,0,0,0.7);
     padding: var(--space-sm);
     border-radius: var(--space-sm);
@@ -485,8 +485,9 @@ body {
 }
 
 .dummy-slide-btn {
-    padding: var(--space-md) var(--space-xl);
-    font-size: 1.5rem;
+    width: 220px;
+    height: 280px;
+    font-size: 1.25rem;
     background: rgba(255, 255, 255, 0.05);
     color: white;
     border: 2px solid rgba(255, 255, 255, 0.2);
@@ -495,10 +496,14 @@ body {
     transition: all 0.2s ease-in-out;
     margin: var(--space-sm);
     display: inline-flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.75rem;
+    gap: 1.5rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+.dummy-slide-btn .material-symbols-outlined {
+    font-size: 4rem;
 }
 
 .dummy-slide-btn:hover { 

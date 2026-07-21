@@ -42,11 +42,23 @@ function renderDummySlide() {
     return `
         <div class="slide" id="slide-dummy">
             <h1>Add New Slide</h1>
-            <div class="dummy-slide-actions">
-                <button class="dummy-slide-btn" onclick="window.createNewSlide('text')"><span class="material-symbols-outlined">description</span> Text Slide</button>
-                <button class="dummy-slide-btn" onclick="window.createNewSlide('image')"><span class="material-symbols-outlined">image</span> Image Slide</button>
-                <button class="dummy-slide-btn" onclick="window.createNewSlide('programme')"><span class="material-symbols-outlined">calendar_today</span> Programme Slide</button>
-                <button class="dummy-slide-btn" onclick="window.createNewSlide('qr')"><span class="material-symbols-outlined">qr_code</span> QR Code</button>
+            <div class="dummy-slide-actions" style="display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap; margin-top: 3rem;">
+                <button class="dummy-slide-btn" onclick="window.createNewSlide('text')">
+                    <span class="material-symbols-outlined">description</span>
+                    <span>Text Slide</span>
+                </button>
+                <button class="dummy-slide-btn" onclick="window.createNewSlide('image')">
+                    <span class="material-symbols-outlined">image</span>
+                    <span>Image Slide</span>
+                </button>
+                <button class="dummy-slide-btn" onclick="window.createNewSlide('programme')">
+                    <span class="material-symbols-outlined">calendar_today</span>
+                    <span>Programme Slide</span>
+                </button>
+                <button class="dummy-slide-btn" onclick="window.createNewSlide('qr')">
+                    <span class="material-symbols-outlined">qr_code</span>
+                    <span>QR Code</span>
+                </button>
             </div>
         </div>`;
 }
@@ -418,6 +430,7 @@ if (btnEditMode) {
         } else {
             exitEditMode();
         }
+        btnEditMode.blur();
     });
 }
 
@@ -430,7 +443,7 @@ loadActiveSet();
 function enterEditMode() {
     editMode = true;
     if (slideInterval) clearInterval(slideInterval);
-    btnEditMode.innerHTML = '<span class="material-symbols-outlined">edit_off</span>';
+    btnEditMode.innerHTML = '<span class="material-symbols-outlined">edit_off</span> View';
     btnEditMode.title = "Exit Edit Mode";
     
     // Switch pause icon to paused state for visual feedback
@@ -444,7 +457,7 @@ function enterEditMode() {
 function exitEditMode() {
     editMode = false;
     
-    btnEditMode.innerHTML = '<span class="material-symbols-outlined">edit</span>';
+    btnEditMode.innerHTML = '<span class="material-symbols-outlined">edit</span> Edit';
     btnEditMode.title = "Edit Mode";
     
     btnPausePlay.style.opacity = '1';

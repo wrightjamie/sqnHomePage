@@ -8,6 +8,7 @@ function initEditorUI() {
           document.body.classList.add('edit-mode-active');
           updateApp();
           toggleEditMode(true);
+          toggleBtn.blur();
       };
   }
 

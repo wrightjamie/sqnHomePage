@@ -113,6 +113,50 @@ if ($method === 'POST') {
         }
         jsonError('Invalid request', 400);
     }
+
+    if ($action === 'add_user') {
+        $username = trim($data['username'] ?? '');
+        $displayName = trim($data['display_name'] ?? '');
+        $password = $data['password'] ?? '';
+        $roleId = $data['role_id'] ?? null;
+        if ($roleId === '') $roleId = null;
+
+        if (empty($username) || empty($password)) {
+            jsonError('Username and password are required', 400);
+        }
+
+        // Check if username exists
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+        $stmt->execute([$username]);
+        if ($stmt->fetchColumn() > 0) {
+            jsonError('Username already exists', 400);
+        }
+
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $pdo->prepare("INSERT INTO users (username, password_hash, display_name, role_id, status) VALUES (?, ?, ?, ?, 'active')");
+        if ($stmt->execute([$username, $hash, $displayName, $roleId])) {
+            jsonResponse(['success' => true]);
+        } else {
+            jsonError('Failed to create user', 500);
+        }
+    }
+
+    if ($action === 'change_user_password') {
+        $userId = $data['user_id'] ?? null;
+        $newPassword = $data['new_password'] ?? '';
+
+        if (!$userId || empty($newPassword)) {
+            jsonError('User ID and new password are required', 400);
+        }
+
+        $hash = password_hash($newPassword, PASSWORD_DEFAULT);
+        $stmt = $pdo->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
+        if ($stmt->execute([$hash, $userId])) {
+            jsonResponse(['success' => true]);
+        } else {
+            jsonError('Failed to update password', 500);
+        }
+    }
 }
 
 jsonError('Invalid action', 400);

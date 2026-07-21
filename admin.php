@@ -75,41 +75,7 @@ require_once 'api/config.php';
             </div>
             <div id="sets-list"></div>
             
-            <hr>
-            <h3>Manage Slides</h3>
-            <select id="slide-set-select">
-                <option value="">Select a Set...</option>
-            </select>
-            
-            <form id="create-slide-form">
-                <input type="hidden" id="edit-slide-id" value="">
-                <select id="slide-type">
-                    <option value="text">Text Slide</option>
-                    <option value="image">Image Slide</option>
-                    <option value="qr">QR Code</option>
-                </select>
-                <input type="text" id="slide-title" placeholder="Slide Title/Header">
-                <div id="slide-body-container" class="mb-sm">
-                    <div id="slide-body-editor" class="inline-edit-div" ></div>
-                </div>
-                <div id="image-upload-group" class="hidden">
-                    <button class="btn btn-primary mb-sm w-auto" type="button" id="btn-open-upload-modal"><span class="material-symbols-outlined">upload</span> Upload New Image</button>
-                    <input type="hidden" id="slide-image-url" value="">
-                    <img id="current-image-preview" class="hidden admin-img-preview">
-                    <textarea id="slide-image-description" class="mt-sm" placeholder="Optional description to display below image"></textarea>
-                </div>
-                <div id="qr-fields" class="hidden">
-                    <input type="text" id="slide-qr-data" class="mb-sm" placeholder="URL or Text for QR Code">
-                    <textarea id="slide-qr-description" class="mt-sm" placeholder="Optional description below QR code"></textarea>
-                </div>
-                <div class="flex-row gap-sm">
-                    <button class="btn" type="submit" id="submit-slide-btn" title="Save Slide"><span class="material-symbols-outlined">save</span> Save Slide</button>
-                    <button class="btn btn-muted hidden" type="button" id="cancel-edit-btn"><span class="material-symbols-outlined">cancel</span> Cancel Edit</button>
-                </div>
-            </form>
-            
-            <h3>Slides in selected set</h3>
-            <div id="slides-list"></div>
+
             </div> <!-- End tab-slides -->
 
             <div id="tab-images" class="tab-content hidden">
@@ -294,7 +260,12 @@ require_once 'api/config.php';
                 
                 <div id="subtab-user-list" class="sub-tab-content">
                     <div class="mb-lg">
-                        <h3 class="mb-sm">User Management</h3>
+                        <div class="flex-row justify-between align-center mb-sm">
+                            <h3 class="m-0">User Management</h3>
+                            <button class="btn btn-primary w-auto m-0" id="btn-add-user" title="Add User">
+                                <span class="material-symbols-outlined">add</span> Add User
+                            </button>
+                        </div>
                         <div class="admin-table-container">
                             <table class="w-100 admin-table">
                                 <thead>
@@ -419,6 +390,55 @@ require_once 'api/config.php';
                 <button class="btn btn-secondary" type="button" id="btn-close-reorder-sets">Cancel</button>
                 <button class="btn btn-primary" type="button" id="btn-save-reorder-sets">Save Order</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="add-user-modal" class="modal hidden">
+        <div class="modal-content max-w-sm">
+            <h2>Add New User</h2>
+            <form id="add-user-form">
+                <label for="add-user-username" class="mb-xs font-bold d-block">Username</label>
+                <input type="text" id="add-user-username" placeholder="Username" class="w-full mb-md" required>
+                
+                <label for="add-user-display" class="mb-xs font-bold d-block">Display Name</label>
+                <input type="text" id="add-user-display" placeholder="Display Name" class="w-full mb-md">
+
+                <label for="add-user-password" class="mb-xs font-bold d-block">Password</label>
+                <input type="password" id="add-user-password" placeholder="Password" class="w-full mb-md" required>
+                
+                <label for="add-user-role" class="mb-xs font-bold d-block">Role</label>
+                <select id="add-user-role" class="w-full mb-md">
+                    <!-- Options injected here -->
+                </select>
+
+                <div class="flex-row justify-end gap-sm">
+                    <button class="btn btn-secondary" type="button" id="btn-close-add-user">Cancel</button>
+                    <button class="btn btn-primary" type="submit">Add User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Change User Password Modal -->
+    <div id="admin-change-password-modal" class="modal hidden">
+        <div class="modal-content max-w-sm">
+            <h2>Change User Password</h2>
+            <p id="change-password-username-display" class="mb-md font-bold"></p>
+            <form id="admin-change-password-form">
+                <input type="hidden" id="change-password-user-id">
+                
+                <label for="admin-new-password" class="mb-xs font-bold d-block">New Password</label>
+                <input type="password" id="admin-new-password" placeholder="New Password" class="w-full mb-md" required>
+                
+                <label for="admin-confirm-password" class="mb-xs font-bold d-block">Confirm Password</label>
+                <input type="password" id="admin-confirm-password" placeholder="Confirm Password" class="w-full mb-md" required>
+                
+                <div class="flex-row justify-end gap-sm">
+                    <button class="btn btn-secondary" type="button" id="btn-close-admin-change-password">Cancel</button>
+                    <button class="btn btn-primary" type="submit">Update Password</button>
+                </div>
+            </form>
         </div>
     </div>
 

@@ -12,41 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const setsList = document.getElementById('sets-list');
     const createSetForm = document.getElementById('create-set-form');
-    const slideSetSelect = document.getElementById('slide-set-select');
-    
-    const createSlideForm = document.getElementById('create-slide-form');
-    const slideType = document.getElementById('slide-type');
-    const slideImageUrl = document.getElementById('slide-image-url');
-    const slidesList = document.getElementById('slides-list');
 
-    const toolbarOptions = [
-        ['bold', 'italic'],
-        [{ 'header': 1 }, { 'header': 2 }],
-        [{ 'list': 'bullet' }]
-    ];
-    let quill;
-    if (document.getElementById('slide-body-editor')) {
-        quill = new Quill('#slide-body-editor', {
-            theme: 'snow',
-            modules: { toolbar: toolbarOptions }
-        });
-    }
-
-    // Toggle slide input fields based on type
-    slideType.addEventListener('change', () => {
-        document.getElementById('slide-body-container').classList.add('hidden');
-        document.getElementById('image-upload-group').classList.add('hidden');
-        const qrFields = document.getElementById('qr-fields');
-        if (qrFields) qrFields.classList.add('hidden');
-
-        if (slideType.value === 'image') {
-            document.getElementById('image-upload-group').classList.remove('hidden');
-        } else if (slideType.value === 'qr') {
-            if (qrFields) qrFields.classList.remove('hidden');
-        } else {
-            document.getElementById('slide-body-container').classList.remove('hidden');
-        }
-    });
 
     let currentUserPermissions = [];
 
@@ -110,8 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await apiFetch('api/slides.php?action=list_sets');
         
         setsList.innerHTML = '';
-        slideSetSelect.innerHTML = '<option value="">Select a Set...</option>';
-
         if (data.success && data.sets) {
             data.sets.forEach(set => {
                 // Add to list
@@ -122,12 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="btn" onclick="setActiveSet(${set.id})" title="Set Active"><span class="material-symbols-outlined">check_circle</span></button>
                 `;
                 setsList.appendChild(div);
-
-                // Add to select
-                const option = document.createElement('option');
-                option.value = set.id;
-                option.textContent = set.name;
-                slideSetSelect.appendChild(option);
             });
         }
     }
@@ -162,152 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadSets();
     });
 
-    // Load Slides for selected set
-    slideSetSelect.addEventListener('change', async () => {
-        const setId = slideSetSelect.value;
-        if (!setId) {
-            slidesList.innerHTML = '';
-            return;
-        }
-        
-        const data = await apiFetch(`api/slides.php?action=list_slides&set_id=${setId}`);
-        
-        slidesList.innerHTML = '';
-        if (data.success && data.slides) {
-            data.slides.forEach((slide, index) => {
-                let content = JSON.parse(slide.content);
-                const div = document.createElement('div');
-                div.className = 'slide-item reorder-item';
-                div.dataset.id = slide.id;
-                div.draggable = true;
-                div.style.cursor = 'grab';
-                const typeIcon = slide.type === 'image' ? 'image' : 'article';
-                div.innerHTML = `
-                    <span>
-                        <span class="material-symbols-outlined drag-handle">drag_indicator</span>
-                        <span class="material-symbols-outlined list-icon">${typeIcon}</span> ${content.title || 'No Title'}
-                    </span>
-                    <div class="btn-group">
-                        <button class="btn" onclick="editSlide(${slide.id})" title="Edit"><span class="material-symbols-outlined">edit</span></button>
-                        <button class="btn" onclick="deleteSlide(${slide.id})" title="Delete"><span class="material-symbols-outlined">delete</span></button>
-                    </div>
-                `;
-                slidesList.appendChild(div);
-            });
-            window.currentSetSlides = data.slides;
-            setupDragAndDrop(slidesList, async (newOrder) => {
-                await apiFetch('api/slides.php?action=reorder_slides', 'POST', {ordered_ids: newOrder});
-                slideSetSelect.dispatchEvent(new Event('change'));
-            });
-        }
-    });
 
-    window.deleteSlide = async (id) => {
-        if(confirm("Are you sure?")) {
-            await apiFetch(`api/slides.php?action=delete_slide&id=${id}`, 'DELETE');
-            // trigger change event to reload
-            slideSetSelect.dispatchEvent(new Event('change'));
-        }
-    }
-
-    window.editSlide = (id) => {
-        if (!window.currentSetSlides) return;
-        const slide = window.currentSetSlides.find(s => s.id === id);
-        if (!slide) return;
-        
-        document.getElementById('edit-slide-id').value = slide.id;
-        document.getElementById('slide-type').value = slide.type;
-        const content = JSON.parse(slide.content);
-        document.getElementById('slide-title').value = content.title || '';
-        if (quill) quill.root.innerHTML = content.body || '';
-        document.getElementById('slide-image-url').value = content.imageUrl || '';
-        
-        if (slide.type === 'image' && content.imageUrl) {
-            document.getElementById('current-image-preview').src = content.imageUrl;
-            document.getElementById('current-image-preview').classList.remove('hidden');
-            document.getElementById('slide-image-description').value = content.description || '';
-        } else {
-            document.getElementById('current-image-preview').classList.add('hidden');
-            document.getElementById('slide-image-description').value = '';
-        }
-        document.getElementById('slide-image-file').value = '';
-
-        if (slide.type === 'qr') {
-            document.getElementById('slide-qr-data').value = content.qrData || '';
-            document.getElementById('slide-qr-description').value = content.description || '';
-        } else {
-            document.getElementById('slide-qr-data').value = '';
-            document.getElementById('slide-qr-description').value = '';
-        }
-        
-        slideType.dispatchEvent(new Event('change'));
-        
-        document.getElementById('submit-slide-btn').innerHTML = '<span class="material-symbols-outlined">save</span> Update Slide';
-        document.getElementById('cancel-edit-btn').classList.remove('hidden');
-        document.getElementById('create-slide-form').scrollIntoView({behavior: 'smooth'});
-    };
-
-    function resetSlideForm() {
-        document.getElementById('edit-slide-id').value = '';
-        document.getElementById('slide-title').value = '';
-        if (quill) quill.root.innerHTML = '';
-        document.getElementById('slide-image-url').value = '';
-        document.getElementById('slide-image-file').value = '';
-        document.getElementById('slide-image-description').value = '';
-        document.getElementById('current-image-preview').classList.add('hidden');
-        document.getElementById('current-image-preview').src = '';
-        document.getElementById('slide-qr-data').value = '';
-        document.getElementById('slide-qr-description').value = '';
-        document.getElementById('submit-slide-btn').innerHTML = '<span class="material-symbols-outlined">add_box</span> Add Slide';
-        document.getElementById('cancel-edit-btn').classList.add('hidden');
-    }
-    
-    document.getElementById('cancel-edit-btn').addEventListener('click', resetSlideForm);
-
-    // Create / Update Slide
-    createSlideForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const setId = slideSetSelect.value;
-        if (!setId) return Toast.show("Select a set first", 'error');
-
-        const type = slideType.value;
-        const title = document.getElementById('slide-title').value;
-        const body = quill ? quill.root.innerHTML : '';
-        const editId = document.getElementById('edit-slide-id').value;
-        const action = editId ? 'update_slide' : 'create_slide';
-        
-        const formData = new FormData();
-        formData.append('slide_set_id', setId);
-        formData.append('type', type);
-        formData.append('title', title);
-        if (type === 'text') {
-            formData.append('body', body);
-        } else if (type === 'image') {
-            const fileInput = document.getElementById('slide-image-file');
-            if (fileInput && fileInput.files.length > 0) {
-                formData.append('image_file', fileInput.files[0]);
-            }
-            const existingUrl = document.getElementById('slide-image-url').value;
-            if (existingUrl) {
-                formData.append('existing_image_url', existingUrl);
-            }
-            const description = document.getElementById('slide-image-description').value;
-            formData.append('description', description);
-        } else if (type === 'qr') {
-            const qrData = document.getElementById('slide-qr-data').value;
-            const qrDescription = document.getElementById('slide-qr-description').value;
-            formData.append('qr_data', qrData);
-            formData.append('description', qrDescription);
-        }
-        if (editId) formData.append('slide_id', editId);
-
-        await apiFetch(`api/slides.php?action=${action}`, 'POST', formData);
-
-        resetSlideForm();
-        
-        // refresh list
-        slideSetSelect.dispatchEvent(new Event('change'));
-    });
 
     // --- Tabs Logic ---
     const tabBtns = document.querySelectorAll('.tab-btn');
@@ -900,9 +713,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         </select>
                     </td>
                     <td class="p-sm">
-                        <button class="btn btn-primary btn-delete-user" data-id="${user.id}" title="Delete User">
-                            <span class="material-symbols-outlined">delete</span>
-                        </button>
+                        <div class="flex-row gap-xs">
+                            <button class="btn btn-secondary btn-change-user-pwd" data-id="${user.id}" data-username="${user.username}" title="Change Password">
+                                <span class="material-symbols-outlined">key</span>
+                            </button>
+                            <button class="btn btn-primary btn-delete-user" data-id="${user.id}" title="Delete User">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -934,6 +752,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         Toast.show('Failed to update role', 'error');
                         loadUsers(); // revert UI
                     }
+                });
+            });
+
+            document.querySelectorAll('.btn-change-user-pwd').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.getAttribute('data-id');
+                    const username = e.currentTarget.getAttribute('data-username');
+                    document.getElementById('change-password-user-id').value = id;
+                    document.getElementById('change-password-username-display').textContent = `User: ${username}`;
+                    document.getElementById('admin-new-password').value = '';
+                    document.getElementById('admin-confirm-password').value = '';
+                    document.getElementById('admin-change-password-modal').classList.remove('hidden');
                 });
             });
 
@@ -1026,6 +856,95 @@ document.addEventListener('DOMContentLoaded', () => {
             
             btnSaveRoles.innerHTML = originalText;
             btnSaveRoles.disabled = false;
+        });
+    }
+
+    // Add User Modal
+    const btnAddUser = document.getElementById('btn-add-user');
+    const addUserModal = document.getElementById('add-user-modal');
+    const btnCloseAddUser = document.getElementById('btn-close-add-user');
+    const addUserForm = document.getElementById('add-user-form');
+    const addUserRoleSelect = document.getElementById('add-user-role');
+
+    if (btnAddUser) {
+        btnAddUser.addEventListener('click', () => {
+            addUserRoleSelect.innerHTML = `<option value="">(No Role)</option>` + rolesData.map(r => 
+                `<option value="${r.id}">${r.name}</option>`
+            ).join('');
+            document.getElementById('add-user-username').value = '';
+            document.getElementById('add-user-display').value = '';
+            document.getElementById('add-user-password').value = '';
+            addUserModal.classList.remove('hidden');
+        });
+    }
+
+    if (btnCloseAddUser) {
+        btnCloseAddUser.addEventListener('click', () => {
+            addUserModal.classList.add('hidden');
+        });
+    }
+
+    if (addUserForm) {
+        addUserForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('add-user-username').value;
+            const display_name = document.getElementById('add-user-display').value;
+            const password = document.getElementById('add-user-password').value;
+            const role_id = addUserRoleSelect.value;
+            
+            try {
+                const result = await apiFetch('api/users.php?action=add_user', 'POST', {
+                    username, display_name, password, role_id
+                });
+                if (result.success) {
+                    Toast.show('User added successfully', 'success');
+                    addUserModal.classList.add('hidden');
+                    loadUsers();
+                } else {
+                    Toast.show(result.error || 'Failed to add user', 'error');
+                }
+            } catch (err) {
+                Toast.show('An error occurred', 'error');
+            }
+        });
+    }
+
+    // Admin Change User Password Modal
+    const adminChangePasswordModal = document.getElementById('admin-change-password-modal');
+    const btnCloseAdminChangePassword = document.getElementById('btn-close-admin-change-password');
+    const adminChangePasswordForm = document.getElementById('admin-change-password-form');
+
+    if (btnCloseAdminChangePassword) {
+        btnCloseAdminChangePassword.addEventListener('click', () => {
+            adminChangePasswordModal.classList.add('hidden');
+        });
+    }
+
+    if (adminChangePasswordForm) {
+        adminChangePasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user_id = document.getElementById('change-password-user-id').value;
+            const new_password = document.getElementById('admin-new-password').value;
+            const confirm_password = document.getElementById('admin-confirm-password').value;
+
+            if (new_password !== confirm_password) {
+                Toast.show('Passwords do not match', 'error');
+                return;
+            }
+
+            try {
+                const result = await apiFetch('api/users.php?action=change_user_password', 'POST', {
+                    user_id, new_password
+                });
+                if (result.success) {
+                    Toast.show('Password updated successfully', 'success');
+                    adminChangePasswordModal.classList.add('hidden');
+                } else {
+                    Toast.show(result.error || 'Failed to update password', 'error');
+                }
+            } catch (err) {
+                Toast.show('An error occurred', 'error');
+            }
         });
     }
 

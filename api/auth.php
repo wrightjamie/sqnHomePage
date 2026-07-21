@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
+            $_SESSION['display_name'] = $user['display_name'];
             jsonResponse(['message' => 'Logged in']);
         } else {
             jsonError('Invalid credentials', 401);
