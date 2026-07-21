@@ -296,6 +296,9 @@ if (!empty($_SERVER['PATH_INFO'])) {
     <!-- Interactive UI Layer -->
     <?php include 'components/menu.php'; ?>
 
+    <!-- Image Gallery Modal -->
+    <?php include 'components/gallery.php'; ?>
+
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/api.js"></script>
