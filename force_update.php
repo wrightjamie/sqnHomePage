@@ -26,12 +26,12 @@ if ($tableExists) {
     if ($currentVersion < $target_db_version) {
         echo "<p>Running update script...</p>";
         require_once __DIR__ . '/api/update.php';
-        echo "<p style='color: green;'>Database updated successfully to version $target_db_version.</p>";
+        echo "<p class='text-success-green'>Database updated successfully to version $target_db_version.</p>";
     } else {
-        echo "<p style='color: blue;'>Database is already up to date.</p>";
+        echo "<p class='text-info-blue'>Database is already up to date.</p>";
     }
 } else {
-    echo "<p style='color: red;'>Settings table does not exist. The database might not be initialized yet. Please run <a href='install.php'>install.php</a>.</p>";
+    echo "<p class='text-error-red'>Settings table does not exist. The database might not be initialized yet. Please run <a href='install.php'>install.php</a>.</p>";
 }
 
 echo "<hr>";

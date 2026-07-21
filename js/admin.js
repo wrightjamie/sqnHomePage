@@ -890,12 +890,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="p-sm"><strong>${user.username}</strong></td>
                     <td class="p-sm">${user.display_name || ''}</td>
                     <td class="p-sm">
-                        <select class="form-control admin-select-status" data-id="${user.id}" style="width: auto;">
+                        <select class="form-control admin-select-status w-auto" data-id="${user.id}">
                             ${statusOptions}
                         </select>
                     </td>
                     <td class="p-sm">
-                        <select class="form-control admin-select-role" data-id="${user.id}" style="width: auto;">
+                        <select class="form-control admin-select-role w-auto" data-id="${user.id}">
                             ${roleOptions}
                         </select>
                     </td>
@@ -971,7 +971,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Build headers
                 let headHtml = '<th class="p-sm">Role</th>';
                 data.permissions.forEach(p => {
-                    headHtml += `<th class="p-sm" style="text-align: center;">${p.name}</th>`;
+                    headHtml += `<th class="p-sm center">${p.name}</th>`;
                 });
                 thead.innerHTML = headHtml;
                 
@@ -985,7 +985,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const isChecked = rolePerms.includes(p.id) ? 'checked' : '';
                         const disabled = (role.name === 'Admin' && p.name === 'manage_roles') ? 'disabled' : ''; 
                         
-                        rowHtml += `<td class="p-sm" style="text-align: center;">
+                        rowHtml += `<td class="p-sm center">
                             <input type="checkbox" class="role-perm-checkbox" data-role-id="${role.id}" data-perm-id="${p.id}" ${isChecked} ${disabled}>
                         </td>`;
                     });

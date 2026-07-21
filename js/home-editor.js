@@ -68,40 +68,40 @@ function buildEditorDOM() {
   sidebarEl = document.createElement('div');
   sidebarEl.className = 'editor-sidebar glass-panel';
   sidebarEl.innerHTML = `
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-      <h3 style="margin: 0;">Dashboard Settings</h3>
-      <button id="close-editor-btn" style="background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem;" title="Close Editor"><i class="ph ph-x"></i></button>
+    <div class="flex-space-between-center mb-xs">
+      <h3 class="m-0">Dashboard Settings</h3>
+      <button id="close-editor-btn" class="btn-close-editor" title="Close Editor"><i class="ph ph-x"></i></button>
     </div>
     
-    <div id="tab-settings" class="sidebar-tab-content active" style="display: flex; flex-direction: column; height: calc(100% - 2.5rem);">
-      <div class="settings-form" style="margin-top: 1rem; flex: 1; overflow-y: hidden; display: flex; flex-direction: column;">
-        <div class="form-group" style="flex-shrink: 0;">
+    <div id="tab-settings" class="sidebar-tab-content active">
+      <div class="settings-form settings-form-wrapper">
+        <div class="form-group flex-shrink-0">
           <label>Page Title</label>
           <input type="text" id="setting-title" value="${CONFIG.title || ''}" />
         </div>
-        <div class="form-group" style="flex-shrink: 0;">
+        <div class="form-group flex-shrink-0">
           <label>Logo URL</label>
           <input type="text" id="setting-logo" value="${CONFIG.logoUrl || ''}" placeholder="uploads/roundel.svg" />
         </div>
-        <div class="form-group" style="flex-shrink: 0;">
+        <div class="form-group flex-shrink-0">
           <label>Max Width</label>
           <input type="text" id="setting-width" value="${CONFIG.maxWidth || '1400px'}" />
         </div>
-        <div class="form-group" style="flex-shrink: 0;">
+        <div class="form-group flex-shrink-0">
           <label>Background Cycle (mins)</label>
           <input type="number" id="setting-bg-int" value="${CONFIG.bgInterval || 0}" min="0" />
         </div>
-        <div class="form-group" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-shrink: 0;">
-            <label style="margin: 0;">Background Images</label>
-            <button id="add-bg-btn" type="button" class="btn btn-primary" style="width: auto; margin: 0; padding: 0.25rem 0.5rem; font-size: 0.85rem;"><span class="material-symbols-outlined" style="font-size: 1rem;">add</span> Add from Gallery</button>
+        <div class="form-group flex-grow-1-col">
+          <div class="flex-space-between-center mb-xs flex-shrink-0">
+            <label class="m-0">Background Images</label>
+            <button id="add-bg-btn" type="button" class="btn btn-primary btn-sm"><span class="material-symbols-outlined icon-sm">add</span> Add from Gallery</button>
           </div>
-          <div id="bg-list-container" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; margin-top: 0.625rem; flex: 1; overflow-y: auto; padding-right: 0.5rem;"></div>
+          <div id="bg-list-container" class="bg-list-grid"></div>
         </div>
       </div>
       
-      <div style="margin-top: 1rem;">
-        <button id="save-config-btn" class="btn btn-primary" type="button" style="width: 100%;"><span class="material-symbols-outlined">save</span> Save Configuration</button>
+      <div class="mt-sm">
+        <button id="save-config-btn" class="btn btn-primary w-100" type="button"><span class="material-symbols-outlined">save</span> Save Configuration</button>
       </div>
     </div>
   `;
@@ -234,8 +234,8 @@ function bindGalleryModal() {
           const data = await apiFetch(`api/images.php?action=list&page=${page}`);
           const grid = document.getElementById('gallery-grid');
           grid.innerHTML = data.images.map(img => `
-              <div class="gallery-item" style="position:relative; cursor:pointer;" onclick="selectGalleryImage('${img.url}')">
-                  <img src="${img.thumbnail_url || img.url}" alt="${img.title || ''}" style="width:100%; height:7.5rem; object-fit:cover; border-radius:0.25rem; box-shadow:0 0.125rem 0.25rem rgba(0,0,0,0.2);">
+              <div class="gallery-item gallery-item-wrapper" onclick="selectGalleryImage('${img.url}')">
+                  <img src="${img.thumbnail_url || img.url}" alt="${img.title || ''}" class="gallery-item-img">
               </div>
           `).join('');
           
