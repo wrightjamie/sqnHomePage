@@ -62,18 +62,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.checkUrlTab) window.checkUrlTab();
 
                 if (currentUserPermissions.includes('manage_users')) {
-                    document.getElementById('tab-btn-users').style.display = 'inline-block';
+                    document.getElementById('tab-btn-users').classList.remove('hidden');
                     loadUsers();
                 } else {
-                    document.getElementById('tab-btn-users').style.display = 'none';
+                    document.getElementById('tab-btn-users').classList.add('hidden');
                 }
 
                 if (currentUserPermissions.includes('manage_roles')) {
-                    document.getElementById('subtab-btn-roles').style.display = 'inline-block';
+                    document.getElementById('subtab-btn-roles').classList.remove('hidden');
                     if (typeof loadRolesMatrix === 'function') loadRolesMatrix();
                 } else {
                     const rolesTab = document.getElementById('subtab-btn-roles');
-                    if (rolesTab) rolesTab.style.display = 'none';
+                    if (rolesTab) rolesTab.classList.add('hidden');
                 }
             } else {
                 loginSection.classList.remove('hidden');
