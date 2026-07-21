@@ -38,19 +38,176 @@ function closeAllModals() {
 
 // --- Slide Rendering ---
 
-function renderSlide(slide) {
-    // Dummy Slide
-    if (slide.isDummy) {
-        return `
-            <div class="slide" id="slide-dummy">
-                <h1>Add New Slide</h1>
-                <div class="dummy-slide-actions">
-                    <button class="dummy-slide-btn" onclick="window.createNewSlide('text')"><span class="material-symbols-outlined">description</span> Text Slide</button>
-                    <button class="dummy-slide-btn" onclick="window.createNewSlide('image')"><span class="material-symbols-outlined">image</span> Image Slide</button>
-                    <button class="dummy-slide-btn" onclick="window.createNewSlide('programme')"><span class="material-symbols-outlined">calendar_today</span> Programme Slide</button>
-                    <button class="dummy-slide-btn" onclick="window.createNewSlide('qr')"><span class="material-symbols-outlined">qr_code</span> QR Code</button>
-                </div>
+function renderDummySlide() {
+    return `
+        <div class="slide" id="slide-dummy">
+            <h1>Add New Slide</h1>
+            <div class="dummy-slide-actions">
+                <button class="dummy-slide-btn" onclick="window.createNewSlide('text')"><span class="material-symbols-outlined">description</span> Text Slide</button>
+                <button class="dummy-slide-btn" onclick="window.createNewSlide('image')"><span class="material-symbols-outlined">image</span> Image Slide</button>
+                <button class="dummy-slide-btn" onclick="window.createNewSlide('programme')"><span class="material-symbols-outlined">calendar_today</span> Programme Slide</button>
+                <button class="dummy-slide-btn" onclick="window.createNewSlide('qr')"><span class="material-symbols-outlined">qr_code</span> QR Code</button>
+            </div>
+        </div>`;
+}
+
+function renderSlideTitle(slide, data) {
+    let titleHtml = data.title ? `<h1>${data.title}</h1>` : '';
+    if (editMode) {
+        titleHtml = `
+            <div class="editable-container" onclick="startEdit(${slide.id}, 'title')">
+                ${titleHtml || '<h1 class="slide-placeholder">[No Title]</h1>'}
+                <span class="material-symbols-outlined edit-marker">edit</span>
             </div>`;
+    }
+    return titleHtml;
+}
+
+function renderSlideToolbar(slide) {
+    if (!editMode) return '';
+    return `
+        <div class="edit-toolbar">
+            <button class="btn-secondary" onclick="openReorderModal()" title="Reorder Slides"><span class="material-symbols-outlined">format_list_numbered</span></button>
+            <button class="btn-primary" onclick="deleteSlide(${slide.id})" title="Delete Slide"><span class="material-symbols-outlined">delete</span></button>
+        </div>`;
+}
+
+function renderTextSlide(slide, data, titleHtml) {
+    let bodyHtml = `<div>${data.body || ''}</div>`;
+    if (editMode) {
+        bodyHtml = `
+            <div class="editable-container" onclick="startEdit(${slide.id}, 'body')">
+                ${bodyHtml || '<div class="slide-placeholder">[No Content]</div>'}
+                <span class="material-symbols-outlined edit-marker">edit</span>
+            </div>`;
+    }
+    return `
+        <div class="slide-content">
+            ${titleHtml}
+            ${bodyHtml}
+        </div>`;
+}
+
+function renderImageSlide(slide, data, titleHtml) {
+    let descriptionHtml = '';
+    if (data.description || editMode) {
+        let innerDesc = data.description || (editMode ? 'Click to add a description...' : '');
+        if (innerDesc) {
+            if (editMode) {
+                descriptionHtml = `<div class="editable-container slide-description-banner editable-desc" onclick="startEdit(${slide.id}, 'description')">
+                    ${innerDesc}
+                    <span class="material-symbols-outlined edit-marker">edit</span>
+                </div>`;
+            } else {
+                descriptionHtml = `<div class="slide-description-banner">
+                    ${innerDesc}
+                </div>`;
+            }
+        }
+    }
+
+    let imgHtml = `
+        <div class="slide-image-container">
+            <img src="${data.imageUrl || ''}" alt="${data.title || 'Slide Image'}" style="object-position: ${data.focusX ?? 50}% ${data.focusY ?? 50}%;">
+            ${descriptionHtml}
+        </div>`;
+    
+    let imageActionHtml = '';
+    if (editMode) {
+        imageActionHtml = `
+            <div class="editable-container editable-image-action flex-center" onclick="startEdit(${slide.id}, 'image')">
+                ${imgHtml}
+                <span class="material-symbols-outlined edit-marker">image</span>
+            </div>`;
+    } else {
+        imageActionHtml = `<div class="image-action-container">${imgHtml}</div>`;
+    }
+    
+    return `
+        <div class="slide-content slide-content-image">
+            <div class="gallery-slide-bg" style="background-image: url('${data.imageUrl || ''}'); background-position: ${data.focusX ?? 50}% ${data.focusY ?? 50}%;"></div>
+            ${titleHtml}
+            ${imageActionHtml}
+        </div>`;
+}
+
+function renderProgrammeSlide(slide, data, titleHtml) {
+    return `
+        <div class="slide-content slide-content-programme">
+            ${titleHtml}
+            <div class="programme-slide-container" id="prog-container-${slide.id}" data-slide-id="${slide.id}" data-mode="${data.mode || 'next'}" data-date="${data.specificDate || ''}" data-orig-mode="${data.mode || 'next'}" data-orig-date="${data.specificDate || ''}">
+                <div class="programme-loading-container"><span class="material-symbols-outlined programme-loading-spinner">autorenew</span></div>
+            </div>
+        </div>`;
+}
+
+function renderQRSlide(slide, data, titleHtml) {
+    let descriptionHtml = '';
+    if (data.description || editMode) {
+        let innerDesc = data.description || (editMode ? 'Click to add a description...' : '');
+        if (innerDesc) {
+            if (editMode) {
+                descriptionHtml = `<div class="editable-container slide-description-banner editable-desc mt-sm" onclick="startEdit(${slide.id}, 'description')">
+                    ${innerDesc}
+                    <span class="material-symbols-outlined edit-marker">edit</span>
+                </div>`;
+            } else {
+                descriptionHtml = `<div class="slide-description-banner mt-sm">
+                    ${innerDesc}
+                </div>`;
+            }
+        }
+    }
+
+    const qrData = data.qrData || window.location.href;
+    const styles = getComputedStyle(document.documentElement);
+    const fgColor = styles.getPropertyValue('--text-light').trim() || '#FFFFFF';
+    let qrSvg = '';
+    try {
+        const qr = new QRCode({
+            content: qrData,
+            padding: 4,
+            width: 300,
+            height: 300,
+            color: fgColor,
+            background: 'transparent',
+            join: true
+        });
+        qrSvg = qr.svg();
+    } catch (e) {
+        console.error("QR Code Error:", e);
+        qrSvg = '<div class="slide-placeholder">[Invalid QR Code Data]</div>';
+    }
+
+    let qrHtml = `
+        <div class="slide-qr-container flex-col align-center mt-lg mb-lg">
+            <div class="qr-svg-wrapper flex-center">
+                ${qrSvg}
+            </div>
+            ${descriptionHtml}
+        </div>`;
+    
+    let qrActionHtml = '';
+    if (editMode) {
+        qrActionHtml = `
+            <div class="editable-container editable-image-action flex-center" onclick="startEdit(${slide.id}, 'qrData')">
+                ${qrHtml}
+                <span class="material-symbols-outlined edit-marker">qr_code</span>
+            </div>`;
+    } else {
+        qrActionHtml = `<div class="image-action-container flex-center">${qrHtml}</div>`;
+    }
+    
+    return `
+        <div class="slide-content slide-content-qr flex-col align-center text-center">
+            ${titleHtml}
+            ${qrActionHtml}
+        </div>`;
+}
+
+function renderSlide(slide) {
+    if (slide.isDummy) {
+        return renderDummySlide();
     }
 
     // Attach createNewSlide to window if missing
@@ -64,154 +221,22 @@ function renderSlide(slide) {
         };
     }
 
-    let content = '';
     try {
         const data = JSON.parse(slide.content);
-        
-        let titleHtml = data.title ? `<h1>${data.title}</h1>` : '';
-        if (editMode) {
-            titleHtml = `
-                <div class="editable-container" onclick="startEdit(${slide.id}, 'title')">
-                    ${titleHtml || '<h1 class="slide-placeholder">[No Title]</h1>'}
-                    <span class="material-symbols-outlined edit-marker">edit</span>
-                </div>`;
-        }
+        const titleHtml = renderSlideTitle(slide, data);
+        let content = '';
 
         if (slide.type === 'text') {
-            let bodyHtml = `<div>${data.body || ''}</div>`;
-            if (editMode) {
-                bodyHtml = `
-                    <div class="editable-container" onclick="startEdit(${slide.id}, 'body')">
-                        ${bodyHtml || '<div class="slide-placeholder">[No Content]</div>'}
-                        <span class="material-symbols-outlined edit-marker">edit</span>
-                    </div>`;
-            }
-            content = `
-                <div class="slide-content">
-                    ${titleHtml}
-                    ${bodyHtml}
-                </div>`;
+            content = renderTextSlide(slide, data, titleHtml);
         } else if (slide.type === 'image') {
-            let descriptionHtml = '';
-            if (data.description || editMode) {
-                let innerDesc = data.description || (editMode ? 'Click to add a description...' : '');
-                if (innerDesc) {
-                    if (editMode) {
-                        descriptionHtml = `<div class="editable-container slide-description-banner editable-desc" onclick="startEdit(${slide.id}, 'description')">
-                            ${innerDesc}
-                            <span class="material-symbols-outlined edit-marker">edit</span>
-                        </div>`;
-                    } else {
-                        descriptionHtml = `<div class="slide-description-banner">
-                            ${innerDesc}
-                        </div>`;
-                    }
-                }
-            }
-
-            let imgHtml = `
-                <div class="slide-image-container">
-                    <img src="${data.imageUrl || ''}" alt="${data.title || 'Slide Image'}" style="object-position: ${data.focusX ?? 50}% ${data.focusY ?? 50}%;">
-                    ${descriptionHtml}
-                </div>`;
-            
-            let imageActionHtml = '';
-            if (editMode) {
-                imageActionHtml = `
-                    <div class="editable-container editable-image-action flex-center" onclick="startEdit(${slide.id}, 'image')">
-                        ${imgHtml}
-                        <span class="material-symbols-outlined edit-marker">image</span>
-                    </div>`;
-            } else {
-                imageActionHtml = `<div class="image-action-container">${imgHtml}</div>`;
-            }
-            
-            content = `
-                <div class="slide-content slide-content-image">
-                    <div class="gallery-slide-bg" style="background-image: url('${data.imageUrl || ''}'); background-position: ${data.focusX ?? 50}% ${data.focusY ?? 50}%;"></div>
-                    ${titleHtml}
-                    ${imageActionHtml}
-                </div>`;
+            content = renderImageSlide(slide, data, titleHtml);
         } else if (slide.type === 'programme') {
-            content = `
-                <div class="slide-content slide-content-programme">
-                    ${titleHtml}
-                    <div class="programme-slide-container" id="prog-container-${slide.id}" data-slide-id="${slide.id}" data-mode="${data.mode || 'next'}" data-date="${data.specificDate || ''}" data-orig-mode="${data.mode || 'next'}" data-orig-date="${data.specificDate || ''}">
-                        <div class="programme-loading-container"><span class="material-symbols-outlined programme-loading-spinner">autorenew</span></div>
-                    </div>
-                </div>`;
+            content = renderProgrammeSlide(slide, data, titleHtml);
         } else if (slide.type === 'qr') {
-            let descriptionHtml = '';
-            if (data.description || editMode) {
-                let innerDesc = data.description || (editMode ? 'Click to add a description...' : '');
-                if (innerDesc) {
-                    if (editMode) {
-                        descriptionHtml = `<div class="editable-container slide-description-banner editable-desc mt-sm" onclick="startEdit(${slide.id}, 'description')">
-                            ${innerDesc}
-                            <span class="material-symbols-outlined edit-marker">edit</span>
-                        </div>`;
-                    } else {
-                        descriptionHtml = `<div class="slide-description-banner mt-sm">
-                            ${innerDesc}
-                        </div>`;
-                    }
-                }
-            }
-
-            const qrData = data.qrData || window.location.href;
-            const styles = getComputedStyle(document.documentElement);
-            const fgColor = styles.getPropertyValue('--text-light').trim() || '#FFFFFF';
-            let qrSvg = '';
-            try {
-                const qr = new QRCode({
-                    content: qrData,
-                    padding: 4,
-                    width: 300,
-                    height: 300,
-                    color: fgColor,
-                    background: 'transparent',
-                    join: true
-                });
-                qrSvg = qr.svg();
-            } catch (e) {
-                console.error("QR Code Error:", e);
-                qrSvg = '<div class="slide-placeholder">[Invalid QR Code Data]</div>';
-            }
-
-            let qrHtml = `
-                <div class="slide-qr-container flex-col align-center mt-lg mb-lg">
-                    <div class="qr-svg-wrapper flex-center">
-                        ${qrSvg}
-                    </div>
-                    ${descriptionHtml}
-                </div>`;
-            
-            let qrActionHtml = '';
-            if (editMode) {
-                qrActionHtml = `
-                    <div class="editable-container editable-image-action flex-center" onclick="startEdit(${slide.id}, 'qrData')">
-                        ${qrHtml}
-                        <span class="material-symbols-outlined edit-marker">qr_code</span>
-                    </div>`;
-            } else {
-                qrActionHtml = `<div class="image-action-container flex-center">${qrHtml}</div>`;
-            }
-            
-            content = `
-                <div class="slide-content slide-content-qr flex-col align-center text-center">
-                    ${titleHtml}
-                    ${qrActionHtml}
-                </div>`;
+            content = renderQRSlide(slide, data, titleHtml);
         }
 
-        let toolbarHtml = '';
-        if (editMode) {
-            toolbarHtml = `
-            <div class="edit-toolbar">
-                <button class="btn-secondary" onclick="openReorderModal()" title="Reorder Slides"><span class="material-symbols-outlined">format_list_numbered</span></button>
-                <button class="btn-primary" onclick="deleteSlide(${slide.id})" title="Delete Slide"><span class="material-symbols-outlined">delete</span></button>
-            </div>`;
-        }
+        const toolbarHtml = renderSlideToolbar(slide);
 
         return `
             <div class="slide" id="slide-${slide.id}">
