@@ -55,7 +55,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             </button>
             
             <?php if ($isLoggedIn): ?>
-                <div class="user-dropdown-header" style="padding: 16px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); margin-bottom: 8px; font-weight: bold; color: white; font-size: 1.1rem;">
+                <div class="user-dropdown-header">
                     <?php echo htmlspecialchars($_SESSION['display_name'] ?: $_SESSION['username']); ?>
                 </div>
                 <?php if ($currentPage === 'programme.php' && hasPermission($pdo, 'edit_programme')): ?>

@@ -493,6 +493,15 @@
     transition: opacity 0.2s ease, transform 0.2s ease;
     min-width: 150px;
 }
+.user-dropdown-header {
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: var(--space-sm);
+    font-weight: bold;
+    color: var(--nav-btn-icon-color, white);
+    font-size: var(--font-lg);
+    text-align: center;
+}
 .user-dropdown:hover .user-dropdown-items,
 .user-dropdown:focus-within .user-dropdown-items {
     opacity: 1;
