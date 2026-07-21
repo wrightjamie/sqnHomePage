@@ -5,11 +5,17 @@ require_once 'utils.php';
 
 header('Content-Type: application/json');
 
-// Ensure user has manage_roles permission
-requirePermission($pdo, 'manage_roles');
-
 $action = $_GET['action'] ?? '';
 $method = $_SERVER['REQUEST_METHOD'];
+
+if ($method === 'GET' && $action === 'basic_list') {
+    // Basic list doesn't require manage_roles permission
+    $roles = $pdo->query("SELECT id, name FROM roles WHERE name != 'Guest' ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+    jsonResponse(['roles' => $roles]);
+}
+
+// Ensure user has manage_roles permission for full list and update
+requirePermission($pdo, 'manage_roles');
 
 if ($method === 'GET' && $action === 'list') {
     $roles = $pdo->query("SELECT id, name FROM roles ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);

@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `;
 
                 div.onclick = () => {
-                    window.history.pushState({}, '', `?d=${doc.slug}`);
+                    window.history.pushState({}, '', `documents.php?d=${doc.slug}`);
                     renderView(doc.slug, true);
                 };
                 
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             `;
 
             document.getElementById('btn-back-to-list').onclick = () => {
-                window.history.pushState({}, '', window.location.pathname);
+                window.history.pushState({}, '', 'documents.php');
                 renderList();
             };
 
@@ -170,8 +170,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="mb-md flex-row justify-between align-center">
                 <button class="btn btn-secondary" id="btn-cancel-edit">Cancel</button>
                 <div class="flex-row gap-sm align-center">
-                    ${canManage ? `<button class="btn btn-secondary" id="btn-doc-access"><span class="material-symbols-outlined">security</span> Access</button>` : ''}
-                    <button class="btn btn-primary" id="btn-save-doc">Save</button>
+                    ${canManage ? `<button class="btn btn-secondary flex-center gap-xs" id="btn-doc-access" style="padding: 0.5rem 1rem;"><span class="material-symbols-outlined" style="font-size: 1.25rem;">security</span> Access</button>` : ''}
+                    <button class="btn btn-primary flex-center gap-xs" id="btn-save-doc" style="padding: 0.5rem 1rem;"><span class="material-symbols-outlined" style="font-size: 1.25rem;">save</span> Save</button>
                 </div>
             </div>
 
@@ -218,11 +218,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.getElementById('btn-cancel-edit').onclick = () => {
             if (currentDoc.id) {
-                window.history.pushState({}, '', `?d=${currentDoc.slug}`);
+                window.history.pushState({}, '', `documents.php?d=${currentDoc.slug}`);
                 renderView(currentDoc.slug, true);
             }
             else {
-                window.history.pushState({}, '', window.location.pathname);
+                window.history.pushState({}, '', 'documents.php');
                 renderList();
             }
         };
@@ -241,31 +241,31 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const guestAccess = accessRoles['guest'] || 'view';
 
                 let rolesHtml = `
-                    <div class="flex-row justify-between align-center mb-sm" style="border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">
+                    <div class="role-access-radios mb-sm" data-role="guest" data-rolename="guest" style="display: grid; grid-template-columns: 1fr 90px 80px 80px; align-items: center; gap: 0.5rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">
                         <strong>Guest (Not logged in)</strong>
-                        <select class="form-control role-access-select" data-role="guest" style="width: auto;">
-                            <option value="view" ${guestAccess === 'view' ? 'selected' : ''}>View</option>
-                            <option value="hidden" ${guestAccess === 'hidden' ? 'selected' : ''}>Hidden</option>
-                        </select>
+                        <label style="cursor: pointer; margin: 0;"><input type="radio" name="access_guest" value="hidden" ${guestAccess === 'hidden' ? 'checked' : ''}> Hidden</label>
+                        <label style="cursor: pointer; margin: 0;"><input type="radio" name="access_guest" value="view" ${guestAccess === 'view' ? 'checked' : ''}> View</label>
+                        <span></span>
                     </div>
                 `;
 
                 roles.forEach(r => {
-                    const rAccess = accessRoles[r.id] || 'view';
+                    const roleNameLower = r.name.toLowerCase();
+                    const defaultAccess = (roleNameLower === 'admin' || roleNameLower === 'staff') ? 'edit' : 'view';
+                    const rAccess = accessRoles[r.id] || defaultAccess;
+                    
                     rolesHtml += `
-                        <div class="flex-row justify-between align-center mb-sm" style="border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">
+                        <div class="role-access-radios mb-sm" data-role="${r.id}" data-rolename="${r.name}" style="display: grid; grid-template-columns: 1fr 90px 80px 80px; align-items: center; gap: 0.5rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">
                             <strong>${r.name}</strong>
-                            <select class="form-control role-access-select" data-role="${r.id}" style="width: auto;">
-                                <option value="view" ${rAccess === 'view' ? 'selected' : ''}>View (Default)</option>
-                                <option value="edit" ${rAccess === 'edit' ? 'selected' : ''}>Edit</option>
-                                <option value="hidden" ${rAccess === 'hidden' ? 'selected' : ''}>Hidden</option>
-                            </select>
+                            <label style="cursor: pointer; margin: 0;"><input type="radio" name="access_${r.id}" value="hidden" ${rAccess === 'hidden' ? 'checked' : ''}> Hidden</label>
+                            <label style="cursor: pointer; margin: 0;"><input type="radio" name="access_${r.id}" value="view" ${rAccess === 'view' ? 'checked' : ''}> View</label>
+                            <label style="cursor: pointer; margin: 0;"><input type="radio" name="access_${r.id}" value="edit" ${rAccess === 'edit' ? 'checked' : ''}> Edit</label>
                         </div>
                     `;
                 });
 
                 const accessModalHtml = `
-                    <dialog id="access-modal" style="padding:0; border:none; border-radius:var(--space-md); max-width:500px; width:100%; box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin: auto !important;">
+                    <dialog id="access-modal" style="padding:0; border:none; border-radius:var(--space-md); max-width:600px; width:100%; box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin: auto !important;">
                         <div style="padding: 2rem; background:white;">
                             <h2 style="margin-top:0; color:var(--raf-deep-blue); font-size: 1.8rem; border-bottom: 2px solid var(--colour-primary); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">Access Permissions</h2>
                             <p class="text-muted mb-md">Set who can view or edit this document.</p>
@@ -287,14 +287,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.body.style.overflow = 'hidden';
 
                 document.getElementById('btn-access-done').onclick = () => {
-                    const selects = modal.querySelectorAll('.role-access-select');
-                    selects.forEach(sel => {
-                        const roleId = sel.dataset.role;
-                        const val = sel.value;
-                        if (val === 'view') {
-                            delete accessRoles[roleId]; // Clean up default 'view'
-                        } else {
-                            accessRoles[roleId] = val;
+                    const radioGroups = modal.querySelectorAll('.role-access-radios');
+                    radioGroups.forEach(group => {
+                        const roleId = group.dataset.role;
+                        const roleName = group.dataset.rolename.toLowerCase();
+                        
+                        const checkedRadio = group.querySelector('input[type="radio"]:checked');
+                        if (checkedRadio) {
+                            const val = checkedRadio.value;
+                            const defaultAccess = (roleName === 'admin' || roleName === 'staff') ? 'edit' : 'view';
+
+                            if (val === defaultAccess) {
+                                delete accessRoles[roleId];
+                            } else {
+                                accessRoles[roleId] = val;
+                            }
                         }
                     });
 
@@ -408,7 +415,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     Toast.show('Saved', 'success');
 
                     const savedSlug = slugInput.value || res.slug;
-                    window.history.pushState({}, '', `?d=${savedSlug}`);
+                    window.history.pushState({}, '', `documents.php?d=${savedSlug}`);
                     renderView(savedSlug, true);
                 });
             };
