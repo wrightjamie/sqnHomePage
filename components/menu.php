@@ -58,7 +58,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 <div class="user-dropdown-header">
                     <?php echo htmlspecialchars($_SESSION['display_name'] ?: $_SESSION['username']); ?>
                 </div>
-                <?php if ($currentPage === 'programme.php' && hasPermission($pdo, 'edit_programme')): ?>
+                <?php if ($currentPage === 'programme.php' && (hasPermission($pdo, 'edit_programme') || hasPermission($pdo, 'edit_duties'))): ?>
                     <button id="btn-toggle-edit" class="user-dropdown-btn" title="Edit Programme"><span class="material-symbols-outlined">edit</span> Edit</button>
                 <?php elseif ($currentPage === 'index.php' && hasPermission($pdo, 'edit_slides')): ?>
                     <button id="btn-edit-mode" class="user-dropdown-btn" title="Edit Slides"><span class="material-symbols-outlined">edit</span> Edit</button>

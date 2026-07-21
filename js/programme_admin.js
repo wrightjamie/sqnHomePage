@@ -287,11 +287,83 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Staff ---
-    function populateRankPicker() {
-        const grid = document.getElementById('rank-picker-grid');
-        grid.innerHTML = '';
-        if (progConfig.ranks) {
-            progConfig.ranks.forEach(r => {
+    class PersonnelManager {
+        constructor(config) {
+            this.containerId = config.containerId;
+            this.title = config.title;
+            this.ranks = config.ranks || [];
+            this.loadFn = config.loadFn;
+            this.addFn = config.addFn;
+            this.editFn = config.editFn;
+            this.deleteFn = config.deleteFn;
+            this.reorderFn = config.reorderFn;
+            this.items = [];
+            
+            // Unique IDs for popover and inputs
+            this.managerId = this.containerId.replace('-container', '');
+            this.popoverId = `rank-picker-${this.managerId}`;
+            this.btnId = `btn-rank-${this.managerId}`;
+
+            this.renderShell();
+            this.load();
+        }
+
+        renderShell() {
+            const container = document.getElementById(this.containerId);
+            if (!container) return;
+
+            container.innerHTML = `
+                <h4 class="mb-sm text-muted">${this.title}</h4>
+                <div id="${this.managerId}-list" class="flex-col gap-xs mb-md admin-list-container"></div>
+                <div class="input-group input-group-adjacent" style="position: relative;">
+                    <button class="btn admin-input-btn-h w-auto" type="button" id="${this.btnId}" popovertarget="${this.popoverId}" style="anchor-name: --${this.btnId};">
+                        <img src="" id="${this.managerId}-rank-display" class="admin-rank-preview hidden">
+                        <span id="${this.managerId}-rank-text">Select Rank</span>
+                    </button>
+                    <input type="hidden" id="${this.managerId}-new-rank">
+                    
+                    <div id="${this.popoverId}" popover class="rank-picker-popover" style="position-anchor: --${this.btnId};">
+                        <h4 class="mt-0">Select Rank</h4>
+                        <div class="icon-grid" id="${this.managerId}-rank-grid">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <input type="text" id="${this.managerId}-new-name" placeholder="Name (e.g. Smith)" class="flex-grow-1">
+                    <button class="btn btn-icon w-auto" type="button" id="${this.managerId}-btn-add"><span class="material-symbols-outlined">add</span></button>
+                </div>
+            `;
+
+            this.populateRankPicker();
+
+            const btnAdd = document.getElementById(`${this.managerId}-btn-add`);
+            const nameInput = document.getElementById(`${this.managerId}-new-name`);
+            
+            const handleAdd = async () => {
+                const name = nameInput.value.trim();
+                const rank = document.getElementById(`${this.managerId}-new-rank`).value;
+                if (name && rank) {
+                    await this.addFn(name, rank);
+                    nameInput.value = '';
+                    document.getElementById(`${this.managerId}-new-rank`).value = '';
+                    document.getElementById(`${this.managerId}-rank-text`).style.display = 'inline';
+                    document.getElementById(`${this.managerId}-rank-display`).style.display = 'none';
+                    this.load();
+                } else {
+                    if (typeof Toast !== 'undefined') Toast.show('Please select a rank and enter a name.', 'error');
+                }
+            };
+
+            btnAdd.addEventListener('click', handleAdd);
+            nameInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') handleAdd();
+            });
+        }
+
+        populateRankPicker() {
+            const grid = document.getElementById(`${this.managerId}-rank-grid`);
+            grid.innerHTML = '';
+            this.ranks.forEach(r => {
                 const label = document.createElement('label');
                 label.style.display = 'flex';
                 label.style.flexDirection = 'column';
@@ -302,60 +374,61 @@ document.addEventListener('DOMContentLoaded', () => {
                 label.style.borderRadius = '4px';
 
                 label.innerHTML = `
-                    <input type="radio" name="rank_select" value="${r}" class="hidden">
+                    <input type="radio" name="${this.managerId}_rank_select" value="${r}" class="hidden">
                     <img src="${getRankSvg(r)}" class="rank-svg-lg">
                     <span class="text-sm text-center">${r}</span>
                 `;
                 
-                label.querySelector('input').addEventListener('change', (e) => {
-                    document.getElementById('new-staff-rank').value = r;
-                    document.getElementById('selected-rank-text').style.display = 'none';
-                    const img = document.getElementById('selected-rank-display');
+                label.querySelector('input').addEventListener('change', () => {
+                    document.getElementById(`${this.managerId}-new-rank`).value = r;
+                    document.getElementById(`${this.managerId}-rank-text`).style.display = 'none';
+                    const img = document.getElementById(`${this.managerId}-rank-display`);
                     img.src = getRankSvg(r);
                     img.style.display = 'block';
-                    document.getElementById('rank-picker').hidePopover();
+                    document.getElementById(this.popoverId).hidePopover();
                 });
 
                 grid.appendChild(label);
             });
         }
-    }
 
-    function renderStaff() {
-        renderList('staff-list', progConfig.staff, {
-            renderInner: (s, i) => `
-                <img src="${getRankSvg(s.rank)}" class="rank-svg-sm">
-                <span class="edit-text-rank clickable-rank" title="Click to change rank">${s.rank}</span> 
-                <span class="edit-text-name">${s.name}</span>
-            `,
-            bindEvents: (div, s, i) => {
-                editableTextBinding(div, '.edit-text-name', (newVal) => { s.name = newVal; renderStaff(); });
-                // We can't easily pop up the rank picker for inline edit, so we just use a basic text edit for rank inline.
-                editableTextBinding(div, '.edit-text-rank', (newVal) => { s.rank = newVal; renderStaff(); });
-            },
-            onRemove: (i) => { progConfig.staff.splice(i, 1); renderStaff(); },
-            onReorder: (newArr) => { progConfig.staff = newArr; renderStaff(); }
-        });
-    }
-
-    document.getElementById('btn-add-staff').addEventListener('click', () => {
-        const name = document.getElementById('new-staff-name').value.trim();
-        const rank = document.getElementById('new-staff-rank').value;
-        if(name && rank) {
-            if(!progConfig.staff) progConfig.staff = [];
-            progConfig.staff.push({name, rank});
-            document.getElementById('new-staff-name').value = '';
-            
-            // reset rank picker
-            document.getElementById('new-staff-rank').value = '';
-            document.getElementById('selected-rank-text').style.display = 'inline';
-            document.getElementById('selected-rank-display').style.display = 'none';
-
-            renderStaff();
-        } else {
-            Toast.show('Please select a rank and enter a name.', 'error');
+        async load() {
+            this.items = await this.loadFn();
+            this.renderList();
         }
-    });
+
+        renderList() {
+            renderList(`${this.managerId}-list`, this.items, {
+                renderInner: (item, i) => `
+                    <img src="${getRankSvg(item.rank)}" class="rank-svg-sm">
+                    <span class="edit-text-rank clickable-rank" title="Click to change rank">${item.rank}</span> 
+                    <span class="edit-text-name">${item.name}</span>
+                `,
+                bindEvents: (div, item, i) => {
+                    editableTextBinding(div, '.edit-text-name', async (newVal) => { 
+                        await this.editFn(item, newVal, item.rank); 
+                        this.load(); 
+                    });
+                    editableTextBinding(div, '.edit-text-rank', async (newVal) => { 
+                        await this.editFn(item, item.name, newVal); 
+                        this.load(); 
+                    });
+                },
+                onRemove: async (i) => {
+                    const item = this.items[i];
+                    if(confirm(`Remove ${item.rank} ${item.name}?`)) {
+                        await this.deleteFn(item, i);
+                        this.load();
+                        if(typeof Toast !== 'undefined') Toast.show('Removed', 'success');
+                    }
+                },
+                onReorder: async (newArr) => {
+                    await this.reorderFn(newArr);
+                    this.load();
+                }
+            });
+        }
+    }
 
     // --- Main ---
     async function loadConfig() {
@@ -369,9 +442,49 @@ document.addEventListener('DOMContentLoaded', () => {
         renderActivityTypes();
         renderClassifications();
         renderParadeNights();
-        populateRankPicker();
-        renderStaff();
-        renderNcos();
+
+        // Instantiate Staff Manager
+        new PersonnelManager({
+            containerId: 'staff-manager-container',
+            title: 'Manage Staff',
+            ranks: progConfig.ranks || [],
+            loadFn: async () => progConfig.staff || [],
+            addFn: async (name, rank) => {
+                if(!progConfig.staff) progConfig.staff = [];
+                progConfig.staff.push({name, rank});
+            },
+            editFn: async (item, name, rank) => {
+                item.name = name;
+                item.rank = rank;
+            },
+            deleteFn: async (item, i) => {
+                progConfig.staff.splice(i, 1);
+            },
+            reorderFn: async (newArr) => {
+                progConfig.staff = newArr;
+            }
+        });
+
+        // Instantiate NCO Manager
+        new PersonnelManager({
+            containerId: 'nco-manager-container',
+            title: 'Manage Duty NCOs',
+            ranks: ['Cpl', 'Sgt', 'FS', 'CWO'],
+            loadFn: async () => await apiFetch('api/ncos.php'),
+            addFn: async (name, rank) => {
+                await apiFetch('api/ncos.php', 'POST', { name, rank });
+            },
+            editFn: async (item, name, rank) => {
+                await apiFetch('api/ncos.php', 'PUT', { id: item.id, name, rank });
+            },
+            deleteFn: async (item, i) => {
+                await apiFetch('api/ncos.php', 'DELETE', {id: item.id});
+            },
+            reorderFn: async (newArr) => {
+                const orderedIds = newArr.map(nco => nco.id);
+                await apiFetch('api/ncos.php?action=reorder', 'POST', { ordered_ids: orderedIds });
+            }
+        });
     }
 
     btnSave.addEventListener('click', async () => {
@@ -408,52 +521,3 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 500);
 
 });
-
-    function renderNcos() {
-        apiFetch('api/ncos.php').then(ncos => {
-            const list = document.getElementById('nco-list');
-            if(!list) return;
-            list.innerHTML = '';
-            ncos.forEach(nco => {
-                const div = document.createElement('div');
-                div.className = 'admin-list-item flex-row gap-xs align-center mb-xs';
-                div.innerHTML = `
-                    <span class="flex-grow-1"><strong>${nco.rank}</strong> ${nco.name}</span>
-                    <button class="btn-clear-row btn-sm" title="Delete"><span class="material-symbols-outlined text-error">delete</span></button>
-                `;
-
-                div.querySelector('.btn-clear-row').addEventListener('click', async () => {
-                    if(confirm(`Remove ${nco.rank} ${nco.name}?`)) {
-                        await apiFetch('api/ncos.php', 'DELETE', {id: nco.id});
-                        renderNcos();
-                        if(typeof Toast !== 'undefined') Toast.show('NCO removed', 'success');
-                    }
-                });
-
-                list.appendChild(div);
-            });
-        });
-    }
-
-    // Add NCO
-    const btnAddNco = document.getElementById('btn-add-nco');
-    if (btnAddNco) {
-        const nameInput = document.getElementById('new-nco-name');
-        
-        const addNco = async () => {
-            const rankInput = document.getElementById('new-nco-rank');
-            const name = nameInput.value.trim();
-            if (!name) return;
-
-            await apiFetch('api/ncos.php', 'POST', { name, rank: rankInput.value });
-            renderNcos();
-            nameInput.value = '';
-            nameInput.focus();
-            if(typeof Toast !== 'undefined') Toast.show('NCO Added', 'success');
-        };
-
-        btnAddNco.addEventListener('click', addNco);
-        nameInput.addEventListener('keyup', (e) => {
-            if (e.key === 'Enter') addNco();
-        });
-    }

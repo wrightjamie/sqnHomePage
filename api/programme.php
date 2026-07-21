@@ -145,10 +145,15 @@ if ($method === 'GET' && $action === 'autocomplete') {
 
 // POST actions require authentication
 if ($method === 'POST') {
-    requirePermission($pdo, 'edit_programme');
+    $hasEditProg = hasPermission($pdo, 'edit_programme');
+    $hasEditDuties = hasPermission($pdo, 'edit_duties');
+    if (!$hasEditProg && !$hasEditDuties) {
+        jsonError("Permission denied.", 403);
+    }
 }
 
 if ($method === 'POST' && $action === 'config') {
+    if (!hasPermission($pdo, 'edit_programme')) jsonError("Permission denied.", 403);
     $jsonConfig = json_encode($data);
     $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (`key`, `value`) VALUES ('programme_config', ?)");
     $stmt->execute([$jsonConfig]);
@@ -165,15 +170,42 @@ if ($method === 'POST' && $action === 'month') {
     }
     
     $key = "programme_{$year}_{$month}";
+
+    if (!hasPermission($pdo, 'edit_programme') && hasPermission($pdo, 'edit_duties')) {
+        // Restricted duties-only edit mode
+        $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = ?");
+        $stmt->execute([$key]);
+        $existingResult = $stmt->fetchColumn();
+        
+        if ($existingResult) {
+            $existingData = json_decode($existingResult, true);
+            // We only take duty_nco and duty_cadet from the incoming payload for existing parade nights
+            if (isset($programme['parade_nights']) && is_array($programme['parade_nights']) && isset($existingData['parade_nights'])) {
+                foreach ($existingData['parade_nights'] as &$existingNight) {
+                    foreach ($programme['parade_nights'] as $incomingNight) {
+                        if ($existingNight['date'] === $incomingNight['date']) {
+                            $existingNight['duty_nco'] = $incomingNight['duty_nco'] ?? '';
+                            $existingNight['duty_cadet'] = $incomingNight['duty_cadet'] ?? '';
+                        }
+                    }
+                }
+            }
+            $programme = $existingData;
+        } else {
+            jsonError("Cannot create a new month programme with only duties permission.", 403);
+        }
+    }
+    
     $jsonProgramme = json_encode($programme);
     
     $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (`key`, `value`) VALUES (?, ?)");
     $stmt->execute([$key, $jsonProgramme]);
     
-    // Update autocomplete cache
-    $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'programme_autocomplete_cache'");
-    $stmt->execute();
-    $result = $stmt->fetchColumn();
+    if (hasPermission($pdo, 'edit_programme')) {
+        // Update autocomplete cache
+        $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'programme_autocomplete_cache'");
+        $stmt->execute();
+        $result = $stmt->fetchColumn();
     $cache = $result ? json_decode($result, true) : ['activities' => [], 'comments' => []];
     
     // Tally frequencies
@@ -242,6 +274,7 @@ if ($method === 'POST' && $action === 'month') {
     
     $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (`key`, `value`) VALUES ('programme_autocomplete_cache', ?)");
     $stmt->execute([json_encode($newCache)]);
+    } // End of if (hasPermission($pdo, 'edit_programme'))
     
     jsonResponse(['success' => true, 'message' => 'Month saved']);
 }

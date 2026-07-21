@@ -81,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             monthNotesContainer.addEventListener('click', (e) => {
                 if (!isEditMode) return;
+                if (!window.HasEditProgramme) return;
                 window.openNotesPopover(e, monthNotesContainer, programmeData, null, 'curr', 'month-notes');
             });
         }
@@ -491,11 +492,14 @@ document.addEventListener('DOMContentLoaded', () => {
         cells.forEach(cell => {
             cell.addEventListener('click', (e) => {
                 if (!isEditMode) return;
+                
+                const type = cell.dataset.type;
+                if (!window.HasEditProgramme && type !== 'duty') return;
+
                 let monthType = 'curr';
                 if (tr.classList.contains('prev-month')) monthType = 'prev';
                 else if (tr.classList.contains('next-month')) monthType = 'next';
                 
-                const type = cell.dataset.type;
                 if (type === 'uniform') window.openUniformPopover(e, cell, rowData, tr, monthType);
                 else if (type === 'notes' || type === 'month-notes') window.openNotesPopover(e, cell, rowData, tr, monthType, type);
                 else if (type === 'duty') window.openDutyPopover(e, cell, rowData, tr, monthType);
@@ -507,22 +511,26 @@ document.addEventListener('DOMContentLoaded', () => {
         // Bind clear
         const btnClear = tr.querySelector('.btn-clear-row');
         if (btnClear) {
-            btnClear.addEventListener('click', () => {
-                let acts = config.classifications.map(c => ({ classifications: [c], activity_type: '', name: '', instructor: '' }));
-                rowData.uniform = '';
-                rowData.notes = [];
-                rowData.duty_nco = '';
-                rowData.duty_cadet = '';
-                rowData.activities = acts;
-                
-                let monthType = 'curr';
-                if (tr.classList.contains('prev-month')) monthType = 'prev';
-                else if (tr.classList.contains('next-month')) monthType = 'next';
-                
-                renderGrid(prevMonthData, programmeData.parade_nights, nextMonthData);
-                updatePopularButtons();
-                autoSave(monthType);
-            });
+            if (!window.HasEditProgramme) {
+                btnClear.style.display = 'none';
+            } else {
+                btnClear.addEventListener('click', () => {
+                    let acts = config.classifications.map(c => ({ classifications: [c], activity_type: '', name: '', instructor: '' }));
+                    rowData.uniform = '';
+                    rowData.notes = [];
+                    rowData.duty_nco = '';
+                    rowData.duty_cadet = '';
+                    rowData.activities = acts;
+                    
+                    let monthType = 'curr';
+                    if (tr.classList.contains('prev-month')) monthType = 'prev';
+                    else if (tr.classList.contains('next-month')) monthType = 'next';
+                    
+                    renderGrid(prevMonthData, programmeData.parade_nights, nextMonthData);
+                    updatePopularButtons();
+                    autoSave(monthType);
+                });
+            }
         }
         
         return tr;

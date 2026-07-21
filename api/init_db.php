@@ -92,6 +92,7 @@ try {
             ('manage_settings'),
             ('edit_slides'),
             ('edit_programme'),
+            ('edit_duties'),
             ('view_home'),
             ('view_displayboard'),
             ('view_programme'),
@@ -102,15 +103,15 @@ try {
         $pdo->exec("INSERT INTO role_permissions (role_id, permission_id)
             SELECT r.id, p.id FROM roles r, permissions p WHERE r.name = 'Admin'");
 
-        // Staff gets edit_slides and edit_programme and views
+        // Staff gets edit_slides, edit_programme, edit_duties and views
         $pdo->exec("INSERT INTO role_permissions (role_id, permission_id)
             SELECT r.id, p.id FROM roles r, permissions p
-            WHERE r.name = 'Staff' AND p.name IN ('edit_slides', 'edit_programme', 'view_home', 'view_displayboard', 'view_programme', 'view_documents')");
+            WHERE r.name = 'Staff' AND p.name IN ('edit_slides', 'edit_programme', 'edit_duties', 'view_home', 'view_displayboard', 'view_programme', 'view_documents')");
 
-        // NCO gets edit_programme and views
+        // NCO gets edit_duties and views
         $pdo->exec("INSERT INTO role_permissions (role_id, permission_id)
             SELECT r.id, p.id FROM roles r, permissions p
-            WHERE r.name = 'NCO' AND p.name IN ('edit_programme', 'view_home', 'view_displayboard', 'view_programme', 'view_documents')");
+            WHERE r.name = 'NCO' AND p.name IN ('edit_duties', 'view_home', 'view_displayboard', 'view_programme', 'view_documents')");
 
         // Guest gets views
         $pdo->exec("INSERT INTO role_permissions (role_id, permission_id)

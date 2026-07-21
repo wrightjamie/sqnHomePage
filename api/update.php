@@ -44,6 +44,32 @@ try {
         $currentVersion = 3;
     }
 
+    if ($currentVersion < 4) {
+        // Version 4: NCO Ordering
+        $pdo->exec("ALTER TABLE ncos ADD COLUMN sort_order INTEGER DEFAULT 0");
+        
+        $pdo->exec("UPDATE settings SET value = '4' WHERE key = 'db_version'");
+        $currentVersion = 4;
+    }
+
+    if ($currentVersion < 5) {
+        // Version 5: edit_duties permission
+        $pdo->exec("INSERT OR IGNORE INTO permissions (name) VALUES ('edit_duties')");
+        
+        // Grant edit_duties to Admin, Staff, NCO
+        $pdo->exec("INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
+            SELECT r.id, p.id FROM roles r, permissions p 
+            WHERE p.name = 'edit_duties' AND r.name IN ('Admin', 'Staff', 'NCO')");
+
+        // Revoke edit_programme from NCO
+        $pdo->exec("DELETE FROM role_permissions 
+            WHERE role_id = (SELECT id FROM roles WHERE name = 'NCO') 
+            AND permission_id = (SELECT id FROM permissions WHERE name = 'edit_programme')");
+
+        $pdo->exec("UPDATE settings SET value = '5' WHERE key = 'db_version'");
+        $currentVersion = 5;
+    }
+
 } catch (PDOException $e) {
     die("Database Update Error: " . $e->getMessage());
 }

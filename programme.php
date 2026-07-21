@@ -15,7 +15,9 @@ requirePagePermission($pdo, 'view_programme');
     <link rel="stylesheet" href="css/core.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/pages/programme.css">
-
+    <script>
+        window.HasEditProgramme = <?php echo hasPermission($pdo, 'edit_programme') ? 'true' : 'false'; ?>;
+    </script>
 </head>
 <body>
     <div class="programme-container">

@@ -502,6 +502,13 @@
     font-size: var(--font-lg);
     text-align: center;
 }
+.rank-picker-popover {
+    margin: 0;
+    bottom: anchor(top);
+    left: anchor(center);
+    transform: translateX(-50%);
+    margin-bottom: var(--space-xs);
+}
 .user-dropdown:hover .user-dropdown-items,
 .user-dropdown:focus-within .user-dropdown-items {
     opacity: 1;

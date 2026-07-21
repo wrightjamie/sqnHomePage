@@ -185,36 +185,12 @@ require_once 'api/config.php';
                 </div>
 
                 <div id="subtab-staff" class="sub-tab-content hidden">
-                    <div id="staff-list" class="mb-sm"></div>
-                    <div class="input-group input-group-adjacent">
-                        <button class="btn admin-input-btn-h w-auto" type="button" id="rank-picker-btn" popovertarget="rank-picker" >
-                            <img src="" id="selected-rank-display" class="admin-rank-preview hidden">
-                            <span id="selected-rank-text">Select Rank</span>
-                        </button>
-                        <input type="hidden" id="new-staff-rank">
-                        
-                        <div id="rank-picker" popover>
-                            <h4 class="mt-0">Select Rank</h4>
-                            <div class="icon-grid" id="rank-picker-grid" >
-                                <!-- Populated dynamically -->
-                            </div>
-                        </div>
-
-                        <input type="text" id="new-staff-name" placeholder="Staff Name (e.g. Smith)" class="flex-grow-1" >
-                        <button class="btn btn-icon w-auto" type="button" id="btn-add-staff"><span class="material-symbols-outlined">add</span></button>
-                    </div>
+                    <div id="staff-manager-container"></div>
                 </div>
 
                 <!-- NCO Sub-Tab -->
                 <div id="subtab-ncos" class="sub-tab-content hidden">
-                    <h4 class="mb-sm text-muted">Manage Duty NCOs</h4>
-                    <div id="nco-list" class="flex-col gap-xs mb-md admin-list-container" >
-                    </div>
-                    <div class="flex-row">
-                        <select id="new-nco-rank" class="form-control" ><option value="Cpl">Cpl</option><option value="Sgt">Sgt</option><option value="FS">FS</option><option value="CWO">CWO</option></select>
-                        <input type="text" id="new-nco-name" placeholder="NCO Name (e.g. Jones)" class="flex-grow-1" >
-                        <button class="btn btn-icon w-auto" type="button" id="btn-add-nco"><span class="material-symbols-outlined">add</span></button>
-                    </div>
+                    <div id="nco-manager-container"></div>
                 </div>
             </div> <!-- End tab-programme -->
 
