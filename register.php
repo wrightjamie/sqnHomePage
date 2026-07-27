@@ -42,9 +42,12 @@ if ($isLoggedIn) {
         </form>
     </div>
 
-    <script src="js/utils.js?v=<?= time() ?>"></script>
-    <script src="js/api.js?v=<?= time() ?>"></script>
-    <script>
+
+
+    <script type="module">
+import { apiFetch } from "./js/api.js";
+import { Toast } from "./js/components/Toast.js";
+
         document.getElementById('register-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const displayName = document.getElementById('reg-display-name').value;

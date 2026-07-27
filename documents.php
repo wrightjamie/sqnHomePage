@@ -300,9 +300,9 @@ $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/')
     <?php include 'components/gallery.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/documents.js"></script>
+
+
+
+    <script type="module" src="js/documents.js"></script>
 </body>
 </html>
