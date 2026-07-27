@@ -1,8 +1,10 @@
+import { apiFetch } from './api.js';
+
 /**
  * Global Authentication Manager
  * Handles login modal UI, login requests, and logout requests.
  */
-const Auth = {
+export const Auth = {
     modal: null,
     form: null,
     errorMsg: null,

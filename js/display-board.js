@@ -1,3 +1,9 @@
+import { apiFetch } from "./api.js";
+import { Auth } from "./auth.js";
+import { Toast } from "./components/Toast.js";
+import { Pagination } from "./components/Pagination.js";
+import { setupDragAndDrop } from "./utils/dragDrop.js";
+
 // Configuration
 const DISPLAY_CONFIG = {
     DEFAULT_INTERVAL_MS: 10000,
@@ -43,19 +49,19 @@ function renderDummySlide() {
         <div class="slide" id="slide-dummy">
             <h1>Add New Slide</h1>
             <div class="dummy-slide-actions" style="display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap; margin-top: 3rem;">
-                <button class="dummy-slide-btn" onclick="window.createNewSlide('text')">
+                <button class="dummy-slide-btn" data-action="createNewSlide" data-type="text">
                     <span class="material-symbols-outlined">description</span>
                     <span>Text Slide</span>
                 </button>
-                <button class="dummy-slide-btn" onclick="window.createNewSlide('image')">
+                <button class="dummy-slide-btn" data-action="createNewSlide" data-type="image">
                     <span class="material-symbols-outlined">image</span>
                     <span>Image Slide</span>
                 </button>
-                <button class="dummy-slide-btn" onclick="window.createNewSlide('programme')">
+                <button class="dummy-slide-btn" data-action="createNewSlide" data-type="programme">
                     <span class="material-symbols-outlined">calendar_today</span>
                     <span>Programme Slide</span>
                 </button>
-                <button class="dummy-slide-btn" onclick="window.createNewSlide('qr')">
+                <button class="dummy-slide-btn" data-action="createNewSlide" data-type="qr">
                     <span class="material-symbols-outlined">qr_code</span>
                     <span>QR Code</span>
                 </button>
@@ -67,7 +73,7 @@ function renderSlideTitle(slide, data) {
     let titleHtml = data.title ? `<h1>${data.title}</h1>` : '';
     if (editMode) {
         titleHtml = `
-            <div class="editable-container" onclick="startEdit(${slide.id}, 'title')">
+            <div class="editable-container" data-action="startEdit" data-id="${slide.id}" data-field="title">
                 ${titleHtml || '<h1 class="slide-placeholder">[No Title]</h1>'}
                 <span class="material-symbols-outlined edit-marker">edit</span>
             </div>`;
@@ -79,8 +85,8 @@ function renderSlideToolbar(slide) {
     if (!editMode) return '';
     return `
         <div class="edit-toolbar">
-            <button class="btn-secondary" onclick="openReorderModal()" title="Reorder Slides"><span class="material-symbols-outlined">format_list_numbered</span></button>
-            <button class="btn-primary" onclick="deleteSlide(${slide.id})" title="Delete Slide"><span class="material-symbols-outlined">delete</span></button>
+            <button class="btn-secondary" data-action="openReorderModal" title="Reorder Slides"><span class="material-symbols-outlined">format_list_numbered</span></button>
+            <button class="btn-primary" data-action="deleteSlide" data-id="${slide.id}" title="Delete Slide"><span class="material-symbols-outlined">delete</span></button>
         </div>`;
 }
 
@@ -88,7 +94,7 @@ function renderTextSlide(slide, data, titleHtml) {
     let bodyHtml = `<div>${data.body || ''}</div>`;
     if (editMode) {
         bodyHtml = `
-            <div class="editable-container" onclick="startEdit(${slide.id}, 'body')">
+            <div class="editable-container" data-action="startEdit" data-id="${slide.id}" data-field="body">
                 ${bodyHtml || '<div class="slide-placeholder">[No Content]</div>'}
                 <span class="material-symbols-outlined edit-marker">edit</span>
             </div>`;
@@ -106,7 +112,7 @@ function renderImageSlide(slide, data, titleHtml) {
         let innerDesc = data.description || (editMode ? 'Click to add a description...' : '');
         if (innerDesc) {
             if (editMode) {
-                descriptionHtml = `<div class="editable-container slide-description-banner editable-desc" onclick="startEdit(${slide.id}, 'description')">
+                descriptionHtml = `<div class="editable-container slide-description-banner editable-desc" data-action="startEdit" data-id="${slide.id}" data-field="description">
                     ${innerDesc}
                     <span class="material-symbols-outlined edit-marker">edit</span>
                 </div>`;
@@ -127,7 +133,7 @@ function renderImageSlide(slide, data, titleHtml) {
     let imageActionHtml = '';
     if (editMode) {
         imageActionHtml = `
-            <div class="editable-container editable-image-action flex-center" onclick="startEdit(${slide.id}, 'image')">
+            <div class="editable-container editable-image-action flex-center" data-action="startEdit" data-id="${slide.id}" data-field="image">
                 ${imgHtml}
                 <span class="material-symbols-outlined edit-marker">image</span>
             </div>`;
@@ -159,7 +165,7 @@ function renderQRSlide(slide, data, titleHtml) {
         let innerDesc = data.description || (editMode ? 'Click to add a description...' : '');
         if (innerDesc) {
             if (editMode) {
-                descriptionHtml = `<div class="editable-container slide-description-banner editable-desc mt-sm" onclick="startEdit(${slide.id}, 'description')">
+                descriptionHtml = `<div class="editable-container slide-description-banner editable-desc mt-sm" data-action="startEdit" data-id="${slide.id}" data-field="description">
                     ${innerDesc}
                     <span class="material-symbols-outlined edit-marker">edit</span>
                 </div>`;
@@ -202,7 +208,7 @@ function renderQRSlide(slide, data, titleHtml) {
     let qrActionHtml = '';
     if (editMode) {
         qrActionHtml = `
-            <div class="editable-container editable-image-action flex-center" onclick="startEdit(${slide.id}, 'qrData')">
+            <div class="editable-container editable-image-action flex-center" data-action="startEdit" data-id="${slide.id}" data-field="qrData">
                 ${qrHtml}
                 <span class="material-symbols-outlined edit-marker">qr_code</span>
             </div>`;
@@ -220,17 +226,6 @@ function renderQRSlide(slide, data, titleHtml) {
 function renderSlide(slide) {
     if (slide.isDummy) {
         return renderDummySlide();
-    }
-
-    // Attach createNewSlide to window if missing
-    if (!window.createNewSlide) {
-        window.createNewSlide = async function(type) {
-            let data = {};
-            if (type === 'programme') {
-                data = { mode: 'next', title: 'Training Programme' };
-            }
-            await createSlide(type, data);
-        };
     }
 
     try {
@@ -297,7 +292,7 @@ function renderSlideshowMenu() {
     
     menu.classList.remove('hidden');
     menu.innerHTML = allActiveSets.map(set => `
-        <button class="slideshow-tab" id="tab-set-${set.id}" onclick="switchToSet(${set.id})">
+        <button class="slideshow-tab" id="tab-set-${set.id}" data-action="switchToSet" data-id="${set.id}">
             <span class="material-symbols-outlined">${set.icon || 'folder'}</span>
             ${set.name}
         </button>
@@ -501,8 +496,8 @@ function startEdit(slideId, field) {
         <div class="inline-edit-wrapper">
             ${inputHtml}
             <div class="flex-row gap-sm mt-sm">
-                <button class="btn-primary" onclick="saveEdit(event)">Save</button>
-                <button class="btn-secondary" onclick="cancelEdit(event)">Cancel</button>
+                <button class="btn-primary" data-action="saveEdit">Save</button>
+                <button class="btn-secondary" data-action="cancelEdit">Cancel</button>
             </div>
         </div>
     `;
@@ -625,8 +620,8 @@ async function fetchGallery() {
         galleryImagesCache = data.images;
         grid.innerHTML = data.images.map(img => `
             <div class="gallery-img-container position-relative">
-                <img src="${img.thumb_url}" class="gallery-img-item" title="${img.filename}" onclick="selectGalleryImage('${img.url}', ${img.focus_x || 50}, ${img.focus_y || 50})">
-                <button class="focus-target-btn" onclick="openFocusSelector('${img.id}')" title="Set Focus Point">
+                <img src="${img.thumb_url}" class="gallery-img-item" title="${img.filename}" data-action="selectGalleryImage" data-url="${img.url}" data-focusx="${img.focus_x || 50}" data-focusy="${img.focus_y || 50}">
+                <button class="focus-target-btn" data-action="openFocusSelector" data-imgid="${img.id}" title="Set Focus Point">
                     <span class="material-symbols-outlined font-size-20">center_focus_strong</span>
                 </button>
             </div>
@@ -836,12 +831,12 @@ async function loadProgrammeSlidesData() {
 }
 
 // Function to change the displayed date dynamically without saving to db
-window.shiftProgrammeSlideDate = function(btn, targetDate) {
+const shiftProgrammeSlideDate = function(btn, targetDate) {
     const c = btn.closest('.programme-slide-container');
     if (c) {
         c.setAttribute('data-mode', 'specific');
         c.setAttribute('data-date', targetDate);
-        window.loadProgrammeSlidesData();
+        loadProgrammeSlidesData();
         
         // Pause slideshow if not already paused
         if (typeof isPaused !== 'undefined' && !isPaused) {
@@ -878,11 +873,11 @@ function renderProgrammeNight(container, data) {
     
     let editActionHtml = '';
     if (typeof editMode !== 'undefined' && editMode) {
-        editActionHtml = `<button class="btn-primary ml-md" onclick="openProgrammeSettings(${slideId})" title="Slide Settings"><span class="material-symbols-outlined">settings</span></button>`;
+        editActionHtml = `<button class="btn-primary ml-md" data-action="openProgrammeSettings" data-id="${slideId}" title="Slide Settings"><span class="material-symbols-outlined">settings</span></button>`;
     }
 
-    let prevBtnHtml = prevDate ? `<button onclick="window.shiftProgrammeSlideDate(this, '${prevDate}')" class="prog-nav-btn prog-nav-left" title="Previous Parade Night"><span class="material-symbols-outlined">chevron_left</span></button>` : '';
-    let nextBtnHtml = nextDate ? `<button onclick="window.shiftProgrammeSlideDate(this, '${nextDate}')" class="prog-nav-btn prog-nav-right" title="Next Parade Night"><span class="material-symbols-outlined">chevron_right</span></button>` : '';
+    let prevBtnHtml = prevDate ? `<button data-action="shiftProgrammeSlideDate" data-date="${prevDate}" class="prog-nav-btn prog-nav-left" title="Previous Parade Night"><span class="material-symbols-outlined">chevron_left</span></button>` : '';
+    let nextBtnHtml = nextDate ? `<button data-action="shiftProgrammeSlideDate" data-date="${nextDate}" class="prog-nav-btn prog-nav-right" title="Next Parade Night"><span class="material-symbols-outlined">chevron_right</span></button>` : '';
 
     let html = `<div class="prog-slide-header">
         <div class="flex-align-center">
@@ -1014,8 +1009,8 @@ function openProgrammeSettings(slideId) {
                 </div>
                 
                 <div class="flex-justify-end">
-                    <button class="btn btn-secondary" onclick="document.getElementById('prog-settings-modal').classList.add('hidden')">Cancel</button>
-                    <button class="btn btn-primary" onclick="saveProgrammeSettings()">Save</button>
+                    <button class="btn btn-secondary" data-action="closeProgrammeSettings">Cancel</button>
+                    <button class="btn btn-primary" data-action="saveProgrammeSettings">Save</button>
                 </div>
             </div>
         `;
@@ -1038,9 +1033,7 @@ function openProgrammeSettings(slideId) {
     modal.classList.remove('hidden');
 }
 
-window.openProgrammeSettings = openProgrammeSettings;
-
-window.saveProgrammeSettings = async function() {
+const saveProgrammeSettings = async function() {
     const slideId = document.getElementById('prog-slide-id').value;
     const mode = document.getElementById('prog-slide-mode').value;
     const specificDate = document.getElementById('prog-slide-date').value;
@@ -1054,3 +1047,47 @@ window.saveProgrammeSettings = async function() {
     await updateSlide(slide.id, slide.type, data);
     document.getElementById('prog-settings-modal').classList.add('hidden');
 };
+
+// Global Event Delegation
+document.addEventListener('click', (e) => {
+    const target = e.target.closest('[data-action]');
+    if (!target) return;
+
+    const action = target.getAttribute('data-action');
+    if (action === 'createNewSlide') {
+        const type = target.getAttribute('data-type');
+        if (type === 'programme') {
+            createSlide(type, { mode: 'next', title: 'Training Programme' });
+        } else {
+            createSlide(type, {});
+        }
+    } else if (action === 'startEdit') {
+        startEdit(target.getAttribute('data-id'), target.getAttribute('data-field'));
+    } else if (action === 'openReorderModal') {
+        openReorderModal();
+    } else if (action === 'deleteSlide') {
+        deleteSlide(target.getAttribute('data-id'));
+    } else if (action === 'switchToSet') {
+        switchToSet(target.getAttribute('data-id'));
+    } else if (action === 'saveEdit') {
+        saveEdit(e);
+    } else if (action === 'cancelEdit') {
+        cancelEdit(e);
+    } else if (action === 'selectGalleryImage') {
+        selectGalleryImage(
+            target.getAttribute('data-url'),
+            parseFloat(target.getAttribute('data-focusx') || 50),
+            parseFloat(target.getAttribute('data-focusy') || 50)
+        );
+    } else if (action === 'openFocusSelector') {
+        openFocusSelector(target.getAttribute('data-imgid'));
+    } else if (action === 'openProgrammeSettings') {
+        openProgrammeSettings(target.getAttribute('data-id'));
+    } else if (action === 'shiftProgrammeSlideDate') {
+        shiftProgrammeSlideDate(target, target.getAttribute('data-date'));
+    } else if (action === 'closeProgrammeSettings') {
+        document.getElementById('prog-settings-modal').classList.add('hidden');
+    } else if (action === 'saveProgrammeSettings') {
+        saveProgrammeSettings();
+    }
+});
