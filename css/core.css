@@ -1,7 +1,7 @@
 /* css/core.css */
 :root {
     interpolate-size: allow-keywords;
-        /* RAF Brand Guidelines Colors */
+    /* RAF Brand Guidelines Colors */
     /* Logotype */
     --raf-logo-1: #C60C30;
     --raf-logo-2: #002F5F;
@@ -38,8 +38,10 @@
 
     /* Legacy names kept for backwards compatibility */
     --raf-deep-blue: var(--raf-logo-2);
-    --raf-light-blue: #5D8AA8; /* Keep original just in case */
-    --raf-accent-blue: #1378D7; /* Keep original just in case */
+    --raf-light-blue: #5D8AA8;
+    /* Keep original just in case */
+    --raf-accent-blue: #1378D7;
+    /* Keep original just in case */
     --raf-red: var(--raf-logo-1);
     --raf-white: #FFFFFF;
 
@@ -50,24 +52,38 @@
     --color-muted: #666666;
     --color-bg: #f4f4f4;
     --color-text: #333333;
-    
+
     /* Spacing */
-    --space-xs: 0.3125rem; /* 5px */
-    --space-sm: 0.625rem;  /* 10px */
-    --space-md: 0.9375rem; /* 15px */
-    --space-lg: 1.25rem;   /* 20px */
-    --space-xl: 2rem;      /* 32px */
-    --space-xxl: 3rem;     /* 48px */
+    --space-xs: 0.3125rem;
+    /* 5px */
+    --space-sm: 0.625rem;
+    /* 10px */
+    --space-md: 0.9375rem;
+    /* 15px */
+    --space-lg: 1.25rem;
+    /* 20px */
+    --space-xl: 2rem;
+    /* 32px */
+    --space-xxl: 3rem;
+    /* 48px */
     /* Z-Index Scale */
-    --z-base: 1;          /* Base elements */
-    --z-elevated: 10;     /* Elevated elements, active slides */
-    --z-overlay: 50;      /* Fixed UI overlay (header, footers) */
-    --z-dropdown: 100;    /* Dropdowns, menus */
-    --z-modal-bg: 900;    /* Modal backdrops */
-    --z-modal: 1000;      /* Modal contents */
-    --z-tooltip: 9999;    /* Tooltips, notifications */
+    --z-base: 1;
+    /* Base elements */
+    --z-elevated: 10;
+    /* Elevated elements, active slides */
+    --z-overlay: 50;
+    /* Fixed UI overlay (header, footers) */
+    --z-dropdown: 100;
+    /* Dropdowns, menus */
+    --z-modal-bg: 900;
+    /* Modal backdrops */
+    --z-modal: 1000;
+    /* Modal contents */
+    --z-tooltip: 9999;
+    /* Tooltips, notifications */
 
     /* Typography */
+    --font-xsm: 0.75em;
     --font-sm: 0.85rem;
     --font-md: 1rem;
     --font-lg: 1.2rem;
@@ -87,7 +103,10 @@ body {
     color: var(--color-text);
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
     font-family: Arial, sans-serif;
 }
 
@@ -96,54 +115,151 @@ h1, h2, h3, h4 {
     display: flex;
     flex-direction: column;
 }
+
 .flex-center {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.hidden { display: none !important; }
+.hidden {
+    display: none !important;
+}
 
 /* Spacing Utilities */
-.m-0 { margin: 0 !important; }
-.mt-xs { margin-top: var(--space-xs); }
-.mt-sm { margin-top: var(--space-sm); }
-.mt-md { margin-top: var(--space-md); }
-.mt-lg { margin-top: var(--space-lg); }
+.m-0 {
+    margin: 0 !important;
+}
 
-.mb-xs { margin-bottom: var(--space-xs); }
-.mb-sm { margin-bottom: var(--space-sm); }
-.mb-md { margin-bottom: var(--space-md); }
-.mb-lg { margin-bottom: var(--space-lg); }
+.mt-xs {
+    margin-top: var(--space-xs);
+}
 
-.ml-xs { margin-left: var(--space-xs); }
+.mt-sm {
+    margin-top: var(--space-sm);
+}
 
-.mr-xs { margin-right: var(--space-xs); }
-.mr-sm { margin-right: var(--space-sm); }
-.p-sm { padding: var(--space-sm); }
+.mt-md {
+    margin-top: var(--space-md);
+}
+
+.mt-lg {
+    margin-top: var(--space-lg);
+}
+
+.mb-xs {
+    margin-bottom: var(--space-xs);
+}
+
+.mb-sm {
+    margin-bottom: var(--space-sm);
+}
+
+.mb-md {
+    margin-bottom: var(--space-md);
+}
+
+.mb-lg {
+    margin-bottom: var(--space-lg);
+}
+
+.ml-xs {
+    margin-left: var(--space-xs);
+}
+
+.mr-xs {
+    margin-right: var(--space-xs);
+}
+
+.mr-sm {
+    margin-right: var(--space-sm);
+}
+
+.p-sm {
+    padding: var(--space-sm);
+}
 
 /* Layout Utilities */
-.w-100 { width: 100%; }
-.flex-row { display: flex; flex-direction: row; }
-.flex-wrap { flex-wrap: wrap; }
-.justify-between { justify-content: space-between; }
-.justify-end { justify-content: flex-end; }
-.align-center { align-items: center; }
-.gap-xs { gap: var(--space-xs); }
-.gap-sm { gap: var(--space-sm); }
-.gap-md { gap: var(--space-md); }
-.flex-1 { flex: 1; }
+.w-100 {
+    width: 100%;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.justify-end {
+    justify-content: flex-end;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.gap-xs {
+    gap: var(--space-xs);
+}
+
+.gap-sm {
+    gap: var(--space-sm);
+}
+
+.gap-md {
+    gap: var(--space-md);
+}
+
+.flex-1 {
+    flex: 1;
+}
 
 /* Typography Utilities */
-.text-center { text-align: center; }
-.text-right { text-align: right; }
-.font-bold { font-weight: bold; }
-.text-error { color: var(--color-error); }
-.text-muted { color: var(--color-muted); }
-.text-sm { font-size: var(--font-sm); }
-.text-lg { font-size: var(--font-lg); }
-.font-normal { font-weight: normal; }
-.line-height-tight { line-height: 1.1; }
+.text-center {
+    text-align: center;
+}
 
-button:disabled, .btn:disabled { opacity: 0.5; pointer-events: none; }
+.text-right {
+    text-align: right;
+}
 
+.font-bold {
+    font-weight: bold;
+}
+
+.text-error {
+    color: var(--color-error);
+}
+
+.text-muted {
+    color: var(--color-muted);
+}
+
+.text-sm {
+    font-size: var(--font-sm);
+}
+
+.text-lg {
+    font-size: var(--font-lg);
+}
+
+.font-normal {
+    font-weight: normal;
+}
+
+.line-height-tight {
+    line-height: 1.1;
+}
+
+button:disabled,
+.btn:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}

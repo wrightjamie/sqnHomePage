@@ -209,7 +209,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     async function loadMonth(year, month) {
         const monthName = new Date(year, month-1).toLocaleString('default', {month:'long'});
-        title.textContent = `Training Programme ${monthName} ${year}`;
+        const pageTitle = `Training Programme - ${monthName} ${year}`;
+        title.textContent = pageTitle;
+        document.title = pageTitle;
         
         currY = year; currM = month;
         prevM = month - 1; prevY = year; if(prevM < 1) { prevM = 12; prevY--; }
@@ -378,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tableBody.innerHTML = '';
         
         prevRows.forEach((r, i) => tableBody.appendChild(createRow(r, 'padding-row prev-month')));
-        currRows.forEach((r, i) => tableBody.appendChild(createRow(r, `prog-row current-month ${i % 2 === 0 ? 'row-even' : 'row-odd'}`, i)));
+        currRows.forEach((r, i) => tableBody.appendChild(createRow(r, 'prog-row current-month', i)));
         nextRows.forEach((r, i) => tableBody.appendChild(createRow(r, 'padding-row next-month')));
         
         setupDragAndDrop();
