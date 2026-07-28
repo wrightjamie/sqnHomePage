@@ -315,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // Delegate events for tag filter
-    document.getElementById('admin-tag-filters').addEventListener('click', (e) => {
+    document.getElementById('admin-gallery-tag-filter')?.addEventListener('click', (e) => {
         const target = e.target.closest('[data-action]');
         if (target && target.getAttribute('data-action') === 'setTagFilter') {
             setAdminTagFilter(target.getAttribute('data-tag'));
@@ -337,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // Delegate events for gallery
-    document.getElementById('admin-gallery-grid').addEventListener('click', (e) => {
+    document.getElementById('admin-gallery-grid')?.addEventListener('click', (e) => {
         const target = e.target.closest('[data-action]');
         if (target) {
             const action = target.getAttribute('data-action');
@@ -349,11 +349,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.getElementById('btn-close-metadata').addEventListener('click', () => {
+    document.getElementById('btn-close-metadata')?.addEventListener('click', () => {
         metadataModal.classList.add('hidden');
     });
     
-    metadataForm.addEventListener('submit', async (e) => {
+    metadataForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const id = document.getElementById('metadata-image-id').value;
         const title = document.getElementById('metadata-title').value;
