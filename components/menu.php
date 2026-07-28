@@ -1,6 +1,18 @@
 <?php
 require_once __DIR__ . '/../api/utils.php';
 $currentPage = basename($_SERVER['PHP_SELF']);
+
+if (!isset($_SESSION['menu_order'])) {
+    $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'menu_order'");
+    $stmt->execute();
+    $result = $stmt->fetchColumn();
+    if ($result) {
+        $_SESSION['menu_order'] = json_decode($result, true);
+    } else {
+        $_SESSION['menu_order'] = ['home.php', 'programme.php', 'index.php', 'documents.php'];
+    }
+}
+$menuOrder = $_SESSION['menu_order'];
 ?>
 <div id="bottom-right-controls">
     <div class="hamburger-menu" tabindex="0">
@@ -8,21 +20,22 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             <span class="material-symbols-outlined">menu</span>
         </div>
         <div class="hamburger-items">
-            <?php if ($currentPage !== 'index.php' && hasPermission($pdo, 'view_displayboard')): ?>
-                <a href="index.php" class="menu-btn flex-center" title="Display Board"><span class="material-symbols-outlined">slideshow</span></a>
-            <?php endif; ?>
+            <?php 
+            $menuItems = [
+                'home.php' => ['title' => 'Home', 'icon' => 'home', 'perm' => 'view_home'],
+                'programme.php' => ['title' => 'Training Programme', 'icon' => 'calendar_month', 'perm' => 'view_programme'],
+                'index.php' => ['title' => 'Display Board', 'icon' => 'slideshow', 'perm' => 'view_displayboard'],
+                'documents.php' => ['title' => 'Documents', 'icon' => 'description', 'perm' => 'view_documents']
+            ];
 
-            <?php if ($currentPage !== 'home.php' && hasPermission($pdo, 'view_home')): ?>
-                <a href="home.php" class="menu-btn flex-center" title="Home"><span class="material-symbols-outlined">home</span></a>
-            <?php endif; ?>
-
-            <?php if ($currentPage !== 'programme.php' && hasPermission($pdo, 'view_programme')): ?>
-                <a href="programme.php" class="menu-btn flex-center" title="Training Programme"><span class="material-symbols-outlined">calendar_month</span></a>
-            <?php endif; ?>
-
-            <?php if ($currentPage !== 'documents.php' && hasPermission($pdo, 'view_documents')): ?>
-                <a href="documents.php" class="menu-btn flex-center" title="Documents"><span class="material-symbols-outlined">description</span></a>
-            <?php endif; ?>
+            foreach ($menuOrder as $page): 
+                if (isset($menuItems[$page]) && $currentPage !== $page && hasPermission($pdo, $menuItems[$page]['perm'])):
+            ?>
+                <a href="<?php echo htmlspecialchars($page); ?>" class="menu-btn flex-center" title="<?php echo htmlspecialchars($menuItems[$page]['title']); ?>"><span class="material-symbols-outlined"><?php echo htmlspecialchars($menuItems[$page]['icon']); ?></span></a>
+            <?php 
+                endif;
+            endforeach; 
+            ?>
 
             <?php if ($currentPage === 'home.php'): ?>
                 <button id="btn-next-bg" class="menu-btn flex-center hidden" title="Next Background"><span class="material-symbols-outlined">image</span></button>

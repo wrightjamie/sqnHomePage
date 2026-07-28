@@ -718,7 +718,111 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.disabled = false;
     });
 
+    // --- Menu Order Logic ---
+    let currentMenuOrder = [];
+    
+    async function loadMenuOrderSettings() {
+        try {
+            currentMenuOrder = await apiFetch('api/settings.php?action=menu_order');
+            renderMenuOrderManager();
+        } catch (e) {
+            console.error('Failed to load menu order settings', e);
+        }
+    }
+
+    function renderMenuOrderManager() {
+        const container = document.getElementById('menu-order-manager-container');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        currentMenuOrder.forEach((page, index) => {
+            const pageNames = {
+                'home.php': 'Home',
+                'programme.php': 'Programme',
+                'index.php': 'Slideshow (Display Board)',
+                'documents.php': 'Documents'
+            };
+            
+            const div = document.createElement('div');
+            div.className = 'admin-table flex-row justify-between align-center p-sm mb-xs cursor-move bg-card-bg';
+            div.style.border = '1px solid var(--border-color)';
+            div.style.borderRadius = 'var(--radius-md)';
+            div.draggable = true;
+            div.dataset.index = index;
+            div.dataset.page = page;
+            
+            div.innerHTML = `
+                <div class="flex-row align-center">
+                    <span class="material-symbols-outlined mr-sm text-secondary">drag_indicator</span>
+                    <span class="font-bold">${pageNames[page] || page}</span>
+                </div>
+            `;
+            
+            // Drag events
+            div.addEventListener('dragstart', (e) => {
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', index);
+                setTimeout(() => div.style.opacity = '0.5', 0);
+            });
+            div.addEventListener('dragend', () => {
+                div.style.opacity = '1';
+                document.querySelectorAll('#menu-order-manager-container > div').forEach(el => {
+                    el.style.borderTop = '1px solid var(--border-color)';
+                    el.style.borderBottom = '1px solid var(--border-color)';
+                });
+                renderMenuOrderManager(); // Re-render to clear any lingering styles
+            });
+            div.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                div.style.borderTop = '2px solid var(--accent-color)';
+            });
+            div.addEventListener('dragleave', () => {
+                div.style.borderTop = '1px solid var(--border-color)';
+            });
+            div.addEventListener('drop', (e) => {
+                e.preventDefault();
+                div.style.borderTop = '1px solid var(--border-color)';
+                const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                const toIndex = index;
+                
+                if (fromIndex !== toIndex && !isNaN(fromIndex)) {
+                    const item = currentMenuOrder.splice(fromIndex, 1)[0];
+                    currentMenuOrder.splice(toIndex, 0, item);
+                    renderMenuOrderManager();
+                }
+            });
+            
+            container.appendChild(div);
+        });
+    }
+
+    document.getElementById('btn-save-menu-order')?.addEventListener('click', async () => {
+        const btn = document.getElementById('btn-save-menu-order');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="material-symbols-outlined loading-spinner">autorenew</span> Saving...';
+        btn.disabled = true;
+
+        try {
+            await apiFetch('api/settings.php?action=menu_order', 'POST', currentMenuOrder);
+            btn.innerHTML = '<span class="material-symbols-outlined mr-sm">check</span> Saved!';
+            btn.style.background = 'rgba(0, 200, 100, 0.6)';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+                btn.disabled = false;
+            }, ADMIN_CONFIG.BUTTON_RESET_TIMEOUT_MS);
+        } catch (e) {
+            btn.innerHTML = 'Error saving';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, ADMIN_CONFIG.BUTTON_RESET_TIMEOUT_MS);
+        }
+    });
+
     loadGlobalSettings();
+    loadMenuOrderSettings();
 
     // User Management
     let rolesData = [];

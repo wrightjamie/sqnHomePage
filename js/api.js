@@ -29,6 +29,11 @@ export async function apiFetch(endpoint, method = 'GET', bodyObj = null) {
     if (!res.ok || data.success === false) {
         const errorMsg = data.error || data.message || 'API Request Failed';
 
+        if (errorMsg === 'NOT_INSTALLED') {
+            window.location.href = 'install.php';
+            return;
+        }
+
         // Use imported Toast
         Toast.show(errorMsg, 'error');
 

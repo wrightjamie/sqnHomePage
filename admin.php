@@ -210,6 +210,17 @@ require_once 'api/config.php';
                 </div>
                 
                 <div class="mb-lg">
+                    <h3 class="mb-sm">Menu Order Settings</h3>
+                    <div class="set-item mb-md flex-col items-start">
+                        <p class="mb-sm text-sm">Drag and drop the items below to reorder the sidebar menu.</p>
+                        <div id="menu-order-manager-container" class="w-full max-w-sm mb-sm">
+                            <!-- Populated by JS -->
+                        </div>
+                        <button class="btn btn-primary" type="button" id="btn-save-menu-order">Save Menu Order</button>
+                    </div>
+                </div>
+
+                <div class="mb-lg">
                     <h3 class="mb-sm text-danger">Change Admin Password</h3>
                     <div class="set-item flex-col items-start">
                         <label for="pwd-current" class="mb-xs font-bold">Current Password</label>
