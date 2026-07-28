@@ -20,6 +20,8 @@ window.openUniformPopover = function(e, cell, rowData, tr, monthType) {
         d.style.border = (d.title === rowData.uniform) ? '2px solid #000' : '2px solid transparent';
     });
     unifGrid.dataset.value = rowData.uniform || '';
+    const adminLink = document.getElementById('unif-admin-link-container');
+    if (adminLink) adminLink.classList.toggle('hidden', !window.HasManageSettings);
     
     window.triggerUniformSave = () => {
         rowData.uniform = unifGrid.dataset.value;
@@ -140,6 +142,8 @@ window.openDutyPopover = function(e, cell, rowData, tr, monthType) {
     }).catch(e => console.error("Failed to fetch NCOs", e));
 
     select.value = rowData.duty_nco || '';
+    const ncoAdminLink = document.getElementById('nco-admin-link-container');
+    if (ncoAdminLink) ncoAdminLink.classList.toggle('hidden', !window.HasManageUsers);
 
     document.getElementById('duty-cadet-input').value = rowData.duty_cadet || '';
 
@@ -180,6 +184,10 @@ window.openActivityPopover = function(e, cell, rowData, tr, monthType) {
         if (checked) checked.checked = false;
     }
     document.getElementById('act-instructor').value = act.instructor || '';
+    const actAdminLink = document.getElementById('act-admin-link-container');
+    if (actAdminLink) actAdminLink.classList.toggle('hidden', !window.HasManageSettings);
+    const staffAdminLink = document.getElementById('staff-admin-link-container');
+    if (staffAdminLink) staffAdminLink.classList.toggle('hidden', !window.HasManageSettings);
     
     // Show/hide merge/split
     const btnMerge = document.getElementById('btn-act-merge');
