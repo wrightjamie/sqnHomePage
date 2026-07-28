@@ -1,7 +1,7 @@
 /* css/pages/admin.css */
 /* Extra basic styling just for admin interface */
 body { background: #f0f0f0; color: var(--color-text); overflow-y: auto; overflow-x: hidden; width: 100%; margin: 0; }
-.admin-container { padding: var(--space-lg); max-width: 800px; margin: 0 auto; background: white; min-height: calc(100vh - 120px); display: flex; flex-direction: column; }
+.admin-container { padding: var(--space-lg); max-width: 800px; margin: 60px auto 0 auto; background: white; min-height: calc(100vh - 120px); display: flex; flex-direction: column; }
 .login-box-centered { margin: auto; width: 100%; max-width: 400px; background: white; padding: var(--space-xl); border-radius: var(--space-sm); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 .hidden { display: none !important; }
 form { margin-bottom: var(--space-lg); }
