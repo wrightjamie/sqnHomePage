@@ -16,11 +16,12 @@ require_once 'api/config.php';
     <link rel="stylesheet" href="css/pages/admin.css">
 </head>
 <body>
-    <div class="admin-container">
-        <h1>Display Board Admin</h1>
-        <a href="index.php">Back to Display Board</a> | <a href="home.php">Back to Home</a>
-        <hr>
+    <?php
+        $headerTitle = 'Admin';
+        include 'components/header_swoosh.php';
+    ?>
 
+    <div class="admin-container">
         <div id="login-section">
             <h2>Login</h2>
             <form id="login-form">
@@ -418,9 +419,12 @@ require_once 'api/config.php';
         </div>
     </div>
 
+    <?php include 'components/menu.php'; ?>
+
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     <script src="js/utils.js?v=<?= time() ?>"></script>
     <script src="js/api.js?v=<?= time() ?>"></script>
+    <script src="js/auth.js?v=<?= time() ?>"></script>
     <script src="js/admin.js?v=<?= time() ?>"></script>
     <script src="js/programme_admin.js?v=<?= time() ?>"></script>
 </body>
