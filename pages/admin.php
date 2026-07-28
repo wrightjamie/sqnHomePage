@@ -1,3 +1,4 @@
+<?php if (!defined('IN_ROUTER')) { die('Direct access not permitted'); } ?>
 <?php
 // admin.php
 require_once 'api/config.php';
@@ -18,7 +19,7 @@ require_once 'api/config.php';
 <body>
     <div class="admin-container">
         <h1>Display Board Admin</h1>
-        <a href="index.php">Back to Display Board</a> | <a href="home.php">Back to Home</a>
+        <a href="index.php?page=displayboard">Back to Display Board</a> | <a href="index.php?page=home">Back to Home</a>
         <hr>
 
         <div id="login-section">

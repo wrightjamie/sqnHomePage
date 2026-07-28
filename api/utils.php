@@ -130,13 +130,13 @@ function requirePagePermission($pdo, $permissionName) {
     if (!hasPermission($pdo, $permissionName)) {
         if (isset($_SESSION['user_id'])) {
             http_response_code(403);
-            die("<h1>403 Forbidden</h1><p>You do not have the required role permissions to view this page.</p><a href='index.php'>Return to Home</a>");
+            die("<h1>403 Forbidden</h1><p>You do not have the required role permissions to view this page.</p><a href='index.php?page=displayboard'>Return to Home</a>");
         } else {
-            $currentPage = $_SERVER['REQUEST_URI'] ?? basename($_SERVER['PHP_SELF']);
+            $currentPage = $_SERVER['REQUEST_URI'] ?? 'index.php?page=displayboard';
             // Strip any leading slashes or directories to keep it relative to root for safety
             $currentPage = ltrim(str_replace(dirname($_SERVER['PHP_SELF']), '', $currentPage), '/');
-            if (empty($currentPage)) $currentPage = 'index.php';
-            header("Location: login.php?redirect=" . urlencode($currentPage));
+            if (empty($currentPage)) $currentPage = 'index.php?page=displayboard';
+            header("Location: index.php?page=login?redirect=" . urlencode($currentPage));
             die();
         }
     }

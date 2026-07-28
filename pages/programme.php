@@ -1,4 +1,7 @@
+<?php if (!defined('IN_ROUTER')) { die('Direct access not permitted'); } ?>
 <?php
+
+
 require_once 'api/config.php';
 require_once 'api/utils.php';
 
@@ -16,7 +19,9 @@ requirePagePermission($pdo, 'view_programme');
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/pages/programme.css">
     <script>
-        window.HasEditProgramme = <?php echo hasPermission($pdo, 'edit_programme') ? 'true' : 'false'; ?>;
+        window.HasEditProgramme = <?php
+
+ echo hasPermission($pdo, 'edit_programme') ? 'true' : 'false'; ?>;
     </script>
 </head>
 <body>
@@ -123,7 +128,9 @@ requirePagePermission($pdo, 'view_programme');
     </div>
 
     <!-- Interactive UI Layer -->
-    <?php include 'components/menu.php'; ?>
+    <?php
+
+ include 'components/menu.php'; ?>
 
     <script src="js/utils.js"></script>
     <script src="js/api.js"></script>
