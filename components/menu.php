@@ -1,6 +1,18 @@
 <?php
 require_once __DIR__ . '/../api/utils.php';
-$currentPage = basename($_SERVER['PHP_SELF']);
+$currentPage = isset($_GET['page']) ? $_GET['page'] : 'displayboard';
+
+if (!isset($_SESSION['menu_order'])) {
+    $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'menu_order'");
+    $stmt->execute();
+    $result = $stmt->fetchColumn();
+    if ($result) {
+        $_SESSION['menu_order'] = json_decode($result, true);
+    } else {
+        $_SESSION['menu_order'] = ['home.php', 'programme.php', 'index.php', 'documents.php'];
+    }
+}
+$menuOrder = $_SESSION['menu_order'];
 ?>
 <div id="bottom-right-controls">
     <div class="hamburger-menu" tabindex="0">
@@ -8,29 +20,39 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             <span class="material-symbols-outlined">menu</span>
         </div>
         <div class="hamburger-items">
-            <?php if ($currentPage !== 'index.php' && hasPermission($pdo, 'view_displayboard')): ?>
-                <a href="index.php" class="menu-btn flex-center" title="Display Board"><span class="material-symbols-outlined">slideshow</span></a>
-            <?php endif; ?>
+            <?php 
+            // Map old filenames from DB to new route pages
+            $pageMap = [
+                'home.php' => 'home',
+                'programme.php' => 'programme',
+                'index.php' => 'displayboard',
+                'documents.php' => 'documents'
+            ];
 
-            <?php if ($currentPage !== 'home.php' && hasPermission($pdo, 'view_home')): ?>
-                <a href="home.php" class="menu-btn flex-center" title="Home"><span class="material-symbols-outlined">home</span></a>
-            <?php endif; ?>
+            $menuItems = [
+                'home' => ['title' => 'Home', 'icon' => 'home', 'perm' => 'view_home'],
+                'programme' => ['title' => 'Training Programme', 'icon' => 'calendar_month', 'perm' => 'view_programme'],
+                'displayboard' => ['title' => 'Display Board', 'icon' => 'slideshow', 'perm' => 'view_displayboard'],
+                'documents' => ['title' => 'Documents', 'icon' => 'description', 'perm' => 'view_documents']
+            ];
 
-            <?php if ($currentPage !== 'programme.php' && hasPermission($pdo, 'view_programme')): ?>
-                <a href="programme.php" class="menu-btn flex-center" title="Training Programme"><span class="material-symbols-outlined">calendar_month</span></a>
-            <?php endif; ?>
+            foreach ($menuOrder as $dbPage): 
+                $routePage = isset($pageMap[$dbPage]) ? $pageMap[$dbPage] : null;
+                if ($routePage && isset($menuItems[$routePage]) && $currentPage !== $routePage && hasPermission($pdo, $menuItems[$routePage]['perm'])):
+            ?>
+                <a href="index.php?page=<?php echo htmlspecialchars($routePage); ?>" class="menu-btn flex-center" title="<?php echo htmlspecialchars($menuItems[$routePage]['title']); ?>"><span class="material-symbols-outlined"><?php echo htmlspecialchars($menuItems[$routePage]['icon']); ?></span></a>
+            <?php 
+                endif;
+            endforeach; 
+            ?>
 
-            <?php if ($currentPage !== 'documents.php' && hasPermission($pdo, 'view_documents')): ?>
-                <a href="documents.php" class="menu-btn flex-center" title="Documents"><span class="material-symbols-outlined">description</span></a>
-            <?php endif; ?>
-
-            <?php if ($currentPage === 'home.php'): ?>
+            <?php if ($currentPage === 'home'): ?>
                 <button id="btn-next-bg" class="menu-btn flex-center hidden" title="Next Background"><span class="material-symbols-outlined">image</span></button>
             <?php endif; ?>
         </div>
     </div>
     
-    <?php if ($currentPage === 'index.php'): ?>
+    <?php if ($currentPage === 'displayboard'): ?>
         <div id="controls-wrapper" class="expandable-menu flex-center" tabindex="0">
             <div class="expandable-menu-trigger flex-center" title="Slideshow Controls">
                 <span class="material-symbols-outlined">slideshow</span>
@@ -58,17 +80,17 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 <div class="user-dropdown-header">
                     <?php echo htmlspecialchars($_SESSION['display_name'] ?: $_SESSION['username']); ?>
                 </div>
-                <?php if ($currentPage === 'programme.php' && (hasPermission($pdo, 'edit_programme') || hasPermission($pdo, 'edit_duties'))): ?>
+                <?php if ($currentPage === 'programme' && (hasPermission($pdo, 'edit_programme') || hasPermission($pdo, 'edit_duties'))): ?>
                     <button id="btn-toggle-edit" class="user-dropdown-btn" title="Edit Programme"><span class="material-symbols-outlined">edit</span> Edit</button>
-                <?php elseif ($currentPage === 'index.php' && hasPermission($pdo, 'edit_slides')): ?>
+                <?php elseif ($currentPage === 'displayboard' && hasPermission($pdo, 'edit_slides')): ?>
                     <button id="btn-edit-mode" class="user-dropdown-btn" title="Edit Slides"><span class="material-symbols-outlined">edit</span> Edit</button>
-                <?php elseif ($currentPage === 'documents.php'): ?>
+                <?php elseif ($currentPage === 'documents'): ?>
                     <!-- Edit Mode for documents is moving to inline buttons per feedback, so no toggle here -->
                 <?php elseif (hasPermission($pdo, 'edit_slides')): ?>
                     <button id="btn-edit-mode" class="user-dropdown-btn" title="Edit Mode"><span class="material-symbols-outlined">edit</span> Edit</button>
                 <?php endif; ?>
 
-                <a href="admin.php" id="link-admin" class="user-dropdown-btn" title="Admin Panel"><span class="material-symbols-outlined">settings</span> Settings</a>
+                <a href="index.php?page=admin" id="link-admin" class="user-dropdown-btn" title="Admin Panel"><span class="material-symbols-outlined">settings</span> Settings</a>
                 <button id="btn-logout" class="user-dropdown-btn" title="Logout"><span class="material-symbols-outlined">logout</span> Logout</button>
             <?php endif; ?>
         </div>

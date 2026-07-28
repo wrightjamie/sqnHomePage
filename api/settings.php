@@ -41,6 +41,32 @@ if ($method === 'POST' && $action === 'global_config') {
     }
 }
 
+if ($method === 'GET' && $action === 'menu_order') {
+    $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'menu_order'");
+    $stmt->execute();
+    $result = $stmt->fetchColumn();
+    if ($result) {
+        jsonResponse(json_decode($result, true));
+    } else {
+        // Default menu order if not set
+        jsonResponse(['home.php', 'programme.php', 'index.php', 'documents.php']);
+    }
+}
+
+if ($method === 'POST' && $action === 'menu_order') {
+    requirePermission($pdo, 'manage_settings');
+
+    $json_value = json_encode($data);
+    $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (`key`, `value`) VALUES ('menu_order', ?)");
+    if ($stmt->execute([$json_value])) {
+        $_SESSION['menu_order'] = $data; // Update current user's session cache
+        jsonResponse(['success' => true]);
+    } else {
+        http_response_code(500);
+        jsonResponse(['success' => false, 'error' => 'Database error']);
+    }
+}
+
 http_response_code(400);
 jsonResponse(['success' => false, 'error' => 'Invalid action']);
 ?>

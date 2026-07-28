@@ -1,4 +1,7 @@
+<?php if (!defined('IN_ROUTER')) { die('Direct access not permitted'); } ?>
 <?php
+
+
 require_once 'api/config.php';
 require_once 'api/utils.php';
 
@@ -35,15 +38,19 @@ requirePagePermission($pdo, 'view_home');
   </div>
 
   <!-- Interactive UI Layer -->
-  <?php include 'components/menu.php'; ?>
+  <?php
+
+ include 'components/menu.php'; ?>
 
   <!-- Gallery Modal for background picking -->
-    <?php include 'components/gallery.php'; ?>
+    <?php
 
-  <script src="js/utils.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/home-editor.js"></script>
-  <script src="js/home.js"></script>
+ include 'components/gallery.php'; ?>
+
+
+
+
+
+  <script type="module" src="js/home.js"></script>
 </body>
 </html>

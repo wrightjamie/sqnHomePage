@@ -60,6 +60,20 @@ if (!isset($_SESSION['db_version_checked']) || $_SESSION['db_version_checked'] <
         }
         
         $_SESSION['db_version_checked'] = $target_db_version;
+    } else {
+        $isInstallPage = basename($_SERVER['SCRIPT_NAME']) === 'install.php';
+        if (!$isInstallPage) {
+            $isApiRequest = strpos($_SERVER['REQUEST_URI'], '/api/') !== false;
+            if ($isApiRequest) {
+                http_response_code(503);
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => 'NOT_INSTALLED']);
+                exit;
+            } else {
+                header("Location: install.php");
+                exit;
+            }
+        }
     }
 }
 ?>

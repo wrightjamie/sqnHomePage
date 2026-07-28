@@ -1,3 +1,8 @@
+import { apiFetch } from "./api.js";
+import { Auth } from "./auth.js";
+import { Toast } from "./components/Toast.js";
+import { Pagination } from "./components/Pagination.js";
+
 let isSlugView = false;
 
 function formatPrintDate(dateStr) {
@@ -69,7 +74,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `;
 
                 div.onclick = () => {
-                    window.history.pushState({}, '', `documents.php?d=${doc.slug}`);
+                    window.history.pushState({}, '', `index.php?page=documents&d=${doc.slug}`);
                     renderView(doc.slug, true);
                 };
                 
@@ -135,7 +140,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="no-print mb-md flex-row justify-between align-center">
                     <button class="btn btn-secondary" id="btn-back-to-list"><span class="material-symbols-outlined">arrow_back</span> Back</button>
                     <div class="flex-row gap-sm">
-                        <button class="btn btn-secondary" onclick="window.print()"><span class="material-symbols-outlined">print</span> Print</button>
+                        <button class="btn btn-secondary" id="btn-print-doc"><span class="material-symbols-outlined">print</span> Print</button>
                         ${(canManage || doc.can_edit) ? `<button id="btn-edit-doc" class="btn btn-primary"><span class="material-symbols-outlined">edit</span> Edit</button>` : ''}
                     </div>
                 </div>
@@ -148,8 +153,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             `;
 
             document.getElementById('btn-back-to-list').onclick = () => {
-                window.history.pushState({}, '', 'documents.php');
+                window.history.pushState({}, '', 'index.php?page=documents');
                 renderList();
+            };
+
+            document.getElementById('btn-print-doc').onclick = () => {
+                window.print();
             };
 
             if (document.getElementById('btn-edit-doc')) {
@@ -178,7 +187,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <input type="text" id="doc-title" class="form-control mb-md" style="font-size:1.5rem; font-weight:bold;" placeholder="Document Title" value="${currentDoc.title}">
 
             <div class="flex-row align-center mb-md" style="font-size: 1.2rem;">
-                <span class="text-muted" style="margin-right: 4px;">documents.php/</span>
+                <span class="text-muted" style="margin-right: 4px;">index.php?page=documents/</span>
                 <input type="text" id="doc-slug" class="form-control" style="flex:1; font-family:monospace;" placeholder="auto-generated-slug" value="${currentDoc.slug || ''}">
             </div>
 
@@ -192,15 +201,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         const galleryModal = document.getElementById('gallery-modal');
         let currentRange = null;
 
+        const selectDocGalleryImage = (url) => {
+            if (currentRange && quill) {
+                quill.insertEmbed(currentRange.index, 'image', url);
+            }
+            if (galleryModal) galleryModal.classList.add('hidden');
+        };
+
         const loadGallery = async (page) => {
             try {
                 const data = await apiFetch(`api/images.php?action=list&page=${page}`);
                 const grid = document.getElementById('gallery-grid');
                 grid.innerHTML = data.images.map(img => `
-                    <div class="gallery-item" style="position:relative; cursor:pointer;" onclick="selectDocGalleryImage('${img.url}')">
+                    <div class="gallery-item" style="position:relative; cursor:pointer;" data-url="${img.url}">
                         <img src="${img.thumb_url || img.url}" alt="${img.title || ''}" style="width:100%; height:7.5rem; object-fit:cover; border-radius:0.25rem; box-shadow:0 0.125rem 0.25rem rgba(0,0,0,0.2);">
                     </div>
                 `).join('');
+
+                // Attach event listeners for gallery items
+                grid.querySelectorAll('.gallery-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const url = item.getAttribute('data-url');
+                        if (url) selectDocGalleryImage(url);
+                    });
+                });
 
                 if (typeof Pagination !== 'undefined') {
                     const pag = new Pagination('gallery-pagination', loadGallery);
@@ -209,13 +233,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             } catch(e) {
                 console.error("Gallery load error", e);
             }
-        };
-
-        window.selectDocGalleryImage = (url) => {
-            if (currentRange && quill) {
-                quill.insertEmbed(currentRange.index, 'image', url);
-            }
-            if (galleryModal) galleryModal.classList.add('hidden');
         };
 
         const imageHandler = () => {
@@ -297,11 +314,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.getElementById('btn-cancel-edit').onclick = () => {
             if (currentDoc.id) {
-                window.history.pushState({}, '', `documents.php?d=${currentDoc.slug}`);
+                window.history.pushState({}, '', `index.php?page=documents&d=${currentDoc.slug}`);
                 renderView(currentDoc.slug, true);
             }
             else {
-                window.history.pushState({}, '', 'documents.php');
+                window.history.pushState({}, '', 'index.php?page=documents');
                 renderList();
             }
         };
@@ -494,7 +511,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     Toast.show('Saved', 'success');
 
                     const savedSlug = slugInput.value || res.slug;
-                    window.history.pushState({}, '', `documents.php?d=${savedSlug}`);
+                    window.history.pushState({}, '', `index.php?page=documents&d=${savedSlug}`);
                     renderView(savedSlug, true);
                 });
             };

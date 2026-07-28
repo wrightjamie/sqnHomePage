@@ -1,7 +1,8 @@
+<?php if (!defined('IN_ROUTER')) { die('Direct access not permitted'); } ?>
 <?php
 require_once 'api/config.php';
 if ($isLoggedIn) {
-    header('Location: index.php');
+    header('Location: index.php?page=displayboard');
     exit;
 }
 ?>
@@ -38,13 +39,16 @@ if ($isLoggedIn) {
             <input type="password" id="reg-password" placeholder="Password" class="form-control" required>
 
             <button type="submit" class="btn-primary w-100">Register</button>
-            <a href="index.php" class="btn btn-secondary w-100 text-center d-block border-box" >Cancel</a>
+            <a href="index.php?page=displayboard" class="btn btn-secondary w-100 text-center d-block border-box" >Cancel</a>
         </form>
     </div>
 
-    <script src="js/utils.js?v=<?= time() ?>"></script>
-    <script src="js/api.js?v=<?= time() ?>"></script>
-    <script>
+
+
+    <script type="module">
+import { apiFetch } from "./js/api.js";
+import { Toast } from "./js/components/Toast.js";
+
         document.getElementById('register-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const displayName = document.getElementById('reg-display-name').value;
@@ -60,7 +64,7 @@ if ($isLoggedIn) {
 
                 Toast.show('Registration successful! Please wait for admin approval.', 'success');
                 setTimeout(() => {
-                    window.location.href = 'index.php';
+                    window.location.href = 'index.php?page=displayboard';
                 }, 3000);
             } catch (err) {
                 // Toast is automatically shown by apiFetch on error
