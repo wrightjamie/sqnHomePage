@@ -115,7 +115,7 @@ if ($method === 'POST') {
     }
 
     if ($action === 'add_user') {
-        $username = trim($data['username'] ?? '');
+        $username = strtolower(trim($data['username'] ?? ''));
         $displayName = trim($data['display_name'] ?? '');
         $password = $data['password'] ?? '';
         $roleId = $data['role_id'] ?? null;

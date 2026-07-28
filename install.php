@@ -20,7 +20,7 @@ try {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isInstalled) {
-    $adminUser = $_POST['admin_username'] ?? 'admin';
+    $adminUser = strtolower(trim($_POST['admin_username'] ?? 'admin'));
     $adminPass = $_POST['admin_password'] ?? 'admin';
     
     try {

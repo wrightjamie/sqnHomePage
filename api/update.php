@@ -70,6 +70,14 @@ try {
         $currentVersion = 5;
     }
 
+    if ($currentVersion < 6) {
+        // Version 6: Make all usernames lowercase
+        $pdo->exec("UPDATE OR IGNORE users SET username = LOWER(username)");
+
+        $pdo->exec("UPDATE settings SET value = '6' WHERE key = 'db_version'");
+        $currentVersion = 6;
+    }
+
 } catch (PDOException $e) {
     die("Database Update Error: " . $e->getMessage());
 }
