@@ -1,7 +1,15 @@
 // js/programme.js
 document.addEventListener('DOMContentLoaded', () => {
-    let currentYear = new Date().getFullYear();
-    let currentMonth = new Date().getMonth() + 1; // 1-12
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlYear = parseInt(urlParams.get('year'));
+    const urlMonth = parseInt(urlParams.get('month'));
+
+    let currentYear = (urlYear && !isNaN(urlYear)) ? urlYear : new Date().getFullYear();
+    let currentMonth = (urlMonth && !isNaN(urlMonth) && urlMonth >= 1 && urlMonth <= 12) ? urlMonth : new Date().getMonth() + 1; // 1-12
+
+    // Replace current state so we can handle initial popstate cleanly if needed
+    window.history.replaceState({year: currentYear, month: currentMonth}, '', `index.php?page=programme&year=${currentYear}&month=${currentMonth}`);
+
     let isEditMode = false;
     let config = null;
     let programmeData = null;
@@ -60,6 +68,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Init
     async function init() {
+        window.addEventListener('popstate', (event) => {
+            if (event.state && event.state.year && event.state.month) {
+                currentYear = event.state.year;
+                currentMonth = event.state.month;
+                loadMonth(currentYear, currentMonth);
+            } else {
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlYear = parseInt(urlParams.get('year'));
+                const urlMonth = parseInt(urlParams.get('month'));
+
+                currentYear = (urlYear && !isNaN(urlYear)) ? urlYear : new Date().getFullYear();
+                currentMonth = (urlMonth && !isNaN(urlMonth) && urlMonth >= 1 && urlMonth <= 12) ? urlMonth : new Date().getMonth() + 1; // 1-12
+
+                loadMonth(currentYear, currentMonth);
+            }
+        });
+
         config = await apiFetch('api/programme.php?action=config');
         
         // Ensure arrays exist to prevent undefined errors
@@ -175,6 +200,9 @@ document.addEventListener('DOMContentLoaded', () => {
         currentMonth += delta;
         if (currentMonth > 12) { currentMonth = 1; currentYear++; }
         else if (currentMonth < 1) { currentMonth = 12; currentYear--; }
+
+        window.history.pushState({year: currentYear, month: currentMonth}, '', `index.php?page=programme&year=${currentYear}&month=${currentMonth}`);
+
         loadMonth(currentYear, currentMonth);
     }
     
