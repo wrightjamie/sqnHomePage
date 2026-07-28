@@ -1,8 +1,10 @@
+import { Toast } from './components/Toast.js';
+
 /**
  * Generic wrapper for API fetch requests.
  * Automatically unpacks the {success: true, data: ...} PHP wrapper.
  */
-async function apiFetch(endpoint, method = 'GET', bodyObj = null) {
+export async function apiFetch(endpoint, method = 'GET', bodyObj = null) {
     const options = { method, credentials: 'include' };
     if (bodyObj) {
         if (bodyObj instanceof FormData) {
@@ -27,10 +29,13 @@ async function apiFetch(endpoint, method = 'GET', bodyObj = null) {
     if (!res.ok || data.success === false) {
         const errorMsg = data.error || data.message || 'API Request Failed';
 
-        // Use global Toast if available
-        if (typeof Toast !== 'undefined') {
-            Toast.show(errorMsg, 'error');
+        if (errorMsg === 'NOT_INSTALLED') {
+            window.location.href = 'install.php';
+            return;
         }
+
+        // Use imported Toast
+        Toast.show(errorMsg, 'error');
 
         throw new Error(errorMsg);
     }

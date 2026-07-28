@@ -136,10 +136,10 @@ requirePagePermission($pdo, 'view_programme');
 
  include 'components/menu.php'; ?>
 
-    <script src="js/utils.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/programme-editor.js"></script>
-    <script src="js/programme.js"></script>
+
+
+
+
+    <script type="module" src="js/programme.js"></script>
 </body>
 </html>

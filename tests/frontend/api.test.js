@@ -1,50 +1,48 @@
-const fs = require('fs');
-const path = require('path');
-const apiJsContent = fs.readFileSync(path.join(__dirname, '../../js/api.js'), 'utf8');
-const vm = require('vm');
+import { apiFetch } from '../../js/api.js';
+import { Toast } from '../../js/components/Toast.js';
 
-const context = vm.createContext({
-    fetch: jest.fn(),
-    Toast: { show: jest.fn() },
-    FormData: class {}
-});
+// Mock Toast module
+jest.mock('../../js/components/Toast.js', () => ({
+    Toast: { show: jest.fn() }
+}));
 
-vm.runInContext(apiJsContent, context);
+// Mock fetch
+global.fetch = jest.fn();
 
 describe('apiFetch', () => {
   beforeEach(() => {
-    context.fetch.mockClear();
-    context.Toast.show.mockClear();
+    global.fetch.mockClear();
+    Toast.show.mockClear();
   });
 
   it('should return data on successful JSON response', async () => {
-    context.fetch.mockResolvedValueOnce({
+    global.fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ success: true, data: { foo: 'bar' } })
     });
 
-    const result = await context.apiFetch('/test-endpoint');
+    const result = await apiFetch('/test-endpoint');
     expect(result).toEqual({ foo: 'bar' });
   });
 
   it('should throw an error and show Toast on HTTP error status', async () => {
-    context.fetch.mockResolvedValueOnce({
+    global.fetch.mockResolvedValueOnce({
       ok: false,
       status: 404,
       json: async () => ({ error: 'Not Found' })
     });
 
-    await expect(context.apiFetch('/test-endpoint')).rejects.toThrow('Not Found');
-    expect(context.Toast.show).toHaveBeenCalledWith('Not Found', 'error');
+    await expect(apiFetch('/test-endpoint')).rejects.toThrow('Not Found');
+    expect(Toast.show).toHaveBeenCalledWith('Not Found', 'error');
   });
 
   it('should throw an error and show Toast when success is false', async () => {
-    context.fetch.mockResolvedValueOnce({
+    global.fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ success: false, error: 'Custom error message' })
     });
 
-    await expect(context.apiFetch('/test-endpoint')).rejects.toThrow('Custom error message');
-    expect(context.Toast.show).toHaveBeenCalledWith('Custom error message', 'error');
+    await expect(apiFetch('/test-endpoint')).rejects.toThrow('Custom error message');
+    expect(Toast.show).toHaveBeenCalledWith('Custom error message', 'error');
   });
 });

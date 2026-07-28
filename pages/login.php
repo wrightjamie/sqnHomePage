@@ -77,9 +77,11 @@ if ($isLoggedIn) {
         <p id="login-error" class="text-error mt-sm text-center"></p>
     </div>
 
-    <script src="js/utils.js"></script>
-    <script src="js/api.js"></script>
-    <script>
+
+
+    <script type="module">
+import { apiFetch } from "./js/api.js";
+
         // Ensure redirect is safe (relative path only, no absolute URLs or javascript schema)
         let rawRedirect = <?= json_encode($redirect) ?>;
         let redirectUrl = 'index.php?page=displayboard'; // Default safe fallback

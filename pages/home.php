@@ -47,10 +47,10 @@ requirePagePermission($pdo, 'view_home');
 
  include 'components/gallery.php'; ?>
 
-  <script src="js/utils.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/home-editor.js"></script>
-  <script src="js/home.js"></script>
+
+
+
+
+  <script type="module" src="js/home.js"></script>
 </body>
 </html>

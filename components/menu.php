@@ -1,6 +1,18 @@
 <?php
 require_once __DIR__ . '/../api/utils.php';
 $currentPage = isset($_GET['page']) ? $_GET['page'] : 'displayboard';
+
+if (!isset($_SESSION['menu_order'])) {
+    $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'menu_order'");
+    $stmt->execute();
+    $result = $stmt->fetchColumn();
+    if ($result) {
+        $_SESSION['menu_order'] = json_decode($result, true);
+    } else {
+        $_SESSION['menu_order'] = ['home.php', 'programme.php', 'index.php', 'documents.php'];
+    }
+}
+$menuOrder = $_SESSION['menu_order'];
 ?>
 <div id="bottom-right-controls">
     <div class="hamburger-menu" tabindex="0">
@@ -8,21 +20,31 @@ $currentPage = isset($_GET['page']) ? $_GET['page'] : 'displayboard';
             <span class="material-symbols-outlined">menu</span>
         </div>
         <div class="hamburger-items">
-            <?php if ($currentPage !== 'displayboard' && hasPermission($pdo, 'view_displayboard')): ?>
-                <a href="index.php?page=displayboard" class="menu-btn flex-center" title="Display Board"><span class="material-symbols-outlined">slideshow</span></a>
-            <?php endif; ?>
+            <?php 
+            // Map old filenames from DB to new route pages
+            $pageMap = [
+                'home.php' => 'home',
+                'programme.php' => 'programme',
+                'index.php' => 'displayboard',
+                'documents.php' => 'documents'
+            ];
 
-            <?php if ($currentPage !== 'home' && hasPermission($pdo, 'view_home')): ?>
-                <a href="index.php?page=home" class="menu-btn flex-center" title="Home"><span class="material-symbols-outlined">home</span></a>
-            <?php endif; ?>
+            $menuItems = [
+                'home' => ['title' => 'Home', 'icon' => 'home', 'perm' => 'view_home'],
+                'programme' => ['title' => 'Training Programme', 'icon' => 'calendar_month', 'perm' => 'view_programme'],
+                'displayboard' => ['title' => 'Display Board', 'icon' => 'slideshow', 'perm' => 'view_displayboard'],
+                'documents' => ['title' => 'Documents', 'icon' => 'description', 'perm' => 'view_documents']
+            ];
 
-            <?php if ($currentPage !== 'programme' && hasPermission($pdo, 'view_programme')): ?>
-                <a href="index.php?page=programme" class="menu-btn flex-center" title="Training Programme"><span class="material-symbols-outlined">calendar_month</span></a>
-            <?php endif; ?>
-
-            <?php if ($currentPage !== 'documents' && hasPermission($pdo, 'view_documents')): ?>
-                <a href="index.php?page=documents" class="menu-btn flex-center" title="Documents"><span class="material-symbols-outlined">description</span></a>
-            <?php endif; ?>
+            foreach ($menuOrder as $dbPage): 
+                $routePage = isset($pageMap[$dbPage]) ? $pageMap[$dbPage] : null;
+                if ($routePage && isset($menuItems[$routePage]) && $currentPage !== $routePage && hasPermission($pdo, $menuItems[$routePage]['perm'])):
+            ?>
+                <a href="index.php?page=<?php echo htmlspecialchars($routePage); ?>" class="menu-btn flex-center" title="<?php echo htmlspecialchars($menuItems[$routePage]['title']); ?>"><span class="material-symbols-outlined"><?php echo htmlspecialchars($menuItems[$routePage]['icon']); ?></span></a>
+            <?php 
+                endif;
+            endforeach; 
+            ?>
 
             <?php if ($currentPage === 'home'): ?>
                 <button id="btn-next-bg" class="menu-btn flex-center hidden" title="Next Background"><span class="material-symbols-outlined">image</span></button>
