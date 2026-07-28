@@ -17,17 +17,16 @@ require_once 'api/config.php';
 </head>
 <body>
     <?php
-        $headerTitle = 'Admin';
+        $headerTitle = $isLoggedIn ? 'Admin' : 'Login';
         include 'components/header_swoosh.php';
     ?>
 
-    <div class="admin-container">
-        <div id="login-section">
-            <h2>Login</h2>
+    <div class="admin-container" id="main-admin-container">
+        <div id="login-section" class="login-box-centered hidden">
             <form id="login-form">
                 <input type="text" id="username" placeholder="Username" required>
                 <input type="password" id="password" placeholder="Password" required>
-                <button class="btn" type="submit">Login</button>
+                <button class="btn btn-primary w-100" type="submit">Login</button>
             </form>
         </div>
 

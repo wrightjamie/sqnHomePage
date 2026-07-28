@@ -20,10 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const data = await fetch('api/auth.php?action=status');
             const res = await data.json();
+            const headerTitle = document.getElementById('header-title');
             if (res.data && res.data.logged_in) {
                 currentUserPermissions = res.data.permissions || [];
                 loginSection.classList.add('hidden');
                 adminSection.classList.remove('hidden');
+                if (headerTitle) headerTitle.textContent = 'Admin';
                 loadSets();
                 if (window.checkUrlTab) window.checkUrlTab();
 
@@ -44,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 loginSection.classList.remove('hidden');
                 adminSection.classList.add('hidden');
+                if (headerTitle) headerTitle.textContent = 'Login';
                 document.getElementById('username').focus();
             }
         } catch (e) {
