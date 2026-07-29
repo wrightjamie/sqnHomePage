@@ -7,6 +7,121 @@ import { setupDragAndDrop } from "./utils/dragDrop.js";
 
 // js/admin.js
 
+// Generic list renderer
+function renderList(containerId, items, config) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    if (!items) return;
+
+    items.forEach((item, i) => {
+        const div = document.createElement('div');
+        div.className = 'set-item reorder-item';
+        div.draggable = true;
+        div.dataset.id = i;
+        div.style.cursor = 'grab';
+
+        // Start common HTML
+        let html = `<div class="flex-row align-center flex-1 gap-sm">
+                    <span class="material-symbols-outlined drag-handle">drag_indicator</span>`;
+
+        html += config.renderInner(item, i);
+
+        html += `</div>`;
+
+        if (!config.hideRemove) {
+            html += `<button class="btn btn-remove btn-remove-item" data-index="${i}" title="Remove"><span class="material-symbols-outlined">delete</span></button>`;
+        }
+
+        div.innerHTML = html;
+
+        // Bind edit events
+        if (config.bindEvents) config.bindEvents(div, item, i);
+
+        // Bind remove
+        if (!config.hideRemove) {
+            div.querySelector('.btn-remove').addEventListener('click', () => config.onRemove(i));
+        }
+
+        container.appendChild(div);
+    });
+
+    setupDragAndDrop(container, (newOrder) => {
+        config.onReorder(newOrder.map(oldIdx => items[oldIdx]));
+    });
+}
+
+function editableTextBinding(el, selector, onSave) {
+    const span = el.querySelector(selector);
+    if(!span) return;
+    span.style.cursor = 'pointer';
+    span.title = 'Click to edit';
+    span.addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = span.textContent;
+        input.style.padding = '2px 5px';
+        input.style.fontSize = 'inherit';
+        input.style.fontFamily = 'inherit';
+
+        const save = () => {
+            if (input.value.trim() && input.value !== span.textContent) {
+                onSave(input.value.trim());
+            } else {
+                span.style.display = '';
+                input.remove();
+            }
+        };
+
+        input.addEventListener('blur', save);
+        input.addEventListener('keypress', (e) => { if(e.key === 'Enter') input.blur(); });
+
+        span.style.display = 'none';
+        span.parentNode.insertBefore(input, span.nextSibling);
+        input.focus();
+    });
+}
+
+function editableColorBinding(el, selector, onSave) {
+    const colorBox = el.querySelector(selector);
+    if(!colorBox) return;
+
+    colorBox.style.cursor = 'pointer';
+    colorBox.title = 'Click to edit color';
+    colorBox.innerHTML = ''; // clear any existing
+
+    const input = document.createElement('input');
+    input.type = 'color';
+    input.value = rgbToHex(colorBox.style.backgroundColor);
+    input.setAttribute('list', 'brand-colors'); // Include brand colors datalist
+
+    // Fill the parent so clicks hit the input natively
+    input.style.position = 'absolute';
+    input.style.top = '0';
+    input.style.left = '0';
+    input.style.opacity = '0';
+    input.style.width = '100%';
+    input.style.height = '100%';
+    input.style.border = 'none';
+    input.style.padding = '0';
+    input.style.margin = '0';
+    input.style.cursor = 'pointer';
+
+    input.addEventListener('input', () => {
+        colorBox.style.backgroundColor = input.value;
+    });
+    input.addEventListener('change', () => {
+        onSave(input.value);
+    });
+
+    colorBox.appendChild(input);
+}
+
+function rgbToHex(rgb) {
+    const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    if (!match) return rgb; // might already be hex
+    return "#" + match.slice(1).map(n => parseInt(n).toString(16).padStart(2, '0')).join('');
+}
+
 const ADMIN_CONFIG = {
     BUTTON_RESET_TIMEOUT_MS: 2000
 };
@@ -1090,120 +1205,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    // Generic list renderer
-    function renderList(containerId, items, config) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = '';
-        if (!items) return;
 
-        items.forEach((item, i) => {
-            const div = document.createElement('div');
-            div.className = 'set-item reorder-item';
-            div.draggable = true;
-            div.dataset.id = i;
-            div.style.cursor = 'grab';
-
-            // Start common HTML
-            let html = `<div class="flex-row align-center flex-1 gap-sm">
-                        <span class="material-symbols-outlined drag-handle">drag_indicator</span>`;
-
-            html += config.renderInner(item, i);
-
-            html += `</div>`;
-
-            if (!config.hideRemove) {
-                html += `<button class="btn btn-remove btn-remove-item" data-index="${i}" title="Remove"><span class="material-symbols-outlined">delete</span></button>`;
-            }
-
-            div.innerHTML = html;
-
-            // Bind edit events
-            if (config.bindEvents) config.bindEvents(div, item, i);
-
-            // Bind remove
-            if (!config.hideRemove) {
-                div.querySelector('.btn-remove').addEventListener('click', () => config.onRemove(i));
-            }
-
-            container.appendChild(div);
-        });
-
-        setupDragAndDrop(container, (newOrder) => {
-            config.onReorder(newOrder.map(oldIdx => items[oldIdx]));
-        });
-    }
-
-    function editableTextBinding(el, selector, onSave) {
-        const span = el.querySelector(selector);
-        if(!span) return;
-        span.style.cursor = 'pointer';
-        span.title = 'Click to edit';
-        span.addEventListener('click', () => {
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.value = span.textContent;
-            input.style.padding = '2px 5px';
-            input.style.fontSize = 'inherit';
-            input.style.fontFamily = 'inherit';
-
-            const save = () => {
-                if (input.value.trim() && input.value !== span.textContent) {
-                    onSave(input.value.trim());
-                } else {
-                    span.style.display = '';
-                    input.remove();
-                }
-            };
-
-            input.addEventListener('blur', save);
-            input.addEventListener('keypress', (e) => { if(e.key === 'Enter') input.blur(); });
-
-            span.style.display = 'none';
-            span.parentNode.insertBefore(input, span.nextSibling);
-            input.focus();
-        });
-    }
-
-    function editableColorBinding(el, selector, onSave) {
-        const colorBox = el.querySelector(selector);
-        if(!colorBox) return;
-
-        colorBox.style.cursor = 'pointer';
-        colorBox.title = 'Click to edit color';
-        colorBox.innerHTML = ''; // clear any existing
-
-        const input = document.createElement('input');
-        input.type = 'color';
-        input.value = rgbToHex(colorBox.style.backgroundColor);
-        input.setAttribute('list', 'brand-colors'); // Include brand colors datalist
-
-        // Fill the parent so clicks hit the input natively
-        input.style.position = 'absolute';
-        input.style.top = '0';
-        input.style.left = '0';
-        input.style.opacity = '0';
-        input.style.width = '100%';
-        input.style.height = '100%';
-        input.style.border = 'none';
-        input.style.padding = '0';
-        input.style.margin = '0';
-        input.style.cursor = 'pointer';
-
-        input.addEventListener('input', () => {
-            colorBox.style.backgroundColor = input.value;
-        });
-        input.addEventListener('change', () => {
-            onSave(input.value);
-        });
-
-        colorBox.appendChild(input);
-    }
-
-    function rgbToHex(rgb) {
-        const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-        if (!match) return rgb; // might already be hex
-        return "#" + match.slice(1).map(n => parseInt(n).toString(16).padStart(2, '0')).join('');
-    }
 
     // --- Uniforms ---
     function renderUniforms() {
