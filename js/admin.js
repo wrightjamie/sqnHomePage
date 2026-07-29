@@ -746,14 +746,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 'home.php': 'Home',
                 'programme.php': 'Programme',
                 'index.php': 'Display Board',
-                'documents.php': 'Documents'
+                'documents.php': 'Documents',
+                'profile.php': 'Profile'
             };
             
             const routePages = {
                 'home.php': 'home',
                 'programme.php': 'programme',
                 'index.php': 'displayboard',
-                'documents.php': 'documents'
+                'documents.php': 'documents',
+                'profile.php': 'profile'
             };
 
             const routePage = routePages[page] || page;

@@ -39,10 +39,10 @@ require_once 'api/config.php';
             
             <div class="tabs">
                 <button class="tab-btn active" data-target="tab-slides">Slide Sets</button>
-                <button class="tab-btn" data-target="tab-images">Image Management</button>
+                <button class="tab-btn" data-target="tab-images">Images</button>
                 <button class="tab-btn" data-target="tab-programme">Programme Settings</button>
-                <button class="tab-btn" data-target="tab-settings" id="tab-btn-settings">Settings</button>
-                <button class="tab-btn hidden" data-target="tab-users" id="tab-btn-users">Users</button>
+                <button class="tab-btn" data-target="tab-settings" id="tab-btn-settings">System Settings</button>
+                <button class="tab-btn hidden" data-target="tab-users" id="tab-btn-users">Users &amp; Access</button>
             </div>
 
             <div id="tab-slides" class="tab-content active">
@@ -197,44 +197,36 @@ require_once 'api/config.php';
 
             <!-- Settings Tab -->
             <div id="tab-settings" class="tab-content hidden">
-                <div class="mb-lg">
-                    <h3 class="mb-sm">Display Board Settings</h3>
-                    <div class="set-item mb-md flex-col items-start">
-                        <label for="global-sidebar-text" class="mb-xs font-bold">Sidebar Text</label>
-                        <input type="text" id="global-sidebar-text" class="mb-md w-full max-w-sm" placeholder="2459 Squadron">
-                        
-                        <label for="global-slide-speed" class="mb-xs font-bold">Slide Duration (seconds)</label>
-                        <input type="number" id="global-slide-speed" class="mb-md w-full max-w-sm" min="1" max="60" value="10">
-                        
-                        <button class="btn btn-primary" type="button" id="btn-save-global-settings">Save Display Settings</button>
-                    </div>
+                <div class="tabs mb-lg">
+                    <button class="sub-tab-btn active" data-subtarget="subtab-display-board">Display Board Settings</button>
+                    <button class="sub-tab-btn" data-subtarget="subtab-menu-order">Menu Order Settings</button>
                 </div>
                 
-                <div class="mb-lg">
-                    <h3 class="mb-sm">Menu Order Settings</h3>
-                    <div class="set-item mb-md flex-col items-start">
-                        <p class="mb-sm text-sm">Drag and drop the items below to reorder the sidebar menu.</p>
-                        <div id="menu-order-manager-container" class="w-full max-w-sm mb-sm">
-                            <!-- Populated by JS -->
+                <div id="subtab-display-board" class="sub-tab-content">
+                    <div class="mb-lg">
+                        <h3 class="mb-sm">Display Board Settings</h3>
+                        <div class="set-item mb-md flex-col items-start">
+                            <label for="global-sidebar-text" class="mb-xs font-bold">Sidebar Text</label>
+                            <input type="text" id="global-sidebar-text" class="mb-md w-full max-w-sm" placeholder="2459 Squadron">
+
+                            <label for="global-slide-speed" class="mb-xs font-bold">Slide Duration (seconds)</label>
+                            <input type="number" id="global-slide-speed" class="mb-md w-full max-w-sm" min="1" max="60" value="10">
+
+                            <button class="btn btn-primary" type="button" id="btn-save-global-settings">Save Display Settings</button>
                         </div>
-                        <button class="btn btn-primary" type="button" id="btn-save-menu-order">Save Menu Order</button>
                     </div>
                 </div>
 
-                <div class="mb-lg">
-                    <h3 class="mb-sm text-danger">Change Admin Password</h3>
-                    <div class="set-item flex-col items-start">
-                        <label for="pwd-current" class="mb-xs font-bold">Current Password</label>
-                        <input type="password" id="pwd-current" class="mb-md w-full max-w-sm" required>
-                        
-                        <label for="pwd-new" class="mb-xs font-bold">New Password</label>
-                        <input type="password" id="pwd-new" class="mb-md w-full max-w-sm" required>
-                        
-                        <label for="pwd-confirm" class="mb-xs font-bold">Confirm New Password</label>
-                        <input type="password" id="pwd-confirm" class="mb-md w-full max-w-sm" required>
-                        
-                        <div id="pwd-msg" class="mb-sm font-bold"></div>
-                        <button class="btn btn-primary" type="button" id="btn-change-password">Update Password</button>
+                <div id="subtab-menu-order" class="sub-tab-content hidden">
+                    <div class="mb-lg">
+                        <h3 class="mb-sm">Menu Order Settings</h3>
+                        <div class="set-item mb-md flex-col items-start">
+                            <p class="mb-sm text-sm">Drag and drop the items below to reorder the sidebar menu.</p>
+                            <div id="menu-order-manager-container" class="w-full max-w-sm mb-sm">
+                                <!-- Populated by JS -->
+                            </div>
+                            <button class="btn btn-primary" type="button" id="btn-save-menu-order">Save Menu Order</button>
+                        </div>
                     </div>
                 </div>
             </div>

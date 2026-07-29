@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     
     if ($action === 'login') {
-        $username = $data['username'] ?? '';
+        $username = strtolower(trim($data['username'] ?? ''));
         $password = $data['password'] ?? '';
         
         $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if ($action === 'register') {
-        $username = trim($data['username'] ?? '');
+        $username = strtolower(trim($data['username'] ?? ''));
         $password = $data['password'] ?? '';
         $display_name = trim($data['display_name'] ?? '');
 
@@ -52,6 +52,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             jsonResponse(['message' => 'Registration successful, awaiting approval']);
         } else {
             jsonError('Registration failed', 500);
+        }
+    }
+
+    if ($action === 'update_profile') {
+        if (!isset($_SESSION['user_id'])) {
+            jsonError('Unauthorized', 401);
+        }
+        $display_name = trim($data['display_name'] ?? '');
+        if (empty($display_name)) {
+            jsonError('Display name cannot be empty', 400);
+        }
+
+        $stmt = $pdo->prepare("UPDATE users SET display_name = ? WHERE id = ?");
+        if ($stmt->execute([$display_name, $_SESSION['user_id']])) {
+            $_SESSION['display_name'] = $display_name;
+            jsonResponse(['success' => true]);
+        } else {
+            jsonError('Failed to update profile', 500);
         }
     }
 

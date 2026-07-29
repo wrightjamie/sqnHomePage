@@ -4,7 +4,7 @@ require_once 'api/config.php';
 
 define('IN_ROUTER', true);
 
-$allowed_pages = ['displayboard', 'home', 'documents', 'programme', 'admin', 'login', 'register'];
+$allowed_pages = ['displayboard', 'home', 'documents', 'programme', 'admin', 'login', 'register', 'profile'];
 
 $default_page = 'displayboard';
 try {
