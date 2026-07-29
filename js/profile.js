@@ -4,14 +4,21 @@ import { Toast } from "./components/Toast.js";
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Check if user is logged in
-    const authStatus = await Auth.checkAuth();
-    if (!authStatus.isLoggedIn) {
+    let authStatus = null;
+    try {
+        const response = await apiFetch('api/auth.php?action=status');
+        authStatus = response ? response.data : null;
+    } catch (e) {
+        console.error('Failed to get auth status:', e);
+    }
+    
+    if (!authStatus || !authStatus.logged_in) {
         window.location.href = 'index.php?page=login';
         return;
     }
 
     // Pre-fill display name
-    document.getElementById('profile-display-name').value = authStatus.displayName || authStatus.username;
+    document.getElementById('profile-display-name').value = authStatus.display_name || authStatus.username || '';
 
     // Tabs logic
     const tabBtns = document.querySelectorAll('.tab-btn');

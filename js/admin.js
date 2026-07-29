@@ -163,6 +163,16 @@ document.addEventListener('DOMContentLoaded', () => {
             window.history.replaceState({}, '', url);
         }
         
+        // If Settings tab clicked, ensure a subtab is active
+        if (targetId === 'tab-settings') {
+            const activeSubtab = document.querySelector('#tab-settings .sub-tab-btn.active');
+            if (activeSubtab) {
+                switchSubTab(activeSubtab.getAttribute('data-subtarget'));
+            } else {
+                switchSubTab('subtab-display-board');
+            }
+        }
+        
         // If Images tab clicked, load images
         if (targetId === 'tab-images') {
             loadTags();
@@ -703,7 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             
             const div = document.createElement('div');
-            div.className = 'admin-table flex-row justify-between align-center p-sm mb-xs cursor-move bg-card-bg';
+            div.className = 'set-item reorder-item mb-xs cursor-move';
             div.style.border = '1px solid var(--border-color)';
             div.style.borderRadius = 'var(--radius-md)';
             div.draggable = true;
