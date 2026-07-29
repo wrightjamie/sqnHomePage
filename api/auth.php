@@ -55,6 +55,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    if ($action === 'update_profile') {
+        if (!isset($_SESSION['user_id'])) {
+            jsonError('Unauthorized', 401);
+        }
+        $display_name = trim($data['display_name'] ?? '');
+        if (empty($display_name)) {
+            jsonError('Display name cannot be empty', 400);
+        }
+
+        $stmt = $pdo->prepare("UPDATE users SET display_name = ? WHERE id = ?");
+        if ($stmt->execute([$display_name, $_SESSION['user_id']])) {
+            $_SESSION['display_name'] = $display_name;
+            jsonResponse(['success' => true]);
+        } else {
+            jsonError('Failed to update profile', 500);
+        }
+    }
+
     if ($action === 'change_password') {
         if (!isset($_SESSION['user_id'])) {
             jsonError('Unauthorized', 401);
