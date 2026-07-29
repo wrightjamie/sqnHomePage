@@ -723,10 +723,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Menu Order Logic ---
     let currentMenuOrder = [];
+    let currentDefaultPage = 'displayboard';
     
     async function loadMenuOrderSettings() {
         try {
-            currentMenuOrder = await apiFetch('api/settings.php?action=menu_order');
+            const result = await apiFetch('api/settings.php?action=menu_order');
+            currentMenuOrder = result.menu_order || ['home.php', 'programme.php', 'index.php', 'documents.php'];
+            currentDefaultPage = result.default_page || 'displayboard';
             renderMenuOrderManager();
         } catch (e) {
             console.error('Failed to load menu order settings', e);
@@ -742,10 +745,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const pageNames = {
                 'home.php': 'Home',
                 'programme.php': 'Programme',
-                'index.php': 'Slideshow (Display Board)',
+                'index.php': 'Display Board',
                 'documents.php': 'Documents'
             };
             
+            const routePages = {
+                'home.php': 'home',
+                'programme.php': 'programme',
+                'index.php': 'displayboard',
+                'documents.php': 'documents'
+            };
+
+            const routePage = routePages[page] || page;
+            const isDefault = (routePage === currentDefaultPage);
+
             const div = document.createElement('div');
             div.className = 'admin-table flex-row justify-between align-center p-sm mb-xs cursor-move bg-card-bg';
             div.style.border = '1px solid var(--border-color)';
@@ -759,8 +772,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="material-symbols-outlined mr-sm text-secondary">drag_indicator</span>
                     <span class="font-bold">${pageNames[page] || page}</span>
                 </div>
+                <div class="flex-row align-center gap-xs">
+                    <input type="radio" name="default_page_radio" value="${routePage}" ${isDefault ? 'checked' : ''}>
+                    <label class="text-sm">Default</label>
+                </div>
             `;
             
+            const radioInput = div.querySelector('input[type="radio"]');
+            if (radioInput) {
+                radioInput.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        currentDefaultPage = e.target.value;
+                    }
+                });
+            }
+
             // Drag events
             div.addEventListener('dragstart', (e) => {
                 e.dataTransfer.effectAllowed = 'move';
@@ -807,7 +833,10 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.disabled = true;
 
         try {
-            await apiFetch('api/settings.php?action=menu_order', 'POST', currentMenuOrder);
+            await apiFetch('api/settings.php?action=menu_order', 'POST', {
+                menu_order: currentMenuOrder,
+                default_page: currentDefaultPage
+            });
             btn.innerHTML = '<span class="material-symbols-outlined mr-sm">check</span> Saved!';
             btn.style.background = 'rgba(0, 200, 100, 0.6)';
             setTimeout(() => {
