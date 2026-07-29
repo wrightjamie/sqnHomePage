@@ -142,6 +142,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+    // --- Subtabs Logic ---
+    const subTabBtns = document.querySelectorAll('.sub-tab-btn');
+    const subTabContents = document.querySelectorAll('.sub-tab-content');
+
+    function switchSubTab(targetId) {
+        subTabContents.forEach(c => c.classList.add('hidden'));
+        subTabBtns.forEach(b => b.classList.remove('active'));
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) targetEl.classList.remove('hidden');
+        const btnEl = document.querySelector(`.sub-tab-btn[data-subtarget="${targetId}"]`);
+        if (btnEl) btnEl.classList.add('active');
+
+        // Update URL
+        const url = new URL(window.location);
+        url.searchParams.set('subtab', targetId.replace('subtab-', ''));
+        window.history.replaceState({}, '', url);
+    }
+
+    subTabBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            switchSubTab(btn.getAttribute('data-subtarget'));
+        });
+    });
+
+    // Load initial subtab from URL
+    const urlParamsSub = new URLSearchParams(window.location.search);
+    if (urlParamsSub.has('subtab')) {
+        const target = `subtab-${urlParamsSub.get('subtab')}`;
+        if (document.getElementById(target)) switchSubTab(target);
+    }
+
     // --- Tabs Logic ---
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -714,8 +746,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const div = document.createElement('div');
             div.className = 'set-item reorder-item mb-xs cursor-move';
-            div.style.border = '1px solid var(--border-color)';
-            div.style.borderRadius = 'var(--radius-md)';
             div.draggable = true;
             div.dataset.index = index;
             div.dataset.page = page;
@@ -736,10 +766,11 @@ document.addEventListener('DOMContentLoaded', () => {
             div.addEventListener('dragend', () => {
                 div.style.opacity = '1';
                 document.querySelectorAll('#menu-order-manager-container > div').forEach(el => {
-                    el.style.borderTop = '1px solid var(--border-color)';
-                    el.style.borderBottom = '1px solid var(--border-color)';
+                    el.style.borderTop = '';
+                    el.style.borderBottom = '';
                 });
                 renderMenuOrderManager(); // Re-render to clear any lingering styles
+                saveMenuOrder();
             });
             div.addEventListener('dragover', (e) => {
                 e.preventDefault();
@@ -747,11 +778,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 div.style.borderTop = '2px solid var(--accent-color)';
             });
             div.addEventListener('dragleave', () => {
-                div.style.borderTop = '1px solid var(--border-color)';
+                div.style.borderTop = '';
             });
             div.addEventListener('drop', (e) => {
                 e.preventDefault();
-                div.style.borderTop = '1px solid var(--border-color)';
+                div.style.borderTop = '';
                 const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
                 const toIndex = index;
                 
@@ -1101,35 +1132,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const btnSave = document.getElementById('btn-save-programme');
 
-    // Subtabs logic
-    const subTabBtns = document.querySelectorAll('.sub-tab-btn');
-    const subTabContents = document.querySelectorAll('.sub-tab-content');
 
-    function switchSubTab(targetId) {
-        subTabContents.forEach(c => c.classList.add('hidden'));
-        subTabBtns.forEach(b => b.classList.remove('active'));
-        document.getElementById(targetId).classList.remove('hidden');
-        document.querySelector(`.sub-tab-btn[data-subtarget="${targetId}"]`).classList.add('active');
-
-        // Update URL
-        const url = new URL(window.location);
-        url.searchParams.set('subtab', targetId.replace('subtab-', ''));
-        window.history.replaceState({}, '', url);
-    }
-
-    subTabBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            switchSubTab(btn.getAttribute('data-subtarget'));
-        });
-    });
-
-    // Load initial subtab from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('subtab')) {
-        const target = `subtab-${urlParams.get('subtab')}`;
-        if (document.getElementById(target)) switchSubTab(target);
-    }
 
     // Generic list renderer
     function renderList(containerId, items, config) {
