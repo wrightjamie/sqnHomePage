@@ -302,22 +302,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn = document.querySelector(`.tab-btn[data-target="${targetId}"]`);
         if (btn) btn.classList.add('active');
         const content = document.getElementById(targetId);
-        if (content) content.classList.remove('hidden');
+        if (content) {
+            content.classList.remove('hidden');
+            
+            // Check if this tab has sub-tabs
+            const subTabs = content.querySelectorAll('.sub-tab-btn');
+            if (subTabs.length > 0) {
+                const activeSubtab = content.querySelector('.sub-tab-btn.active');
+                if (activeSubtab) {
+                    switchSubTab(activeSubtab.getAttribute('data-subtarget'));
+                } else {
+                    // Default to first sub-tab
+                    switchSubTab(subTabs[0].getAttribute('data-subtarget'));
+                }
+            }
+        }
         
         if (updateUrl) {
             const url = new URL(window.location);
             url.searchParams.set('tab', targetId);
             window.history.replaceState({}, '', url);
-        }
-        
-        // If Settings tab clicked, ensure a subtab is active
-        if (targetId === 'tab-settings') {
-            const activeSubtab = document.querySelector('#tab-settings .sub-tab-btn.active');
-            if (activeSubtab) {
-                switchSubTab(activeSubtab.getAttribute('data-subtarget'));
-            } else {
-                switchSubTab('subtab-display-board');
-            }
         }
         
         // If Images tab clicked, load images
