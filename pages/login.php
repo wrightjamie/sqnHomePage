@@ -1,8 +1,9 @@
+<?php if (!defined('IN_ROUTER')) { die('Direct access not permitted'); } ?>
 <?php
 require_once 'api/config.php';
 require_once 'api/utils.php';
 
-$redirect = $_GET['redirect'] ?? 'index.php';
+$redirect = $_GET['redirect'] ?? 'index.php?page=displayboard';
 
 // If they are already logged in, just send them to the redirect destination
 if ($isLoggedIn) {
@@ -67,11 +68,11 @@ if ($isLoggedIn) {
             <input type="password" id="login-pass" placeholder="Password" class="p-sm mb-sm w-100" required>
             <div class="flex-col gap-sm mt-md">
                 <button type="submit" id="btn-do-login" class="btn-primary w-100">Login</button>
-                <a href="index.php" class="btn btn-secondary w-100 text-center" style="text-decoration: none; box-sizing: border-box;">Go to Home</a>
+                <a href="index.php?page=displayboard" class="btn btn-secondary w-100 text-center" style="text-decoration: none; box-sizing: border-box;">Go to Home</a>
             </div>
         </form>
         <div class="mt-md text-center">
-            <a href="register.php" style="color: var(--raf-nav-2); text-decoration: none; font-size: 0.9rem;">Create an account</a>
+            <a href="index.php?page=register" style="color: var(--raf-nav-2); text-decoration: none; font-size: 0.9rem;">Create an account</a>
         </div>
         <p id="login-error" class="text-error mt-sm text-center"></p>
     </div>
@@ -83,14 +84,14 @@ import { apiFetch } from "./js/api.js";
 
         // Ensure redirect is safe (relative path only, no absolute URLs or javascript schema)
         let rawRedirect = <?= json_encode($redirect) ?>;
-        let redirectUrl = 'index.php'; // Default safe fallback
+        let redirectUrl = 'index.php?page=displayboard'; // Default safe fallback
 
         try {
             // Check if it's a valid relative path by ensuring it can't be parsed as a full URL
             if (!rawRedirect.startsWith('http') && !rawRedirect.startsWith('//') && !rawRedirect.startsWith('javascript:')) {
                 // Remove leading slashes just to be absolutely sure it doesn't jump to root inappropriately if nested
                 redirectUrl = rawRedirect.replace(/^\/+/, '');
-                if (!redirectUrl) redirectUrl = 'index.php';
+                if (!redirectUrl) redirectUrl = 'index.php?page=displayboard';
             }
         } catch(e) {
             console.error('Invalid redirect URL', e);

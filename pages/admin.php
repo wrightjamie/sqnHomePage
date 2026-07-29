@@ -1,3 +1,4 @@
+<?php if (!defined('IN_ROUTER')) { die('Direct access not permitted'); } ?>
 <?php
 // admin.php
 require_once 'api/config.php';
@@ -16,17 +17,17 @@ require_once 'api/config.php';
     <link rel="stylesheet" href="css/pages/admin.css">
 </head>
 <body>
-    <div class="admin-container">
-        <h1>Display Board Admin</h1>
-        <a href="index.php">Back to Display Board</a> | <a href="home.php">Back to Home</a>
-        <hr>
+    <?php
+        $headerTitle = $isLoggedIn ? 'Admin' : 'Login';
+        include 'components/header_swoosh.php';
+    ?>
 
-        <div id="login-section">
-            <h2>Login</h2>
+    <div class="admin-container" id="main-admin-container">
+        <div id="login-section" class="login-box-centered hidden">
             <form id="login-form">
                 <input type="text" id="username" placeholder="Username" required>
                 <input type="password" id="password" placeholder="Password" required>
-                <button class="btn" type="submit">Login</button>
+                <button class="btn btn-primary w-100" type="submit">Login</button>
             </form>
         </div>
 
@@ -429,10 +430,9 @@ require_once 'api/config.php';
         </div>
     </div>
 
+    <?php include 'components/menu.php'; ?>
+
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
-
-
     <script type="module" src="js/admin.js?v=<?= time() ?>"></script>
-
 </body>
 </html>

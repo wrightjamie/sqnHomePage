@@ -5,8 +5,16 @@ import { Toast } from "./components/Toast.js";
 
 // js/programme.js
 document.addEventListener('DOMContentLoaded', () => {
-    let currentYear = new Date().getFullYear();
-    let currentMonth = new Date().getMonth() + 1; // 1-12
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlYear = parseInt(urlParams.get('year'));
+    const urlMonth = parseInt(urlParams.get('month'));
+
+    let currentYear = (urlYear && !isNaN(urlYear)) ? urlYear : new Date().getFullYear();
+    let currentMonth = (urlMonth && !isNaN(urlMonth) && urlMonth >= 1 && urlMonth <= 12) ? urlMonth : new Date().getMonth() + 1; // 1-12
+
+    // Replace current state so we can handle initial popstate cleanly if needed
+    window.history.replaceState({year: currentYear, month: currentMonth}, '', `index.php?page=programme&year=${currentYear}&month=${currentMonth}`);
+
     let isEditMode = false;
     let config = null;
     let programmeData = null;
@@ -65,6 +73,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Init
     async function init() {
+        window.addEventListener('popstate', (event) => {
+            if (event.state && event.state.year && event.state.month) {
+                currentYear = event.state.year;
+                currentMonth = event.state.month;
+                loadMonth(currentYear, currentMonth);
+            } else {
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlYear = parseInt(urlParams.get('year'));
+                const urlMonth = parseInt(urlParams.get('month'));
+
+                currentYear = (urlYear && !isNaN(urlYear)) ? urlYear : new Date().getFullYear();
+                currentMonth = (urlMonth && !isNaN(urlMonth) && urlMonth >= 1 && urlMonth <= 12) ? urlMonth : new Date().getMonth() + 1; // 1-12
+
+                loadMonth(currentYear, currentMonth);
+            }
+        });
+
         config = await apiFetch('api/programme.php?action=config');
         
         // Ensure arrays exist to prevent undefined errors
@@ -180,6 +205,9 @@ document.addEventListener('DOMContentLoaded', () => {
         currentMonth += delta;
         if (currentMonth > 12) { currentMonth = 1; currentYear++; }
         else if (currentMonth < 1) { currentMonth = 12; currentYear--; }
+
+        window.history.pushState({year: currentYear, month: currentMonth}, '', `index.php?page=programme&year=${currentYear}&month=${currentMonth}`);
+
         loadMonth(currentYear, currentMonth);
     }
     
@@ -640,6 +668,8 @@ window.openUniformPopover = function(e, cell, rowData, tr, monthType) {
         d.style.border = (d.title === rowData.uniform) ? '2px solid #000' : '2px solid transparent';
     });
     unifGrid.dataset.value = rowData.uniform || '';
+    const adminLink = document.getElementById('unif-admin-link-container');
+    if (adminLink) adminLink.classList.toggle('hidden', !window.HasManageSettings);
 
     window.triggerUniformSave = () => {
         rowData.uniform = unifGrid.dataset.value;
@@ -760,6 +790,8 @@ window.openDutyPopover = function(e, cell, rowData, tr, monthType) {
     }).catch(e => console.error("Failed to fetch NCOs", e));
 
     select.value = rowData.duty_nco || '';
+    const ncoAdminLink = document.getElementById('nco-admin-link-container');
+    if (ncoAdminLink) ncoAdminLink.classList.toggle('hidden', !window.HasManageUsers);
 
     document.getElementById('duty-cadet-input').value = rowData.duty_cadet || '';
 
@@ -800,6 +832,10 @@ window.openActivityPopover = function(e, cell, rowData, tr, monthType) {
         if (checked) checked.checked = false;
     }
     document.getElementById('act-instructor').value = act.instructor || '';
+    const actAdminLink = document.getElementById('act-admin-link-container');
+    if (actAdminLink) actAdminLink.classList.toggle('hidden', !window.HasManageSettings);
+    const staffAdminLink = document.getElementById('staff-admin-link-container');
+    if (staffAdminLink) staffAdminLink.classList.toggle('hidden', !window.HasManageSettings);
 
     // Show/hide merge/split
     const btnMerge = document.getElementById('btn-act-merge');

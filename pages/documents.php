@@ -1,4 +1,7 @@
+<?php if (!defined('IN_ROUTER')) { die('Direct access not permitted'); } ?>
 <?php
+
+
 require_once 'api/config.php';
 require_once 'api/utils.php';
 
@@ -57,57 +60,6 @@ $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/')
                 flex: 1;
                 min-height: 0; /* Important for nested flex scrolling */
             }
-        }
-
-        .doc-header-swoosh {
-            height: 120px;
-            width: 100%;
-            position: relative;
-            display: flex;
-            align-items: center;
-            padding: 0 var(--space-lg);
-            color: white;
-            justify-content: space-between;
-            background-color: var(--raf-supp-4);
-            z-index: 1;
-        }
-
-        .header-swoosh-svg {
-            position: absolute;
-            bottom: -60px;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            z-index: -1;
-            transform: scaleX(-1);
-        }
-
-        .doc-header-swoosh h1 {
-            margin: 0;
-            font-size: 2.8rem;
-            z-index: 2;
-        }
-
-        .doc-header-swoosh h2 {
-            margin: 0;
-            font-size: 1.2rem;
-            font-weight: bold;
-            z-index: 2;
-        }
-
-        .header-titles {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-            z-index: 2;
-            flex: 1;
-        }
-
-        .doc-header-swoosh img {
-            height: 80px;
-            z-index: 2;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-            margin-right: 60px; /* Prevent overlap with top-right menu if it was at the top */
         }
 
         .doc-list-item {
@@ -234,24 +186,6 @@ $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/')
             .mb-md { margin-bottom: 0 !important; }
             button { display: none !important; }
 
-            .doc-header-swoosh { 
-                position: fixed; 
-                top: 0; 
-                left: -20mm; /* Push into left page margin */
-                width: calc(100% + 40mm); /* Span entire page width */
-                z-index: 1000; 
-                height: 120px;
-                display: flex !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                padding-left: calc(var(--space-lg) + 20mm) !important; /* Keep text aligned to original margin */
-                padding-right: calc(var(--space-lg) + 20mm) !important; /* Keep logo aligned to original margin */
-            }
-
-            .doc-header-swoosh img {
-                margin-right: 0 !important;
-            }
-
             /* Running header/footer via fixed position */
             @page {
                 margin: 20mm;
@@ -276,28 +210,24 @@ $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/')
 </head>
 <body>
 
-    <div class="doc-header-swoosh no-print">
-        <?php 
-            $swooshOrientation = 'horizontal';
-            $swooshClass = 'header-swoosh-svg';
-            include 'components/swoosh.php'; 
-        ?>
-        <div class="header-titles">
-            <h2>2459 (Poulton-le-Fylde) Squadron ATC</h2>
-            <h1 id="header-title">Squadron Documents</h1>
-        </div>
-        <img src="images/rafac-logo.svg" alt="RAFAC">
-    </div>
+    <?php
+        $headerTitle = 'Squadron Documents';
+        include 'components/header_swoosh.php';
+    ?>
 
     <div class="doc-container" id="app-root">
         <!-- JS renders here -->
     </div>
 
     <!-- Interactive UI Layer -->
-    <?php include 'components/menu.php'; ?>
+    <?php
+
+ include 'components/menu.php'; ?>
 
     <!-- Image Gallery Modal -->
-    <?php include 'components/gallery.php'; ?>
+    <?php
+
+ include 'components/gallery.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
 

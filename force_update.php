@@ -35,5 +35,5 @@ if ($tableExists) {
 }
 
 echo "<hr>";
-echo "<a href='index.php'>Return to Homepage</a> | <a href='admin.php'>Return to Admin</a>";
+echo "<a href='index.php'>Return to Homepage</a> | <a href='index.php?page=admin'>Return to Admin</a>";
 ?>

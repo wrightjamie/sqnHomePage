@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `;
 
                 div.onclick = () => {
-                    window.history.pushState({}, '', `documents.php?d=${doc.slug}`);
+                    window.history.pushState({}, '', `index.php?page=documents&d=${doc.slug}`);
                     renderView(doc.slug, true);
                 };
                 
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             `;
 
             document.getElementById('btn-back-to-list').onclick = () => {
-                window.history.pushState({}, '', 'documents.php');
+                window.history.pushState({}, '', 'index.php?page=documents');
                 renderList();
             };
 
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <input type="text" id="doc-title" class="form-control mb-md" style="font-size:1.5rem; font-weight:bold;" placeholder="Document Title" value="${currentDoc.title}">
 
             <div class="flex-row align-center mb-md" style="font-size: 1.2rem;">
-                <span class="text-muted" style="margin-right: 4px;">documents.php/</span>
+                <span class="text-muted" style="margin-right: 4px;">index.php?page=documents/</span>
                 <input type="text" id="doc-slug" class="form-control" style="flex:1; font-family:monospace;" placeholder="auto-generated-slug" value="${currentDoc.slug || ''}">
             </div>
 
@@ -314,11 +314,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.getElementById('btn-cancel-edit').onclick = () => {
             if (currentDoc.id) {
-                window.history.pushState({}, '', `documents.php?d=${currentDoc.slug}`);
+                window.history.pushState({}, '', `index.php?page=documents&d=${currentDoc.slug}`);
                 renderView(currentDoc.slug, true);
             }
             else {
-                window.history.pushState({}, '', 'documents.php');
+                window.history.pushState({}, '', 'index.php?page=documents');
                 renderList();
             }
         };
@@ -511,7 +511,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     Toast.show('Saved', 'success');
 
                     const savedSlug = slugInput.value || res.slug;
-                    window.history.pushState({}, '', `documents.php?d=${savedSlug}`);
+                    window.history.pushState({}, '', `index.php?page=documents&d=${savedSlug}`);
                     renderView(savedSlug, true);
                 });
             };

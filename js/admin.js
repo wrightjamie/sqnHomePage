@@ -27,10 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const data = await fetch('api/auth.php?action=status');
             const res = await data.json();
+            const headerTitle = document.getElementById('header-title');
             if (res.data && res.data.logged_in) {
                 currentUserPermissions = res.data.permissions || [];
                 loginSection.classList.add('hidden');
                 adminSection.classList.remove('hidden');
+                if (headerTitle) headerTitle.textContent = 'Admin';
                 loadSets();
                 if (window.checkUrlTab) window.checkUrlTab();
 
@@ -51,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 loginSection.classList.remove('hidden');
                 adminSection.classList.add('hidden');
+                if (headerTitle) headerTitle.textContent = 'Login';
                 document.getElementById('username').focus();
             }
         } catch (e) {
@@ -315,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // Delegate events for tag filter
-    document.getElementById('admin-tag-filters').addEventListener('click', (e) => {
+    document.getElementById('admin-gallery-tag-filter')?.addEventListener('click', (e) => {
         const target = e.target.closest('[data-action]');
         if (target && target.getAttribute('data-action') === 'setTagFilter') {
             setAdminTagFilter(target.getAttribute('data-tag'));
@@ -337,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // Delegate events for gallery
-    document.getElementById('admin-gallery-grid').addEventListener('click', (e) => {
+    document.getElementById('admin-gallery-grid')?.addEventListener('click', (e) => {
         const target = e.target.closest('[data-action]');
         if (target) {
             const action = target.getAttribute('data-action');
@@ -349,11 +352,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.getElementById('btn-close-metadata').addEventListener('click', () => {
+    document.getElementById('btn-close-metadata')?.addEventListener('click', () => {
         metadataModal.classList.add('hidden');
     });
     
-    metadataForm.addEventListener('submit', async (e) => {
+    metadataForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const id = document.getElementById('metadata-image-id').value;
         const title = document.getElementById('metadata-title').value;

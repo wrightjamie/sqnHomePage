@@ -12,7 +12,7 @@ try {
         $count = $stmt->fetchColumn();
         if ($count > 0) {
             $isInstalled = true;
-            $message = "The display board is already installed. <a href='index.php'>Go to Display Board</a> or <a href='admin.php'>Admin Panel</a>.";
+            $message = "The display board is already installed. <a href='index.php?page=displayboard'>Go to Display Board</a> or <a href='index.php?page=admin'>Admin Panel</a>.";
         }
     }
 } catch (PDOException $e) {
@@ -349,7 +349,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isInstalled) {
         // ----------------------------------------
 
         $isInstalled = true;
-        $message = "Installation successful! <a href='admin.php'>Login to Admin</a>";
+        $message = "Installation successful! <a href='index.php?page=admin'>Login to Admin</a>";
         
     } catch (PDOException $e) {
         $message = "Error during installation: " . $e->getMessage();

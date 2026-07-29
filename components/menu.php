@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../api/utils.php';
-$currentPage = basename($_SERVER['PHP_SELF']);
+$currentPage = isset($_GET['page']) ? $_GET['page'] : 'displayboard';
 
 if (!isset($_SESSION['menu_order'])) {
     $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'menu_order'");
@@ -21,29 +21,38 @@ $menuOrder = $_SESSION['menu_order'];
         </div>
         <div class="hamburger-items">
             <?php 
-            $menuItems = [
-                'home.php' => ['title' => 'Home', 'icon' => 'home', 'perm' => 'view_home'],
-                'programme.php' => ['title' => 'Training Programme', 'icon' => 'calendar_month', 'perm' => 'view_programme'],
-                'index.php' => ['title' => 'Display Board', 'icon' => 'slideshow', 'perm' => 'view_displayboard'],
-                'documents.php' => ['title' => 'Documents', 'icon' => 'description', 'perm' => 'view_documents']
+            // Map old filenames from DB to new route pages
+            $pageMap = [
+                'home.php' => 'home',
+                'programme.php' => 'programme',
+                'index.php' => 'displayboard',
+                'documents.php' => 'documents'
             ];
 
-            foreach ($menuOrder as $page): 
-                if (isset($menuItems[$page]) && $currentPage !== $page && hasPermission($pdo, $menuItems[$page]['perm'])):
+            $menuItems = [
+                'home' => ['title' => 'Home', 'icon' => 'home', 'perm' => 'view_home'],
+                'programme' => ['title' => 'Training Programme', 'icon' => 'calendar_month', 'perm' => 'view_programme'],
+                'displayboard' => ['title' => 'Display Board', 'icon' => 'slideshow', 'perm' => 'view_displayboard'],
+                'documents' => ['title' => 'Documents', 'icon' => 'description', 'perm' => 'view_documents']
+            ];
+
+            foreach ($menuOrder as $dbPage):
+                $routePage = isset($pageMap[$dbPage]) ? $pageMap[$dbPage] : null;
+                if ($routePage && isset($menuItems[$routePage]) && $currentPage !== $routePage && hasPermission($pdo, $menuItems[$routePage]['perm'])):
             ?>
-                <a href="<?php echo htmlspecialchars($page); ?>" class="menu-btn flex-center" title="<?php echo htmlspecialchars($menuItems[$page]['title']); ?>"><span class="material-symbols-outlined"><?php echo htmlspecialchars($menuItems[$page]['icon']); ?></span></a>
+                <a href="index.php?page=<?php echo htmlspecialchars($routePage); ?>" class="menu-btn flex-center" title="<?php echo htmlspecialchars($menuItems[$routePage]['title']); ?>"><span class="material-symbols-outlined"><?php echo htmlspecialchars($menuItems[$routePage]['icon']); ?></span></a>
             <?php 
                 endif;
             endforeach; 
             ?>
 
-            <?php if ($currentPage === 'home.php'): ?>
+            <?php if ($currentPage === 'home'): ?>
                 <button id="btn-next-bg" class="menu-btn flex-center hidden" title="Next Background"><span class="material-symbols-outlined">image</span></button>
             <?php endif; ?>
         </div>
     </div>
     
-    <?php if ($currentPage === 'index.php'): ?>
+    <?php if ($currentPage === 'displayboard'): ?>
         <div id="controls-wrapper" class="expandable-menu flex-center" tabindex="0">
             <div class="expandable-menu-trigger flex-center" title="Slideshow Controls">
                 <span class="material-symbols-outlined">slideshow</span>
@@ -71,17 +80,17 @@ $menuOrder = $_SESSION['menu_order'];
                 <div class="user-dropdown-header">
                     <?php echo htmlspecialchars($_SESSION['display_name'] ?: $_SESSION['username']); ?>
                 </div>
-                <?php if ($currentPage === 'programme.php' && (hasPermission($pdo, 'edit_programme') || hasPermission($pdo, 'edit_duties'))): ?>
+                <?php if ($currentPage === 'programme' && (hasPermission($pdo, 'edit_programme') || hasPermission($pdo, 'edit_duties'))): ?>
                     <button id="btn-toggle-edit" class="user-dropdown-btn" title="Edit Programme"><span class="material-symbols-outlined">edit</span> Edit</button>
-                <?php elseif ($currentPage === 'index.php' && hasPermission($pdo, 'edit_slides')): ?>
+                <?php elseif ($currentPage === 'displayboard' && hasPermission($pdo, 'edit_slides')): ?>
                     <button id="btn-edit-mode" class="user-dropdown-btn" title="Edit Slides"><span class="material-symbols-outlined">edit</span> Edit</button>
-                <?php elseif ($currentPage === 'documents.php'): ?>
+                <?php elseif ($currentPage === 'documents'): ?>
                     <!-- Edit Mode for documents is moving to inline buttons per feedback, so no toggle here -->
                 <?php elseif (hasPermission($pdo, 'edit_slides')): ?>
                     <button id="btn-edit-mode" class="user-dropdown-btn" title="Edit Mode"><span class="material-symbols-outlined">edit</span> Edit</button>
                 <?php endif; ?>
 
-                <a href="admin.php" id="link-admin" class="user-dropdown-btn" title="Admin Panel"><span class="material-symbols-outlined">settings</span> Settings</a>
+                <a href="index.php?page=admin" id="link-admin" class="user-dropdown-btn" title="Admin Panel"><span class="material-symbols-outlined">settings</span> Settings</a>
                 <button id="btn-logout" class="user-dropdown-btn" title="Logout"><span class="material-symbols-outlined">logout</span> Logout</button>
             <?php endif; ?>
         </div>
