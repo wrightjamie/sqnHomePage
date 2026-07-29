@@ -878,10 +878,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isDefault = (routePage === currentDefaultPage);
                 
                 return `<span class="font-bold flex-1">${pageNames[page] || page}</span>
-                        <div class="flex-row align-center gap-xs mr-md">
-                            <input type="radio" name="default_page_radio" value="${routePage}" ${isDefault ? 'checked' : ''}>
-                            <label class="text-sm">Default</label>
-                        </div>`;
+                        <label class="cursor-pointer text-sm transition-colors mr-sm" style="border-radius: 4px; padding: 4px 10px; display: inline-block; background: ${isDefault ? 'var(--color-secondary)' : 'transparent'}; color: ${isDefault ? 'white' : 'inherit'}; border: 1px solid ${isDefault ? 'var(--color-secondary)' : '#ccc'};">
+                            <input type="radio" name="default_page_radio" value="${routePage}" ${isDefault ? 'checked' : ''} class="hidden">
+                            Initial Page
+                        </label>`;
             },
             bindEvents: (el, page, idx) => {
                 const radioInput = el.querySelector('input[type="radio"]');

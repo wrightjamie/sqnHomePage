@@ -225,6 +225,7 @@ require_once 'api/config.php';
                             <div id="menu-order-manager-container" class="w-full max-w-sm mb-sm">
                                 <!-- Populated by JS -->
                             </div>
+                            <p class="text-sm text-muted mb-sm max-w-sm">The <strong>Initial Page</strong> is the first page shown when the display board launches.</p>
                             <button class="btn btn-primary" type="button" id="btn-save-menu-order">Save Menu Order</button>
                         </div>
                     </div>

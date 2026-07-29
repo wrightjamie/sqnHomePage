@@ -127,24 +127,36 @@
     box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.15);
 }
 
+/* --- Shared Navigation Frosted Glass Styles --- */
+.menu-btn,
+.expandable-menu,
+.hamburger-trigger,
+.hamburger-items > * {
+    background: rgba(0, 47, 95, 0.45) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    color: #FFFFFF !important;
+}
+.menu-btn:hover, .menu-btn:active,
+.expandable-menu:hover,
+.expandable-menu:focus-within,
+.hamburger-items > *:hover {
+    background: rgba(0, 47, 95, 0.85) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,0.5), 0 4px 10px rgba(0,0,0,0.2), 0 0 10px rgba(255,255,255,0.5) !important;
+    border: 1px solid rgba(255,255,255,0.9) !important;
+}
+
 /* Menu Buttons (Circular) */
 .menu-btn {
     position: relative;
-    background: var(--nav-btn-bg, rgba(0,0,0,0.3));
-    color: var(--nav-btn-icon-color, white);
-    border: none;
     width: 50px;
     height: 50px;
     border-radius: 50%;
     cursor: pointer;
     text-decoration: none;
-    transition: background 0.3s, transform 0.2s, opacity 0.3s;
-    opacity: var(--nav-btn-opacity, 0.3);
-}
-.menu-btn:hover, .menu-btn:active {
-    background: var(--nav-btn-hover-bg, rgba(0,0,0,0.7));
-    transform: scale(1.1);
-    opacity: var(--nav-btn-hover-opacity, 1);
+    transition: all 0.2s ease;
 }
 
 /* Button Group (used in pagination and toolbars) */
@@ -275,18 +287,14 @@
     position: relative;
     height: 50px;
     width: var(--menu-collapsed-width);
-    background: var(--nav-btn-bg, rgba(0,0,0,0.3));
     border-radius: 25px;
     overflow: hidden;
-    transition: width 0.3s ease, background 0.3s ease, opacity 0.3s ease;
-    opacity: var(--nav-btn-opacity, 0.3);
+    transition: all 0.3s ease;
     outline: none;
 }
 .expandable-menu:hover,
 .expandable-menu:focus-within {
     width: max-content;
-    background: var(--nav-btn-hover-bg, rgba(0,0,0,0.7));
-    opacity: var(--nav-btn-hover-opacity, 1);
 }
 
 .expandable-menu-trigger {
@@ -496,16 +504,19 @@
 }
 
 /* Hamburger Menu (Vertical Expandable) */
-.hamburger-menu { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 50px; width: 50px; border-radius: 25px; background: transparent; transition: height 0.3s ease, opacity 0.3s ease; opacity: var(--nav-btn-opacity, 0.3); overflow: hidden; outline: none; }
-.hamburger-menu:hover, .hamburger-menu:focus-within { height: 450px; background: transparent; opacity: var(--nav-btn-hover-opacity, 1); overflow: visible; }
-.hamburger-trigger { position: absolute; bottom: 0; width: 50px; height: 50px; color: var(--nav-btn-icon-color, white); cursor: pointer; transition: opacity 0.3s; z-index: 10; display: flex; align-items: center; justify-content: center; background: var(--nav-btn-bg, rgba(0,0,0,0.3)); border-radius: 25px; }
+.hamburger-menu { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 50px; width: 50px; border-radius: 25px; background: transparent; transition: height 0.3s ease; overflow: hidden; outline: none; }
+.hamburger-menu:hover, .hamburger-menu:focus-within { height: 450px; background: transparent; overflow: visible; }
+.hamburger-trigger { 
+    position: absolute; bottom: 0; width: 50px; height: 50px; cursor: pointer; transition: all 0.3s; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 25px; 
+}
 .hamburger-trigger span { font-size: 30px; }
 .hamburger-menu:hover .hamburger-trigger, .hamburger-menu:focus-within .hamburger-trigger { opacity: 0; pointer-events: none; }
 .hamburger-items { display: flex; flex-direction: column-reverse; pointer-events: none; padding-bottom: 50px; width: 100%; align-items: center; }
 .hamburger-menu:hover .hamburger-items, .hamburger-menu:focus-within .hamburger-items { pointer-events: auto; }
-.hamburger-items > * { margin: 0; color: var(--nav-btn-icon-color, white); text-decoration: none; background: var(--nav-btn-hover-bg, rgba(0,0,0,0.7)) !important; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; border-radius: 25px; opacity: 0; transform: translateY(20px); transition: opacity 0.2s ease, transform 0.2s ease; margin-bottom: 4px; }
+.hamburger-items > * { 
+    margin: 0; text-decoration: none; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; border-radius: 25px; opacity: 0; transform: translateY(20px); transition: all 0.2s ease; margin-bottom: 4px; 
+}
 .hamburger-menu:hover .hamburger-items > * { opacity: 1; transform: translateY(0); }
-.hamburger-items > *:hover { background: var(--nav-item-hover-bg, rgba(255,255,255,0.2)) !important; color: var(--nav-btn-icon-color-hover, var(--nav-btn-icon-color, white)) !important; }
 
 /* Staggered transition delays for "expanding" effect using modern CSS */
 .hamburger-items {
