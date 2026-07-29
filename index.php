@@ -6,12 +6,27 @@ define('IN_ROUTER', true);
 
 $allowed_pages = ['displayboard', 'home', 'documents', 'programme', 'admin', 'login', 'register', 'profile'];
 
-$page = isset($_GET['page']) ? $_GET['page'] : 'displayboard';
+$default_page = 'displayboard';
+try {
+    $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'default_page'");
+    $stmt->execute();
+    $result = $stmt->fetchColumn();
+    if ($result) {
+        $result = json_decode($result, true);
+        if (in_array($result, $allowed_pages)) {
+            $default_page = $result;
+        }
+    }
+} catch (Exception $e) {
+    // Ignore db errors for routing fallback
+}
+
+$page = isset($_GET['page']) ? $_GET['page'] : $default_page;
 
 // Validate the requested page
 if (!in_array($page, $allowed_pages)) {
     // Alternatively, we could show a 404 page here
-    $page = 'displayboard';
+    $page = $default_page;
 }
 
 $page_file = __DIR__ . '/pages/' . $page . '.php';
