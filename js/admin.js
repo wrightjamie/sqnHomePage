@@ -735,65 +735,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('menu-order-manager-container');
         if (!container) return;
         
-        container.innerHTML = '';
-        currentMenuOrder.forEach((page, index) => {
-            const pageNames = {
-                'home.php': 'Home',
-                'programme.php': 'Programme',
-                'index.php': 'Slideshow (Display Board)',
-                'documents.php': 'Documents'
-            };
-            
-            const div = document.createElement('div');
-            div.className = 'set-item reorder-item mb-xs cursor-move';
-            div.draggable = true;
-            div.dataset.index = index;
-            div.dataset.page = page;
-            
-            div.innerHTML = `
-                <div class="flex-row align-center">
-                    <span class="material-symbols-outlined mr-sm text-secondary">drag_indicator</span>
-                    <span class="font-bold">${pageNames[page] || page}</span>
-                </div>
-            `;
-            
-            // Drag events
-            div.addEventListener('dragstart', (e) => {
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', index);
-                setTimeout(() => div.style.opacity = '0.5', 0);
-            });
-            div.addEventListener('dragend', () => {
-                div.style.opacity = '1';
-                document.querySelectorAll('#menu-order-manager-container > div').forEach(el => {
-                    el.style.borderTop = '';
-                    el.style.borderBottom = '';
-                });
-                renderMenuOrderManager(); // Re-render to clear any lingering styles
-                saveMenuOrder();
-            });
-            div.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
-                div.style.borderTop = '2px solid var(--accent-color)';
-            });
-            div.addEventListener('dragleave', () => {
-                div.style.borderTop = '';
-            });
-            div.addEventListener('drop', (e) => {
-                e.preventDefault();
-                div.style.borderTop = '';
-                const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
-                const toIndex = index;
-                
-                if (fromIndex !== toIndex && !isNaN(fromIndex)) {
-                    const item = currentMenuOrder.splice(fromIndex, 1)[0];
-                    currentMenuOrder.splice(toIndex, 0, item);
-                    renderMenuOrderManager();
-                }
-            });
-            
-            container.appendChild(div);
+        renderList('menu-order-manager-container', currentMenuOrder, {
+            hideRemove: true,
+            renderInner: (page) => {
+                const pageNames = {
+                    'home.php': 'Home',
+                    'programme.php': 'Programme',
+                    'index.php': 'Slideshow (Display Board)',
+                    'documents.php': 'Documents'
+                };
+                return `<span class="font-bold">${pageNames[page] || page}</span>`;
+            },
+            onReorder: (newArr) => {
+                currentMenuOrder = newArr;
+                renderMenuOrderManager();
+            }
         });
     }
 
