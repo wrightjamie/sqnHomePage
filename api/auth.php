@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     
     if ($action === 'login') {
-        $username = $data['username'] ?? '';
+        $username = strtolower(trim($data['username'] ?? ''));
         $password = $data['password'] ?? '';
         
         $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if ($action === 'register') {
-        $username = trim($data['username'] ?? '');
+        $username = strtolower(trim($data['username'] ?? ''));
         $password = $data['password'] ?? '';
         $display_name = trim($data['display_name'] ?? '');
 

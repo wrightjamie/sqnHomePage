@@ -36,7 +36,7 @@ $menuOrder = $_SESSION['menu_order'];
                 'documents' => ['title' => 'Documents', 'icon' => 'description', 'perm' => 'view_documents']
             ];
 
-            foreach ($menuOrder as $dbPage): 
+            foreach ($menuOrder as $dbPage):
                 $routePage = isset($pageMap[$dbPage]) ? $pageMap[$dbPage] : null;
                 if ($routePage && isset($menuItems[$routePage]) && $currentPage !== $routePage && hasPermission($pdo, $menuItems[$routePage]['perm'])):
             ?>
