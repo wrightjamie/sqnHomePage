@@ -90,6 +90,7 @@ $menuOrder = $_SESSION['menu_order'];
                     <button id="btn-edit-mode" class="user-dropdown-btn" title="Edit Mode"><span class="material-symbols-outlined">edit</span> Edit</button>
                 <?php endif; ?>
 
+                <a href="index.php?page=profile" id="link-profile" class="user-dropdown-btn" title="My Profile"><span class="material-symbols-outlined">person</span> Profile</a>
                 <a href="index.php?page=admin" id="link-admin" class="user-dropdown-btn" title="Admin Panel"><span class="material-symbols-outlined">settings</span> Settings</a>
                 <button id="btn-logout" class="user-dropdown-btn" title="Logout"><span class="material-symbols-outlined">logout</span> Logout</button>
             <?php endif; ?>

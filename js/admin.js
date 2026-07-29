@@ -677,50 +677,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.getElementById('btn-change-password')?.addEventListener('click', async () => {
-        const current = document.getElementById('pwd-current').value;
-        const newPwd = document.getElementById('pwd-new').value;
-        const confirmPwd = document.getElementById('pwd-confirm').value;
-        const msg = document.getElementById('pwd-msg');
-
-        if (!current || !newPwd || !confirmPwd) {
-            msg.textContent = 'All fields are required.';
-            msg.style.color = 'red';
-            return;
-        }
-
-        if (newPwd !== confirmPwd) {
-            msg.textContent = 'New passwords do not match.';
-            msg.style.color = 'red';
-            return;
-        }
-
-        const btn = document.getElementById('btn-change-password');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<span class="material-symbols-outlined loading-spinner">autorenew</span> Updating...';
-        btn.disabled = true;
-
-        try {
-            const result = await apiFetch('api/auth.php?action=change_password', 'POST', { old_password: current, new_password: newPwd });
-            if (result && result.success) {
-                msg.textContent = 'Password changed successfully.';
-                msg.style.color = 'green';
-                document.getElementById('pwd-current').value = '';
-                document.getElementById('pwd-new').value = '';
-                document.getElementById('pwd-confirm').value = '';
-            } else {
-                msg.textContent = result?.error || 'Failed to change password.';
-                msg.style.color = 'red';
-            }
-        } catch (e) {
-            msg.textContent = 'An error occurred (check console/network).';
-            msg.style.color = 'red';
-        }
-        
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-    });
-
     // --- Menu Order Logic ---
     let currentMenuOrder = [];
     
