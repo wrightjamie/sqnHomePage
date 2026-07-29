@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let authStatus = null;
     try {
         const response = await apiFetch('api/auth.php?action=status');
-        authStatus = response ? response.data : null;
+        authStatus = response || null;
     } catch (e) {
         console.error('Failed to get auth status:', e);
     }
