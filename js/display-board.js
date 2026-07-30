@@ -467,7 +467,7 @@ function exitEditMode() {
 
 let currentlyEditing = null;
 
-function startEdit(slideId, field) {
+function startEdit(container, slideId, field) {
     if (currentlyEditing) return; // Only edit one thing at a time
     
     if (field === 'image') {
@@ -480,8 +480,6 @@ function startEdit(slideId, field) {
     const slide = currentSlides.find(s => s.id == slideId);
     const data = JSON.parse(slide.content);
     const value = data[field] || '';
-    
-    const container = event.currentTarget;
     
     let inputHtml = '';
     if (field === 'title' || field === 'qrData') {
@@ -1062,7 +1060,7 @@ document.addEventListener('click', (e) => {
             createSlide(type, {});
         }
     } else if (action === 'startEdit') {
-        startEdit(target.getAttribute('data-id'), target.getAttribute('data-field'));
+        startEdit(target, target.getAttribute('data-id'), target.getAttribute('data-field'));
     } else if (action === 'openReorderModal') {
         openReorderModal();
     } else if (action === 'deleteSlide') {
