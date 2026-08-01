@@ -779,6 +779,19 @@ async function selectGalleryImage(url, focusX = 50, focusY = 50) {
 }
 
 // --- Global Config ---
+let PROGRAMME_CONFIG = null;
+
+function isLight(hex) {
+    if (!hex) return true;
+    let c = hex.substring(1);
+    let rgb = parseInt(c, 16);
+    let r = (rgb >> 16) & 0xff;
+    let g = (rgb >>  8) & 0xff;
+    let b = (rgb >>  0) & 0xff;
+    let luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    return luma > 128;
+}
+
 async function loadGlobalConfig() {
     try {
         const data = await apiFetch('api/settings.php?action=global_config');
@@ -791,6 +804,11 @@ async function loadGlobalConfig() {
                 INTERVAL_MS = parseInt(data.slideSpeed, 10) * 1000;
                 resetInterval();
             }
+        }
+        
+        const progConfig = await apiFetch('api/programme.php?action=config');
+        if (progConfig) {
+            PROGRAMME_CONFIG = progConfig;
         }
     } catch (e) {
         console.error('Error loading global config', e);
@@ -894,10 +912,18 @@ function renderProgrammeNight(container, data) {
     html += `<div class="prog-info-cards">`;
     
     if (night.uniform) {
+        let unifStyleStr = "";
+        if (PROGRAMME_CONFIG && PROGRAMME_CONFIG.uniforms) {
+            let unifObj = PROGRAMME_CONFIG.uniforms.find(u => u.name === night.uniform);
+            if (unifObj && unifObj.color) {
+                unifStyleStr = ` style="background-color: ${unifObj.color}; color: ${isLight(unifObj.color) ? '#000' : '#fff'}; display: inline-block; padding: 0.25rem 0.75rem; border-radius: 0.5rem;"`;
+            }
+        }
+        
         html += `
         <div class="prog-info-card prog-uniform-card">
             <h3><span class="material-symbols-outlined vertical-align-middle">checkroom</span> Uniform</h3>
-            <div class="prog-uniform-text">${night.uniform}</div>
+            <div class="prog-uniform-text"><span${unifStyleStr}>${night.uniform}</span></div>
         </div>`;
     }
     
@@ -955,11 +981,20 @@ function renderProgrammeNight(container, data) {
             
             classes.forEach((cls) => {
                 const bg = rowIndex % 2 === 0 ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.3)';
+                
+                let actStyleStr = "";
+                if (PROGRAMME_CONFIG && PROGRAMME_CONFIG.activity_types && act.activity_type) {
+                    let typeObj = PROGRAMME_CONFIG.activity_types.find(t => t.name === act.activity_type);
+                    if (typeObj && typeObj.color) {
+                        actStyleStr = ` style="background-color: ${typeObj.color}; color: ${isLight(typeObj.color) ? '#000' : '#fff'};"`;
+                    }
+                }
+                
                 html += `
                     <tr style="background:${bg};">
                         <td class="class-col">${cls}</td>
                         <td class="act-col">
-                            ${act.activity_type ? `<span class="prog-act-type-tag">${act.activity_type}</span>` : ''}
+                            ${act.activity_type ? `<span class="prog-act-type-tag"${actStyleStr}>${act.activity_type}</span>` : ''}
                             ${act.name}
                         </td>
                         <td class="inst-col">${act.instructor || '-'}</td>

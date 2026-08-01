@@ -226,6 +226,11 @@ body {
     display: flex;
     flex-direction: column;
     gap: var(--space-lg);
+    background: var(--raf-white);
+    color: #000;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
 }
 
 .prog-info-cards {
@@ -235,7 +240,7 @@ body {
 }
 
 .prog-info-card {
-    background: rgba(0,0,0,0.4);
+    background: #eee;
     padding: var(--space-md);
     border-radius: 0.5rem;
 }
@@ -243,33 +248,34 @@ body {
 .prog-uniform-card {
     flex: 1;
     min-width: 300px;
-    border-left: 4px solid var(--colour-accent);
+    border-left: 6px solid var(--raf-accent-2);
 }
 
 .prog-notes-card {
     flex: 2;
     min-width: 300px;
-    border-left: 4px solid var(--color-secondary);
+    border-left: 6px solid var(--raf-light-blue);
 }
 
 .prog-info-card h3 {
     margin-top: 0;
-    color: var(--raf-white);
-    font-size: var(--font-lg);
+    color: #555;
+    font-size: 1.2rem;
+    text-transform: uppercase;
     margin-bottom: var(--space-sm);
 }
 
 .prog-uniform-text {
     font-size: 1.5rem;
     font-weight: bold;
-    color: var(--colour-accent);
+    color: #000;
 }
 
 .prog-notes-list {
     margin: 0;
     padding-left: 1.5rem;
     font-size: 1.1rem;
-    color: #eee;
+    color: #000;
 }
 
 .prog-notes-list li {
@@ -281,13 +287,13 @@ body {
 }
 
 .prog-notes-divider {
-    border-color: rgba(255,255,255,0.2);
+    border-color: rgba(0,0,0,0.1);
     margin: var(--space-sm) 0;
 }
 
 .prog-table-wrapper {
-    background: rgba(255,255,255,0.1);
-    border-radius: 0.5rem;
+    background: transparent;
+    border-radius: 0;
     overflow: hidden;
     margin-top: var(--space-md);
 }
@@ -295,24 +301,30 @@ body {
 .prog-table {
     width: 100%;
     border-collapse: collapse;
-    color: var(--raf-white);
+    color: #000;
 }
 
 .prog-table th {
     padding: var(--space-md);
-    border-bottom: 2px solid #555;
+    border: 1px solid #ccc;
     text-align: left;
-    background: rgba(0,0,0,0.6);
+    background: #eee;
+    color: #000;
+    font-weight: bold;
 }
 
 .prog-table td {
     padding: var(--space-md);
-    border-bottom: 1px solid #444;
+    border: 1px solid #ccc;
+}
+
+.prog-table tr:nth-child(even) {
+    background: #fafafa;
 }
 
 .prog-table td.class-col {
     font-weight: bold;
-    color: #ccc;
+    color: #000;
 }
 
 .prog-table td.act-col {
@@ -320,16 +332,17 @@ body {
 }
 
 .prog-table td.inst-col {
-    color: #ddd;
+    color: #555;
 }
 
 .prog-act-type-tag {
     font-size: 0.8rem;
-    background: var(--colour-heading);
+    background: var(--raf-logo-1);
     padding: 0.2rem 0.5rem;
     border-radius: 0.25rem;
     margin-right: var(--space-sm);
     color: var(--raf-white);
+    font-weight: bold;
 }
 
 .prog-error-msg {
@@ -565,13 +578,14 @@ body {
 .prog-duties-card {
     flex: 1;
     min-width: 300px;
-    border-left: 4px solid var(--colour-accent);
+    border-left: 6px solid var(--raf-nav-2);
 }
 .prog-duties-grid {
     display: flex;
     flex-direction: column;
     gap: var(--space-sm);
     font-size: 1.1rem;
+    color: #000;
 }
 .prog-duty-item {
     display: flex;
@@ -579,7 +593,7 @@ body {
 }
 .prog-duty-label {
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: #555;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
