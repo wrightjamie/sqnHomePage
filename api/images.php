@@ -117,14 +117,16 @@ if ($action === 'list') {
     $title = $data['title'] ?? '';
     $description = $data['description'] ?? '';
     $tags = $data['tags'] ?? []; // Should be an array
+    $focusX = $data['focus_x'] ?? 50;
+    $focusY = $data['focus_y'] ?? 50;
     
     if (!$id) {
         jsonError('Missing ID');
     }
     
     $tagsJson = json_encode($tags);
-    $stmt = $pdo->prepare("UPDATE images SET title = ?, description = ?, tags = ? WHERE id = ?");
-    $stmt->execute([$title, $description, $tagsJson, $id]);
+    $stmt = $pdo->prepare("UPDATE images SET title = ?, description = ?, tags = ?, focus_x = ?, focus_y = ? WHERE id = ?");
+    $stmt->execute([$title, $description, $tagsJson, $focusX, $focusY, $id]);
     
     jsonResponse(['message' => 'Success']);
 } elseif ($action === 'set_focus') {

@@ -1014,27 +1014,14 @@ function bindGalleryModal() {
   };
 
   document.getElementById('btn-upload-new').onclick = () => {
-      document.getElementById('gallery-file-input').click();
-  };
-
-  document.getElementById('gallery-file-input').onchange = async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const formData = new FormData();
-      formData.append('image', file);
-      try {
-          const res = await fetch('api/images.php?action=upload', {
-              method: 'POST',
-              body: formData
+      if (window.ImageEditor) {
+          window.ImageEditor.openNew({
+              buttonText: 'Accept Image',
+              onAccept: (updatedImg) => {
+                  selectGalleryImage(updatedImg.url);
+                  loadGallery(1);
+              }
           });
-          const data = await res.json();
-          if (data.success) {
-              loadGallery(1);
-          } else {
-              alert(data.error || 'Upload failed');
-          }
-      } catch (err) {
-          alert(err.message || 'Upload failed');
       }
   };
 
@@ -1049,10 +1036,19 @@ function bindGalleryModal() {
           `).join('');
 
           // Attach event listeners for gallery items
-          grid.querySelectorAll('.gallery-item-wrapper').forEach(item => {
+          grid.querySelectorAll('.gallery-item-wrapper').forEach((item, idx) => {
               item.addEventListener('click', () => {
-                  const url = item.getAttribute('data-url');
-                  if (url) selectGalleryImage(url);
+                  const img = data.images[idx];
+                  if (img && window.ImageEditor) {
+                      window.ImageEditor.edit(img, {
+                          buttonText: 'Accept Image',
+                          onAccept: (updatedImg) => {
+                              selectGalleryImage(updatedImg.url);
+                          }
+                      });
+                  } else {
+                      selectGalleryImage(img.url);
+                  }
               });
           });
 

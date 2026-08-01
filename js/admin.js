@@ -490,14 +490,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const img = window.currentAdminImages.find(i => i.id == id);
         if(!img) return;
         
-        document.getElementById('metadata-image-id').value = img.id;
-        document.getElementById('metadata-image-preview').src = img.url;
-        document.getElementById('metadata-title').value = img.title || '';
-        document.getElementById('metadata-description').value = img.description || '';
-        
-        currentTags = img.tags ? [...img.tags] : [];
-        renderTags();
-        metadataModal.classList.remove('hidden');
+        if (window.ImageEditor) {
+            window.ImageEditor.edit(img, {
+                onAccept: () => {
+                    loadAdminGallery(adminPagination.currentPage);
+                    loadTags();
+                }
+            });
+        }
     };
     
     // Delegate events for gallery
@@ -510,103 +510,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (action === 'deleteImage') {
                 deleteAdminImage(target.getAttribute('data-filename'));
             }
-        }
-    });
-
-    document.getElementById('btn-close-metadata')?.addEventListener('click', () => {
-        metadataModal.classList.add('hidden');
-    });
-    
-    metadataForm?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('metadata-image-id').value;
-        const title = document.getElementById('metadata-title').value;
-        const description = document.getElementById('metadata-description').value;
-        
-        const data = await apiFetch('api/images.php?action=update_metadata', 'POST', {id, title, description, tags: currentTags});
-        
-        if (data.success) {
-            metadataModal.classList.add('hidden');
-            loadAdminGallery(adminPagination.currentPage);
-            loadTags(); // refresh available tags
-        }
-    });
-    
-    // Tag Input Logic
-    const tagInput = document.getElementById('tag-input');
-    const tagsContainer = document.getElementById('tags-container');
-    const tagAutocomplete = document.getElementById('tag-autocomplete');
-    
-    function renderTags() {
-        // Remove existing pills, keep the input
-        Array.from(tagsContainer.querySelectorAll('.tag-pill')).forEach(e => e.remove());
-        currentTags.forEach(tag => {
-            const pill = document.createElement('span');
-            pill.className = 'tag-pill';
-            pill.innerHTML = `${tag} <span class="remove-tag" data-action="removeTag" data-tag="${tag}">&times;</span>`;
-            tagsContainer.insertBefore(pill, tagInput);
-        });
-    }
-    
-    const removeTag = (tagToRemove) => {
-        currentTags = currentTags.filter(t => t !== tagToRemove);
-        renderTags();
-    };
-    
-    tagInput.addEventListener('keydown', (e) => {
-        if (e.key === ' ' || e.key === 'Enter') {
-            e.preventDefault();
-            const val = tagInput.value.trim().toLowerCase();
-            if (val && !currentTags.includes(val)) {
-                currentTags.push(val);
-                tagInput.value = '';
-                renderTags();
-                tagAutocomplete.classList.add('hidden');
-            }
-        } else if (e.key === 'Backspace' && tagInput.value === '' && currentTags.length > 0) {
-            currentTags.pop();
-            renderTags();
-        }
-    });
-    
-    tagInput.addEventListener('input', () => {
-        const val = tagInput.value.trim().toLowerCase();
-        if (!val) {
-            tagAutocomplete.classList.add('hidden');
-            return;
-        }
-        
-        const matches = allAvailableTags.filter(t => t.toLowerCase().includes(val) && !currentTags.includes(t));
-        if (matches.length > 0) {
-            tagAutocomplete.innerHTML = matches.map(t => `<div class="autocomplete-item" data-action="selectTag" data-tag="${t}">${t}</div>`).join('');
-            tagAutocomplete.classList.remove('hidden');
-        } else {
-            tagAutocomplete.classList.add('hidden');
-        }
-    });
-    
-    const selectAutocompleteTag = (tag) => {
-        if (!currentTags.includes(tag)) {
-            currentTags.push(tag);
-        }
-        tagInput.value = '';
-        renderTags();
-        tagAutocomplete.classList.add('hidden');
-        tagInput.focus();
-    };
-    
-    // Close autocomplete on click outside and handle tag clicks
-    document.addEventListener('click', (e) => {
-        if (!tagInput.contains(e.target) && !tagAutocomplete.contains(e.target)) {
-            tagAutocomplete.classList.add('hidden');
-        }
-        const target = e.target.closest('[data-action]');
-        if (target) {
-            const action = target.getAttribute('data-action');
-            if (action === 'removeTag') removeTag(target.getAttribute('data-tag'));
-            else if (action === 'selectTag') selectAutocompleteTag(target.getAttribute('data-tag'));
-            else if (action === 'removeUploadTag') removeUploadTag(parseInt(target.getAttribute('data-idx')));
-            else if (action === 'selectUploadTag') selectUploadAutocompleteTag(target.getAttribute('data-tag'));
         }
     });
     
@@ -648,153 +551,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Upload Modal Logic ---
-    const uploadModal = document.getElementById('image-upload-modal');
-    const uploadForm = document.getElementById('upload-form');
     const btnOpenUploadModal = document.getElementById('btn-open-upload-modal'); // slide form
     const btnOpenGalleryUploadModal = document.getElementById('btn-open-gallery-upload-modal'); // gallery
-    const btnCloseUpload = document.getElementById('btn-close-upload');
-    const uploadFileInput = document.getElementById('upload-file');
-    const uploadPreview = document.getElementById('upload-image-preview');
     
-    // Upload tags
-    const uploadTagsContainer = document.getElementById('upload-tags-container');
-    const uploadTagInput = document.getElementById('upload-tag-input');
-    const uploadTagAutocomplete = document.getElementById('upload-tag-autocomplete');
-    let uploadTags = [];
-
-    function renderUploadTags() {
-        const existingTags = uploadTagsContainer.querySelectorAll('.tag');
-        existingTags.forEach(t => t.remove());
-        
-        uploadTags.forEach((tag, idx) => {
-            const tagEl = document.createElement('div');
-            tagEl.className = 'tag';
-            tagEl.innerHTML = `${tag} <span class="tag-remove" data-action="removeUploadTag" data-idx="${idx}">&times;</span>`;
-            uploadTagsContainer.insertBefore(tagEl, uploadTagInput);
-        });
-    }
-
-    const removeUploadTag = (idx) => {
-        uploadTags.splice(idx, 1);
-        renderUploadTags();
-    };
-
-    uploadTagInput.addEventListener('keydown', (e) => {
-        if (e.key === ' ' || e.key === 'Enter') {
-            e.preventDefault();
-            const val = uploadTagInput.value.trim().toLowerCase();
-            if (val && !uploadTags.includes(val)) {
-                uploadTags.push(val);
-                uploadTagInput.value = '';
-                renderUploadTags();
-                uploadTagAutocomplete.classList.add('hidden');
-            }
-        } else if (e.key === 'Backspace' && uploadTagInput.value === '' && uploadTags.length > 0) {
-            uploadTags.pop();
-            renderUploadTags();
-        }
-    });
-
-    uploadTagInput.addEventListener('input', () => {
-        const val = uploadTagInput.value.trim().toLowerCase();
-        if (!val) {
-            uploadTagAutocomplete.classList.add('hidden');
-            return;
-        }
-        
-        const matches = allAvailableTags.filter(t => t.toLowerCase().includes(val) && !uploadTags.includes(t));
-        if (matches.length > 0) {
-            uploadTagAutocomplete.innerHTML = matches.map(t => `<div class="autocomplete-item" data-action="selectUploadTag" data-tag="${t}">${t}</div>`).join('');
-            uploadTagAutocomplete.classList.remove('hidden');
-        } else {
-            uploadTagAutocomplete.classList.add('hidden');
-        }
-    });
-
-    const selectUploadAutocompleteTag = (tag) => {
-        if (!uploadTags.includes(tag)) {
-            uploadTags.push(tag);
-        }
-        uploadTagInput.value = '';
-        renderUploadTags();
-        uploadTagAutocomplete.classList.add('hidden');
-        uploadTagInput.focus();
-    };
-
-    document.addEventListener('click', (e) => {
-        if (!uploadTagInput.contains(e.target) && !uploadTagAutocomplete.contains(e.target)) {
-            uploadTagAutocomplete.classList.add('hidden');
-        }
-    });
-
     function openUploadModal() {
-        uploadForm.reset();
-        uploadPreview.src = '';
-        uploadPreview.classList.add('hidden');
-        uploadTags = [];
-        renderUploadTags();
-        uploadModal.classList.remove('hidden');
+        if (window.ImageEditor) {
+            window.ImageEditor.openNew({
+                onAccept: () => {
+                    loadAdminGallery(1);
+                    loadTags();
+                }
+            });
+        }
     }
 
     if (btnOpenUploadModal) btnOpenUploadModal.addEventListener('click', openUploadModal);
     if (btnOpenGalleryUploadModal) btnOpenGalleryUploadModal.addEventListener('click', openUploadModal);
-    
-    btnCloseUpload.addEventListener('click', () => {
-        uploadModal.classList.add('hidden');
-    });
-
-    uploadFileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            uploadPreview.src = URL.createObjectURL(file);
-            uploadPreview.classList.remove('hidden');
-        } else {
-            uploadPreview.src = '';
-            uploadPreview.classList.add('hidden');
-        }
-    });
-
-    uploadForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const submitBtn = uploadForm.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<span class="material-symbols-outlined loading-spinner">autorenew</span> Uploading...';
-        submitBtn.disabled = true;
-
-        const formData = new FormData();
-        formData.append('image_file', uploadFileInput.files[0]);
-        formData.append('title', document.getElementById('upload-title').value);
-        formData.append('description', document.getElementById('upload-description').value);
-        formData.append('tags', JSON.stringify(uploadTags));
-
-        try {
-            const res = await apiFetch('api/images.php?action=upload', 'POST', formData);
-            const data = await res.json();
-            if (data.success) {
-                uploadModal.classList.add('hidden');
-                
-                // Refresh gallery if on gallery tab
-                loadAdminGallery(1);
-                
-                // Automatically select this in the slide creator
-                const slideImageUrl = document.getElementById('slide-image-url');
-                const slideImagePreview = document.getElementById('current-image-preview');
-                if (slideImageUrl && slideImagePreview) {
-                    slideImageUrl.value = data.url;
-                    slideImagePreview.src = data.url;
-                    slideImagePreview.classList.remove('hidden');
-                }
-            } else {
-                Toast.show('Upload failed: ' + data.message, 'error');
-            }
-        } catch (err) {
-            Toast.show('Upload error', 'error');
-        }
-        
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    });
 
     // --- Settings Tab Logic ---
     async function loadGlobalSettings() {

@@ -228,11 +228,13 @@ $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/')
     <?php
 
  include 'components/gallery.php'; ?>
+    <?php include 'components/image_editor.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
 
 
 
+    <script type="module" src="js/utils/image-editor.js?v=<?= time() ?>"></script>
     <script type="module" src="js/documents.js"></script>
 </body>
 </html>

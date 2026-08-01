@@ -637,32 +637,13 @@ document.getElementById('btn-close-gallery').addEventListener('click', () => {
 
 
 document.getElementById('btn-upload-new').addEventListener('click', () => {
-    document.getElementById('gallery-file-input').click();
-});
-
-document.getElementById('gallery-file-input').addEventListener('change', async (e) => {
-    if (!e.target.files[0] || !galleryTargetSlideId) return;
-    const slide = currentSlides.find(s => s.id == galleryTargetSlideId);
-    const data = JSON.parse(slide.content);
-    
-    const formData = new FormData();
-    formData.append('slide_id', slide.id);
-    formData.append('type', slide.type);
-    formData.append('title', data.title || '');
-    formData.append('image_file', e.target.files[0]);
-    
-    // using fetch for multipart form data without apiFetch wrapper for now
-    const res = await fetch('api/slides.php?action=update_slide', {
-        method: 'POST',
-        body: formData // No JSON, letting browser set multipart/form-data
-    });
-    const resultData = await res.json();
-    if(resultData.success) {
-        await loadActiveSet();
-        galleryModal.classList.add('hidden');
-        galleryTargetSlideId = null;
-    } else {
-        Toast.show(resultData.error || 'Upload failed', 'error');
+    if (window.ImageEditor) {
+        window.ImageEditor.openNew({
+            buttonText: 'Accept Image',
+            onAccept: async (updatedImg) => {
+                await selectGalleryImage(updatedImg.url, updatedImg.focus_x, updatedImg.focus_y);
+            }
+        });
     }
 });
 
@@ -683,88 +664,23 @@ function handleSwipe() {
 // Initial load
 
 
-let currentFocusImageId = null;
-let currentFocusX = 50;
-let currentFocusY = 50;
-
 function openFocusSelector(imgId) {
     const img = galleryImagesCache.find(i => i.id == imgId);
     if (!img) return;
     
-    currentFocusImageId = img.id;
-    currentFocusX = img.focus_x || 50;
-    currentFocusY = img.focus_y || 50;
-    
-    document.getElementById('gallery-grid-view').classList.add('hidden');
-    document.getElementById('focus-selector-view').classList.remove('hidden');
-    
-    const previewImg = document.getElementById('focus-preview-img');
-    previewImg.src = img.url;
-    
-    document.getElementById('focus-coords-text').textContent = `Focus: ${currentFocusX}%, ${currentFocusY}%`;
-    updateFocusReticle();
-}
-
-document.getElementById('btn-focus-back').addEventListener('click', () => {
-    document.getElementById('focus-selector-view').classList.add('hidden');
-    document.getElementById('gallery-grid-view').classList.remove('hidden');
-});
-
-document.getElementById('focus-preview-container').addEventListener('click', (e) => {
-    const rect = e.target.getBoundingClientRect();
-    // Ensure we are calculating relative to the image
-    let targetElement = e.target;
-    if (targetElement.id !== 'focus-preview-img') {
-        targetElement = document.getElementById('focus-preview-img');
+    if (window.ImageEditor) {
+        window.ImageEditor.edit(img, {
+            buttonText: 'Accept Image',
+            onAccept: async (updatedImg) => {
+                // Update local cache
+                const index = galleryImagesCache.findIndex(i => i.id == updatedImg.id);
+                if (index !== -1) galleryImagesCache[index] = updatedImg;
+                
+                await selectGalleryImage(updatedImg.url, updatedImg.focus_x, updatedImg.focus_y);
+            }
+        });
     }
-    
-    // We need the bounding rect of the actual image
-    const imgRect = targetElement.getBoundingClientRect();
-    
-    // Check if click was within the image bounds (in case they clicked the container padding)
-    if (e.clientX < imgRect.left || e.clientX > imgRect.right || 
-        e.clientY < imgRect.top || e.clientY > imgRect.bottom) {
-        return;
-    }
-    
-    const x = e.clientX - imgRect.left;
-    const y = e.clientY - imgRect.top;
-    
-    currentFocusX = Math.round((x / imgRect.width) * 100);
-    currentFocusY = Math.round((y / imgRect.height) * 100);
-    
-    document.getElementById('focus-coords-text').textContent = `Focus: ${currentFocusX}%, ${currentFocusY}%`;
-    updateFocusReticle();
-});
-
-function updateFocusReticle() {
-    const reticle = document.getElementById('focus-reticle');
-    reticle.style.left = `${currentFocusX}%`;
-    reticle.style.top = `${currentFocusY}%`;
 }
-
-document.getElementById('btn-focus-save').addEventListener('click', async () => {
-    const img = galleryImagesCache.find(i => i.id == currentFocusImageId);
-    if (!img) return;
-    
-    // Save to DB
-    await apiFetch('api/images.php?action=set_focus', 'POST', {
-        id: img.id,
-        focus_x: currentFocusX,
-        focus_y: currentFocusY
-    });
-    
-    // Update local cache
-    img.focus_x = currentFocusX;
-    img.focus_y = currentFocusY;
-    
-    // Proceed to select image
-    await selectGalleryImage(img.url, currentFocusX, currentFocusY);
-    
-    // Reset view for next time
-    document.getElementById('focus-selector-view').classList.add('hidden');
-    document.getElementById('gallery-grid-view').classList.remove('hidden');
-});
 
 async function selectGalleryImage(url, focusX = 50, focusY = 50) {
     if (!galleryTargetSlideId) return;

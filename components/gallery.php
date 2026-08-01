@@ -22,22 +22,5 @@
                 <button id="btn-close-gallery" class="btn-secondary">Close</button>
             </div>
         </div>
-
-        <!-- Focus Selector View (Used mostly by Display Board / index.php) -->
-        <div id="focus-selector-view" class="hidden flex-col">
-            <h3 class="mb-sm">Set Image Focus Point</h3>
-            <p class="mb-md">Click on the image to set its central focus point. This prevents important details from being cropped out on the display board.</p>
-            <div id="focus-preview-container" class="focus-preview-container">
-                <img id="focus-preview-img" src="" class="focus-preview-img">
-                <div id="focus-reticle" class="focus-reticle"></div>
-            </div>
-            <div class="flex-row justify-between align-center mt-md">
-                <span id="focus-coords-text">Focus: 50%, 50%</span>
-                <div class="flex-row gap-sm">
-                    <button id="btn-focus-back" class="btn-secondary">Cancel</button>
-                    <button id="btn-focus-save" class="btn-primary">Save & Select</button>
-                </div>
-            </div>
-        </div>
     </div>
 </div>

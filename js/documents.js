@@ -219,10 +219,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `).join('');
 
                 // Attach event listeners for gallery items
-                grid.querySelectorAll('.gallery-item').forEach(item => {
+                grid.querySelectorAll('.gallery-item').forEach((item, idx) => {
                     item.addEventListener('click', () => {
-                        const url = item.getAttribute('data-url');
-                        if (url) selectDocGalleryImage(url);
+                        const img = data.images[idx];
+                        if (img && window.ImageEditor) {
+                            window.ImageEditor.edit(img, {
+                                buttonText: 'Accept Image',
+                                onAccept: (updatedImg) => {
+                                    selectDocGalleryImage(updatedImg.url);
+                                }
+                            });
+                        } else {
+                            selectDocGalleryImage(img.url);
+                        }
                     });
                 });
 
@@ -253,29 +262,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (document.getElementById('btn-upload-new')) {
             document.getElementById('btn-upload-new').onclick = () => {
-                document.getElementById('gallery-file-input').click();
-            };
-        }
-
-        if (document.getElementById('gallery-file-input')) {
-            document.getElementById('gallery-file-input').onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const formData = new FormData();
-                formData.append('image_file', file);
-                try {
-                    const res = await fetch('api/images.php?action=upload', {
-                        method: 'POST',
-                        body: formData
+                if (window.ImageEditor) {
+                    window.ImageEditor.openNew({
+                        buttonText: 'Accept Image',
+                        onAccept: (updatedImg) => {
+                            selectDocGalleryImage(updatedImg.url);
+                            loadGallery(1);
+                        }
                     });
-                    const data = await res.json();
-                    if (data.url) {
-                        loadGallery(1);
-                    } else {
-                        Toast.show(data.error || 'Upload failed', 'error');
-                    }
-                } catch (err) {
-                    Toast.show('Upload failed', 'error');
                 }
             };
         }

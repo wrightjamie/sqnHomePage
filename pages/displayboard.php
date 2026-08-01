@@ -82,9 +82,11 @@ require_once 'api/config.php';
         <?php
 
  include 'components/gallery.php'; ?>
+        <?php include 'components/image_editor.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     <script src="js/qrcode.min.js"></script>
+    <script type="module" src="js/utils/image-editor.js?v=<?= time() ?>"></script>
     <script type="module" src="js/display-board.js?v=<?= time() ?>"></script>
 </body>
 </html>

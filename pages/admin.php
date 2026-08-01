@@ -291,73 +291,7 @@ require_once 'api/config.php';
 
         </div>
     </div>
-    
-    <!-- Image Upload Modal -->
-    <div id="image-upload-modal" class="modal hidden">
-        <div class="modal-content max-w-sm">
-            <h2>Upload New Image</h2>
-            <form id="upload-form">
-                <input type="file" id="upload-file" accept="image/*" class="mb-md" required>
-                <img id="upload-image-preview" class="hidden admin-img-preview-lg" src="">
-                
-                <label for="upload-title" class="mb-xs font-bold d-block">Title</label>
-                <input type="text" id="upload-title" placeholder="Image Title" class="w-full mb-md">
-                
-                <label for="upload-description" class="mb-xs font-bold d-block">Description</label>
-                <textarea id="upload-description" rows="3" placeholder="Description" class="w-full mb-md" ></textarea>
-                
-                <label class="mb-xs font-bold d-block">Tags</label>
-                <div >
-                    <div id="upload-tags-container" class="tag-input-container">
-                        <input type="text" id="upload-tag-input" placeholder="Add tag..." class="flex-grow-1 tag-input-field">
-                    </div>
-                    <div id="upload-tag-autocomplete" class="hidden tag-autocomplete-dropdown">
-                    </div>
-                </div>
-                <p class="text-sm text-muted mt-xs mb-lg">Press Space to add a tag.</p>
-                
-                <div class="flex-row justify-end gap-sm">
-                    <button type="button" class="btn btn-secondary" id="btn-close-upload">Cancel</button>
-                    <button type="submit" class="btn btn-primary"><span class="material-symbols-outlined">upload</span> Upload</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Image Metadata Modal -->
-    <div id="image-metadata-modal" class="modal hidden">
-        <div class="modal-content max-w-sm">
-            <h2>Edit Image Metadata</h2>
-            <img id="metadata-image-preview" src="" class="admin-img-preview-lg">
-            
-            <form id="metadata-form">
-                <input type="hidden" id="metadata-image-id">
-                
-                <label for="metadata-title" class="mb-xs font-bold d-block">Title</label>
-                <input type="text" id="metadata-title" placeholder="Image Title" class="w-full mb-md">
-                
-                <label for="metadata-description" class="mb-xs font-bold d-block">Description</label>
-                <textarea id="metadata-description" rows="3" placeholder="Description" class="w-full mb-md" ></textarea>
-                
-                <label class="mb-xs font-bold d-block">Tags</label>
-                <div >
-                    <div id="tags-container" class="tag-input-container">
-                        <!-- Tags will go here -->
-                        <input type="text" id="tag-input" placeholder="Add tag..." class="flex-grow-1 tag-input-field">
-                    </div>
-                    <div id="tag-autocomplete" class="hidden tag-autocomplete-dropdown">
-                        <!-- Autocomplete options -->
-                    </div>
-                </div>
-                <p class="text-sm text-muted mt-xs mb-lg">Press Space to add a tag.</p>
-                
-                <div class="flex-row justify-end gap-sm">
-                    <button class="btn btn-secondary" type="button" id="btn-close-metadata">Cancel</button>
-                    <button class="btn btn-primary" type="submit" >Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <?php include 'components/image_editor.php'; ?>
 
     <!-- Reorder Sets Modal -->
     <div id="reorder-sets-modal" class="modal hidden">
@@ -426,6 +360,7 @@ require_once 'api/config.php';
     <?php include 'components/menu.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+    <script type="module" src="js/utils/image-editor.js?v=<?= time() ?>"></script>
     <script type="module" src="js/admin.js?v=<?= time() ?>"></script>
 </body>
 </html>

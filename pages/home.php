@@ -46,11 +46,13 @@ requirePagePermission($pdo, 'view_home');
     <?php
 
  include 'components/gallery.php'; ?>
+    <?php include 'components/image_editor.php'; ?>
 
 
 
 
 
+  <script type="module" src="js/utils/image-editor.js?v=<?= time() ?>"></script>
   <script type="module" src="js/home.js"></script>
 </body>
 </html>
