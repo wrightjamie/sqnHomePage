@@ -75,28 +75,26 @@ requirePagePermission($pdo, 'view_programme');
         <h3>Edit Activity</h3>
         <input type="text" id="act-name" list="dl-activities" placeholder="Activity Name" class="form-control">
         <div class="popular-btns mb-sm" id="act-popular-btns"></div>
-        <div id="act-admin-link-container" class="mb-sm hidden flex-row justify-end gap-sm"><a href="index.php?page=admin&tab=tab-programme&subtab=subtab-activities" class="text-sm">Manage Activity Types</a></div>
+        <div id="act-admin-link-container" class="mb-sm hidden flex-row justify-end gap-sm"><a href="index.php?page=admin&tab=tab-programme&subtab=subtab-activities" class="manage-link">Manage Activity Types</a></div>
         
         <div id="act-type" class="radio-selector-group mb-sm flex-row flex-wrap gap-xs"></div>
         
         <select id="act-instructor" class="form-control"></select>
         <div class="popular-btns mb-md flex-wrap gap-xs" id="staff-popular-btns"></div>
-        <div id="staff-admin-link-container" class="mb-sm hidden flex-row justify-end gap-sm"><a href="index.php?page=admin&tab=tab-programme&subtab=subtab-staff" class="text-sm">Manage Staff</a></div>
+        <div id="staff-admin-link-container" class="mb-sm hidden flex-row justify-end gap-sm"><a href="index.php?page=admin&tab=tab-programme&subtab=subtab-staff" class="manage-link">Manage Staff</a></div>
         
-        <div class="popover-footer flex-between">
-            <button id="btn-act-clear" class="btn btn-secondary btn-sm" title="Clear"><span class="material-symbols-outlined btn-icon-md text-error">delete</span></button>
-            <div class="flex-row gap-xs">
-                <button id="btn-act-merge" class="btn btn-secondary btn-sm" title="Merge Left"><span class="material-symbols-outlined btn-icon-md">keyboard_double_arrow_left</span></button>
-                <button id="btn-act-split" class="btn btn-secondary btn-sm" title="Split"><span class="material-symbols-outlined btn-icon-md">splitscreen</span></button>
-            </div>
-            <button id="btn-act-save" class="btn btn-primary btn-sm" title="Done"><span class="material-symbols-outlined btn-icon-md">check</span></button>
+        <div class="popover-footer flex-row gap-xs w-100">
+            <button id="btn-act-clear" class="btn btn-secondary btn-sm flex-1" title="Clear"><span class="material-symbols-outlined btn-icon-md text-error">delete</span></button>
+            <button id="btn-act-merge" class="btn btn-secondary btn-sm flex-1" title="Merge Left"><span class="material-symbols-outlined btn-icon-md">keyboard_double_arrow_left</span></button>
+            <button id="btn-act-split" class="btn btn-secondary btn-sm flex-1" title="Split"><span class="material-symbols-outlined btn-icon-md">splitscreen</span></button>
+            <button id="btn-act-save" class="btn btn-primary btn-sm flex-1" title="Save"><span class="material-symbols-outlined btn-icon-md mr-xs">check</span> Save</button>
         </div>
     </div>
     
     <div id="uniform-popover" class="popover-panel" popover>
         <h3>Select Uniform</h3>
         <div id="unif-grid" class="unif-grid mb-sm"></div>
-        <div id="unif-admin-link-container" class="mb-sm hidden flex-row justify-end gap-sm"><a href="index.php?page=admin&tab=tab-programme&subtab=subtab-uniforms" class="text-sm">Manage Uniforms</a></div>
+        <div id="unif-admin-link-container" class="mb-sm hidden flex-row justify-end gap-sm"><a href="index.php?page=admin&tab=tab-programme&subtab=subtab-uniforms" class="manage-link">Manage Uniforms</a></div>
         <div class="popover-footer popover-footer-start">
             <button id="btn-unif-clear" class="btn btn-secondary btn-sm" title="Clear"><span class="material-symbols-outlined btn-icon-md text-error">delete</span></button>
         </div>
@@ -106,13 +104,13 @@ requirePagePermission($pdo, 'view_programme');
         <h3>Edit Duties</h3>
         <label class="form-label text-sm font-bold mb-xs">Duty NCO</label>
         <select id="duty-nco-select" class="form-control mb-md"></select>
-        <div id="nco-admin-link-container" class="mb-sm hidden flex-row justify-end gap-sm mt-xs"><a href="index.php?page=admin&tab=tab-programme&subtab=subtab-ncos" class="text-sm">Manage NCOs</a></div>
+        <div id="nco-admin-link-container" class="mb-sm hidden flex-row justify-end gap-sm mt-xs"><a href="index.php?page=admin&tab=tab-programme&subtab=subtab-ncos" class="manage-link">Manage NCOs</a></div>
 
         <label class="form-label text-sm font-bold mb-xs">Duty Cadet</label>
         <input type="text" id="duty-cadet-input" placeholder="Duty Cadet" class="form-control mb-md">
-        <div class="popover-footer flex-between">
-            <button id="btn-duty-clear" class="btn btn-secondary btn-sm" title="Clear"><span class="material-symbols-outlined btn-icon-md text-error">delete</span></button>
-            <button id="btn-duty-save" class="btn btn-primary btn-sm" title="Done"><span class="material-symbols-outlined btn-icon-md">check</span></button>
+        <div class="popover-footer flex-row gap-xs w-100">
+            <button id="btn-duty-clear" class="btn btn-secondary btn-sm flex-1" title="Clear"><span class="material-symbols-outlined btn-icon-md text-error">delete</span></button>
+            <button id="btn-duty-save" class="btn btn-primary btn-sm flex-1" title="Save"><span class="material-symbols-outlined btn-icon-md mr-xs">check</span> Save</button>
         </div>
     </div>
 
@@ -125,9 +123,9 @@ requirePagePermission($pdo, 'view_programme');
             <button id="btn-note-add" class="btn btn-primary btn-sm flex-center" title="Add Note"><span class="material-symbols-outlined btn-icon-md">add</span></button>
         </div>
         <div class="popular-btns flex-row flex-wrap gap-xs mb-sm" id="note-popular-btns"></div>
-        <div class="popover-footer flex-between">
-            <button id="btn-note-clear" class="btn btn-secondary btn-sm" title="Clear"><span class="material-symbols-outlined btn-icon-md text-error">delete</span></button>
-            <button id="btn-note-save" class="btn btn-primary btn-sm" title="Done"><span class="material-symbols-outlined btn-icon-md">check</span></button>
+        <div class="popover-footer flex-row gap-xs w-100">
+            <button id="btn-note-clear" class="btn btn-secondary btn-sm flex-1" title="Clear"><span class="material-symbols-outlined btn-icon-md text-error">delete</span></button>
+            <button id="btn-note-save" class="btn btn-primary btn-sm flex-1" title="Save"><span class="material-symbols-outlined btn-icon-md mr-xs">check</span> Save</button>
         </div>
     </div>
 

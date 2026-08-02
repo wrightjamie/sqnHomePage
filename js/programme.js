@@ -841,8 +841,8 @@ window.openActivityPopover = function(e, cell, rowData, tr, monthType) {
     const btnMerge = document.getElementById('btn-act-merge');
     const btnSplit = document.getElementById('btn-act-split');
 
-    btnMerge.style.display = (currentEditColIdx > 0) ? 'inline-block' : 'none';
-    btnSplit.style.display = (act.classifications.length > 1) ? 'inline-block' : 'none';
+    btnMerge.style.display = (currentEditColIdx > 0) ? 'flex' : 'none';
+    btnSplit.style.display = (act.classifications.length > 1) ? 'flex' : 'none';
 
     btnMerge.onclick = () => {
         let prevCls = config.classifications[currentEditColIdx - 1];
