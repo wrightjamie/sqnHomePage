@@ -72,29 +72,35 @@ requirePagePermission($pdo, 'view_programme');
     
     <!-- Popovers -->
     <div id="activity-popover" class="popover-panel" popover>
-        <h3>Edit Activity</h3>
+        <div class="flex-row justify-between align-center mb-sm">
+            <h3 style="margin: 0;">Edit Activity</h3>
+            <button id="btn-act-clear" class="btn-icon text-error" title="Clear Activity" style="background: none; border: none; cursor: pointer; padding: 4px; display: flex;"><span class="material-symbols-outlined">delete</span></button>
+        </div>
         <input type="text" id="act-name" list="dl-activities" placeholder="Activity Name" class="form-control">
         <div class="popular-btns mb-sm" id="act-popular-btns"></div>
-        <div id="act-admin-link-container" class="mb-sm hidden flex-row justify-end gap-sm"><a href="index.php?page=admin&tab=tab-programme&subtab=subtab-activities" class="manage-link">Manage Activity Types</a></div>
+        <hr class="mb-sm">
         
         <div id="act-type" class="radio-selector-group mb-sm flex-row flex-wrap gap-xs"></div>
+        <div id="act-admin-link-container" class="mb-sm hidden flex-row justify-end gap-sm"><a href="index.php?page=admin&tab=tab-programme&subtab=activities" class="manage-link">Manage Activity Types</a></div>
+        <hr class="mb-sm">
         
         <select id="act-instructor" class="form-control"></select>
         <div class="popular-btns mb-md flex-wrap gap-xs" id="staff-popular-btns"></div>
-        <div id="staff-admin-link-container" class="mb-sm hidden flex-row justify-end gap-sm"><a href="index.php?page=admin&tab=tab-programme&subtab=subtab-staff" class="manage-link">Manage Staff</a></div>
+        <div id="staff-admin-link-container" class="mb-sm hidden flex-row justify-end gap-sm"><a href="index.php?page=admin&tab=tab-programme&subtab=staff" class="manage-link">Manage Staff</a></div>
         
         <div class="popover-footer flex-row gap-xs w-100">
-            <button id="btn-act-clear" class="btn btn-secondary btn-sm flex-1" title="Clear"><span class="material-symbols-outlined btn-icon-md text-error">delete</span></button>
-            <button id="btn-act-merge" class="btn btn-secondary btn-sm flex-1" title="Merge Left"><span class="material-symbols-outlined btn-icon-md">keyboard_double_arrow_left</span></button>
-            <button id="btn-act-split" class="btn btn-secondary btn-sm flex-1" title="Split"><span class="material-symbols-outlined btn-icon-md">splitscreen</span></button>
-            <button id="btn-act-save" class="btn btn-primary btn-sm flex-1" title="Save"><span class="material-symbols-outlined btn-icon-md mr-xs">check</span> Save</button>
+            <button id="btn-act-merge" class="btn btn-secondary btn-sm flex-1" title="Merge Left"><span class="material-symbols-outlined btn-icon-md mr-xs">keyboard_double_arrow_left</span> Merge</button>
+            <button id="btn-act-split" class="btn btn-secondary btn-sm flex-1" title="Split"><span class="material-symbols-outlined btn-icon-md">view_column_2</span></button>
+            <button id="btn-act-merge-right" class="btn btn-secondary btn-sm flex-1" title="Merge Right">Merge <span class="material-symbols-outlined btn-icon-md ml-xs">keyboard_double_arrow_right</span></button>
+            <button id="btn-act-save" class="btn btn-primary btn-sm flex-2" title="Save"><span class="material-symbols-outlined btn-icon-md mr-xs">check</span> Save</button>
+            <button id="btn-act-save-next" class="btn btn-primary btn-sm" title="Save & Next"><span class="material-symbols-outlined btn-icon-md">skip_next</span></button>
         </div>
     </div>
     
     <div id="uniform-popover" class="popover-panel" popover>
         <h3>Select Uniform</h3>
         <div id="unif-grid" class="unif-grid mb-sm"></div>
-        <div id="unif-admin-link-container" class="mb-sm hidden flex-row justify-end gap-sm"><a href="index.php?page=admin&tab=tab-programme&subtab=subtab-uniforms" class="manage-link">Manage Uniforms</a></div>
+        <div id="unif-admin-link-container" class="mb-sm hidden flex-row justify-end gap-sm"><a href="index.php?page=admin&tab=tab-programme&subtab=uniforms" class="manage-link">Manage Uniforms</a></div>
         <div class="popover-footer popover-footer-start">
             <button id="btn-unif-clear" class="btn btn-secondary btn-sm" title="Clear"><span class="material-symbols-outlined btn-icon-md text-error">delete</span></button>
         </div>
@@ -104,7 +110,7 @@ requirePagePermission($pdo, 'view_programme');
         <h3>Edit Duties</h3>
         <label class="form-label text-sm font-bold mb-xs">Duty NCO</label>
         <select id="duty-nco-select" class="form-control mb-md"></select>
-        <div id="nco-admin-link-container" class="mb-sm hidden flex-row justify-end gap-sm mt-xs"><a href="index.php?page=admin&tab=tab-programme&subtab=subtab-ncos" class="manage-link">Manage NCOs</a></div>
+        <div id="nco-admin-link-container" class="mb-sm hidden flex-row justify-end gap-sm mt-xs"><a href="index.php?page=admin&tab=tab-programme&subtab=ncos" class="manage-link">Manage NCOs</a></div>
 
         <label class="form-label text-sm font-bold mb-xs">Duty Cadet</label>
         <input type="text" id="duty-cadet-input" placeholder="Duty Cadet" class="form-control mb-md">
@@ -118,8 +124,8 @@ requirePagePermission($pdo, 'view_programme');
         <h3>Edit Notes</h3>
         <div id="notes-list-editor" class="flex-col gap-xs mb-sm"></div>
         <datalist id="dl-notes"></datalist>
-        <div class="flex-row gap-xs mb-md">
-            <input type="text" id="new-note-input" class="form-control flex-grow-1" placeholder="Type a note..." list="dl-notes">
+        <div class="flex-row gap-xs mb-sm">
+            <input type="text" id="new-note-input" class="form-control flex-grow-1" placeholder="Type a note..." list="dl-notes" style="margin-bottom: 0;">
             <button id="btn-note-add" class="btn btn-primary btn-sm flex-center" title="Add Note"><span class="material-symbols-outlined btn-icon-md">add</span></button>
         </div>
         <div class="popular-btns flex-row flex-wrap gap-xs mb-sm" id="note-popular-btns"></div>

@@ -236,6 +236,7 @@ body:not(.edit-mode) .padding-row {
 /* Popovers */
 .active-anchor {
     anchor-name: --edit-anchor;
+    box-shadow: inset 0 0 0 2px var(--color-primary);
 }
 
 .popover-panel {
@@ -254,6 +255,10 @@ body:not(.edit-mode) .padding-row {
     top: calc(anchor(bottom) + var(--space-xs));
     left: anchor(left);
     position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+}
+
+#activity-popover {
+    width: min(80vw, 400px);
 }
 
 ::backdrop {
@@ -311,7 +316,7 @@ body:not(.edit-mode) .padding-row {
     align-items: center;
 }
 
-.btn-sm {
+.popover-footer .btn-sm {
     padding: 6px 0.75rem;
     font-size: 0.75rem;
     display: inline-flex;

@@ -114,6 +114,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!window.HasEditProgramme) return;
                 window.openNotesPopover(e, monthNotesContainer, programmeData, null, 'curr', 'month-notes');
             });
+
+            ['activity-popover', 'uniform-popover', 'duty-popover', 'notes-popover'].forEach(id => {
+                const popover = document.getElementById(id);
+                if (popover) {
+                    popover.addEventListener('toggle', (e) => {
+                        if (e.newState === "closed" && currentEditCell) {
+                            currentEditCell.classList.remove('active-anchor');
+                            currentEditCell = null;
+                        }
+                    });
+                }
+            });
         }
     }
     
@@ -596,7 +608,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function toggleEditMode() {
         isEditMode = !isEditMode;
         document.body.classList.toggle('edit-mode', isEditMode);
-        btnEdit.innerHTML = isEditMode ? '<span class="material-symbols-outlined">edit_off</span>' : '<span class="material-symbols-outlined">edit</span>';
+        btnEdit.innerHTML = isEditMode ? '<span class="material-symbols-outlined">edit_off</span> Edit' : '<span class="material-symbols-outlined">edit</span> Edit';
         btnEdit.title = isEditMode ? 'Exit Edit Mode' : 'Edit Programme';
         
         renderGrid(prevMonthData, programmeData.parade_nights, nextMonthData); // re-render to attach controls
@@ -610,6 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tr.replaceWith(newTr);
         if (isCurrent && window.setupDragAndDrop) window.setupDragAndDrop();
         updatePopularButtons();
+        return newTr;
     }
     
     // Drag and Drop is now in programme-editor.js
@@ -839,20 +852,63 @@ window.openActivityPopover = function(e, cell, rowData, tr, monthType) {
 
     // Show/hide merge/split
     const btnMerge = document.getElementById('btn-act-merge');
+    const btnMergeRight = document.getElementById('btn-act-merge-right');
     const btnSplit = document.getElementById('btn-act-split');
 
-    btnMerge.style.display = (currentEditColIdx > 0) ? 'flex' : 'none';
-    btnSplit.style.display = (act.classifications.length > 1) ? 'flex' : 'none';
+    let firstClsIdx = config.classifications.indexOf(act.classifications[0]);
+    let lastClsIdx = config.classifications.indexOf(act.classifications[act.classifications.length - 1]);
+
+    btnMerge.disabled = (firstClsIdx === 0);
+    if (btnMergeRight) btnMergeRight.disabled = (lastClsIdx >= config.classifications.length - 1);
+    btnSplit.disabled = (act.classifications.length <= 1);
+
+    function saveActivityData() {
+        act.name = document.getElementById('act-name').value;
+        const actTypeSelected = document.querySelector('input[name="act-type-radio"]:checked');
+        act.activity_type = actTypeSelected ? actTypeSelected.value : '';
+        act.instructor = document.getElementById('act-instructor').value;
+    }
 
     btnMerge.onclick = () => {
-        let prevCls = config.classifications[currentEditColIdx - 1];
+        saveActivityData();
+        let prevCls = config.classifications[firstClsIdx - 1];
         let prevAct = rowData.activities.find(a => a.classifications.includes(prevCls));
-        prevAct.classifications.push(...act.classifications);
-        rowData.activities = rowData.activities.filter(a => a !== act);
-        popover.hidePopover();
-        window.ProgState.refreshRow(tr, rowData);
-        window.ProgState.autoSave(monthType);
+        if (prevAct) {
+            if (!act.name && !act.activity_type && !act.instructor) {
+                act.name = prevAct.name || '';
+                act.activity_type = prevAct.activity_type || '';
+                act.instructor = prevAct.instructor || '';
+            }
+            act.classifications.unshift(...prevAct.classifications); // act absorbs prevAct
+            rowData.activities = rowData.activities.filter(a => a !== prevAct);
+            let newTr = window.ProgState.refreshRow(tr, rowData);
+            window.ProgState.autoSave(monthType);
+            let newFirstIdx = config.classifications.indexOf(act.classifications[0]);
+            let newCell = Array.from(newTr.querySelectorAll('.editable-cell')).find(c => parseInt(c.dataset.col) === newFirstIdx);
+            if (newCell) window.openActivityPopover(null, newCell, rowData, newTr, monthType);
+        }
     };
+
+    if (btnMergeRight) {
+        btnMergeRight.onclick = () => {
+            saveActivityData();
+            let nextCls = config.classifications[lastClsIdx + 1];
+            let nextAct = rowData.activities.find(a => a.classifications.includes(nextCls));
+            if (nextAct) {
+                if (!act.name && !act.activity_type && !act.instructor) {
+                    act.name = nextAct.name || '';
+                    act.activity_type = nextAct.activity_type || '';
+                    act.instructor = nextAct.instructor || '';
+                }
+                act.classifications.push(...nextAct.classifications); // act absorbs nextAct
+                rowData.activities = rowData.activities.filter(a => a !== nextAct);
+                let newTr = window.ProgState.refreshRow(tr, rowData);
+                window.ProgState.autoSave(monthType);
+                let newCell = Array.from(newTr.querySelectorAll('.editable-cell')).find(c => parseInt(c.dataset.col) === firstClsIdx);
+                if (newCell) window.openActivityPopover(null, newCell, rowData, newTr, monthType);
+            }
+        };
+    }
 
     btnSplit.onclick = () => {
         let kept = act.classifications[0];
@@ -860,23 +916,48 @@ window.openActivityPopover = function(e, cell, rowData, tr, monthType) {
         act.classifications = [kept];
 
         dropped.forEach(d => {
-            rowData.activities.push({ classifications: [d], activity_type: '', name: '', instructor: '' });
+            rowData.activities.push({ 
+                classifications: [d], 
+                activity_type: act.activity_type || '', 
+                name: act.name || '', 
+                instructor: act.instructor || '' 
+            });
         });
 
-        popover.hidePopover();
-        window.ProgState.refreshRow(tr, rowData);
+        let newTr = window.ProgState.refreshRow(tr, rowData);
         window.ProgState.autoSave(monthType);
+        let newCell = Array.from(newTr.querySelectorAll('.editable-cell')).find(c => parseInt(c.dataset.col) === currentEditColIdx);
+        if (newCell) window.openActivityPopover(null, newCell, rowData, newTr, monthType);
     };
 
     document.getElementById('btn-act-save').onclick = () => {
-        act.name = document.getElementById('act-name').value;
-        const actTypeSelected = document.querySelector('input[name="act-type-radio"]:checked');
-        act.activity_type = actTypeSelected ? actTypeSelected.value : '';
-        act.instructor = document.getElementById('act-instructor').value;
+        saveActivityData();
         popover.hidePopover();
         window.ProgState.refreshRow(tr, rowData);
         window.ProgState.autoSave(monthType);
     };
+
+    const btnSaveNext = document.getElementById('btn-act-save-next');
+    if (btnSaveNext) {
+        btnSaveNext.disabled = (lastClsIdx >= config.classifications.length - 1);
+        btnSaveNext.onclick = () => {
+            saveActivityData();
+            let newTr = window.ProgState.refreshRow(tr, rowData);
+            window.ProgState.autoSave(monthType);
+            
+            let nextColIdx = lastClsIdx + 1;
+            if (nextColIdx < config.classifications.length) {
+                let nextCell = Array.from(newTr.querySelectorAll('.editable-cell')).find(c => parseInt(c.dataset.col) === nextColIdx);
+                if (nextCell) {
+                    window.openActivityPopover(null, nextCell, rowData, newTr, monthType);
+                } else {
+                    popover.hidePopover();
+                }
+            } else {
+                popover.hidePopover();
+            }
+        };
+    }
 
     document.getElementById('btn-act-clear').onclick = () => {
         act.name = '';
