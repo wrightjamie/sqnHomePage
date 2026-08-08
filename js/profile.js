@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
+    /**
+     * Switches the active profile tab.
+     *
+     * @param {string} targetId - The ID of the target tab content element.
+     */
     function switchTab(targetId) {
         tabBtns.forEach(b => b.classList.remove('active'));
         tabContents.forEach(c => c.classList.add('hidden'));

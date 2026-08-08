@@ -33,6 +33,9 @@ const loginModal = document.getElementById('login-modal');
 const galleryModal = document.getElementById('gallery-modal');
 const reorderModal = document.getElementById('reorder-modal');
 
+/**
+ * Closes all open modals (login, gallery, reorder) by adding the 'hidden' class.
+ */
 function closeAllModals() {
     [loginModal, galleryModal, reorderModal].forEach(m => {
         if (m) m.classList.add('hidden');
@@ -44,6 +47,11 @@ function closeAllModals() {
 
 // --- Slide Rendering ---
 
+/**
+ * Renders an empty state 'dummy' slide when no slides are available, offering creation options.
+ *
+ * @returns {string} The HTML string for the dummy slide.
+ */
 function renderDummySlide() {
     return `
         <div class="slide" id="slide-dummy">
@@ -69,6 +77,13 @@ function renderDummySlide() {
         </div>`;
 }
 
+/**
+ * Renders the title element for a slide, adding inline edit markers if in edit mode.
+ *
+ * @param {Object} slide - The slide object.
+ * @param {Object} data - The parsed configuration data of the slide.
+ * @returns {string} The HTML string for the slide title.
+ */
 function renderSlideTitle(slide, data) {
     let titleHtml = data.title ? `<h1>${data.title}</h1>` : '';
     if (editMode) {
@@ -81,6 +96,12 @@ function renderSlideTitle(slide, data) {
     return titleHtml;
 }
 
+/**
+ * Renders the slide management toolbar (reorder, delete) when in edit mode.
+ *
+ * @param {Object} slide - The slide object.
+ * @returns {string} The HTML string for the toolbar, or empty string if not in edit mode.
+ */
 function renderSlideToolbar(slide) {
     if (!editMode) return '';
     return `
@@ -90,6 +111,14 @@ function renderSlideToolbar(slide) {
         </div>`;
 }
 
+/**
+ * Renders a text-type slide.
+ *
+ * @param {Object} slide - The slide object.
+ * @param {Object} data - The parsed configuration data of the slide.
+ * @param {string} titleHtml - The pre-rendered HTML for the title.
+ * @returns {string} The HTML string for the text slide.
+ */
 function renderTextSlide(slide, data, titleHtml) {
     let bodyHtml = `<div>${data.body || ''}</div>`;
     if (editMode) {
@@ -106,6 +135,14 @@ function renderTextSlide(slide, data, titleHtml) {
         </div>`;
 }
 
+/**
+ * Renders an image-type slide with art-direction (focus points) and description banners.
+ *
+ * @param {Object} slide - The slide object.
+ * @param {Object} data - The parsed configuration data of the slide.
+ * @param {string} titleHtml - The pre-rendered HTML for the title.
+ * @returns {string} The HTML string for the image slide.
+ */
 function renderImageSlide(slide, data, titleHtml) {
     let descriptionHtml = '';
     if (data.description || editMode) {
@@ -149,6 +186,14 @@ function renderImageSlide(slide, data, titleHtml) {
         </div>`;
 }
 
+/**
+ * Renders a programme-type slide, delegating the actual content rendering to a later asynchronous fetch.
+ *
+ * @param {Object} slide - The slide object.
+ * @param {Object} data - The parsed configuration data of the slide.
+ * @param {string} titleHtml - The pre-rendered HTML for the title.
+ * @returns {string} The HTML string for the programme slide container.
+ */
 function renderProgrammeSlide(slide, data, titleHtml) {
     return `
         <div class="slide-content slide-content-programme">
@@ -159,6 +204,14 @@ function renderProgrammeSlide(slide, data, titleHtml) {
         </div>`;
 }
 
+/**
+ * Renders a QR Code slide. Generates an SVG QR Code on the fly based on data.
+ *
+ * @param {Object} slide - The slide object.
+ * @param {Object} data - The parsed configuration data of the slide.
+ * @param {string} titleHtml - The pre-rendered HTML for the title.
+ * @returns {string} The HTML string for the QR slide.
+ */
 function renderQRSlide(slide, data, titleHtml) {
     let descriptionHtml = '';
     if (data.description || editMode) {
@@ -223,6 +276,12 @@ function renderQRSlide(slide, data, titleHtml) {
         </div>`;
 }
 
+/**
+ * Renders a full slide element, dispatching to specific type renderers based on configuration.
+ *
+ * @param {Object} slide - The slide object containing `type` and `content`.
+ * @returns {string} The HTML string for the complete slide element.
+ */
 function renderSlide(slide) {
     if (slide.isDummy) {
         return renderDummySlide();
@@ -258,6 +317,9 @@ function renderSlide(slide) {
 
 let allActiveSets = [];
 
+/**
+ * Loads the currently active slide set(s) from the backend API and initializes the slideshow.
+ */
 async function loadActiveSet() {
     try {
         const response = await fetch('api/slides.php?action=active_set');
@@ -283,6 +345,9 @@ async function loadActiveSet() {
     }
 }
 
+/**
+ * Renders the top slideshow menu tabs if multiple slide sets are active.
+ */
 function renderSlideshowMenu() {
     const menu = document.getElementById('slideshow-menu');
     if (allActiveSets.length <= 1) {
@@ -299,6 +364,12 @@ function renderSlideshowMenu() {
     `).join('');
 }
 
+/**
+ * Switches the active slide set and renders its slides.
+ *
+ * @param {number|string} setId - The ID of the set to switch to.
+ * @param {boolean} [preserveIndex=false] - Whether to attempt to maintain the current slide index.
+ */
 window.switchToSet = function(setId, preserveIndex = false) {
     const set = allActiveSets.find(s => s.id == setId);
     if (!set) return;
@@ -323,6 +394,10 @@ window.switchToSet = function(setId, preserveIndex = false) {
     renderAllSlides();
 }
 
+/**
+ * Renders all slides in the current set to the DOM and sets up the active slide.
+ * Appends a dummy slide if edit mode is active.
+ */
 function renderAllSlides() {
     let slidesToRender = [...currentSlides];
     if (editMode) {
@@ -345,6 +420,11 @@ function renderAllSlides() {
     }
 }
 
+/**
+ * Sets the active slide by index, updating DOM classes.
+ *
+ * @param {number} index - The index of the slide to show.
+ */
 function showSlide(index) {
     const slidesCount = editMode ? currentSlides.length + 1 : currentSlides.length;
     if (slidesCount === 0) return;
@@ -362,14 +442,23 @@ function showSlide(index) {
 
 // --- Carousel Controls ---
 
+/**
+ * Advances to the next slide.
+ */
 function nextSlide() {
     showSlide(currentIndex + 1);
     if (!isPaused && !editMode) resetInterval();
 }
+/**
+ * Returns to the previous slide.
+ */
 function prevSlide() {
     showSlide(currentIndex - 1);
     if (!isPaused && !editMode) resetInterval();
 }
+/**
+ * Starts the automatic slideshow carousel if not paused or in edit mode.
+ */
 function startCarousel() {
     if (slideInterval) clearInterval(slideInterval);
     if (!isPaused && !editMode) {
@@ -378,12 +467,18 @@ function startCarousel() {
         if (menuTriggerIcon) menuTriggerIcon.textContent = 'slideshow';
     }
 }
+/**
+ * Resets the slideshow timer interval.
+ */
 function resetInterval() {
     if (slideInterval) clearInterval(slideInterval);
     if (!isPaused && !editMode) {
         slideInterval = setInterval(nextSlide, INTERVAL_MS);
     }
 }
+/**
+ * Toggles the slideshow pause state and updates UI.
+ */
 function togglePause() {
     if (editMode) return; // Disable pause/play in edit mode
     isPaused = !isPaused;
@@ -435,6 +530,9 @@ loadActiveSet();
 
 // --- Edit Mode Logic ---
 
+/**
+ * Enters edit mode for the slideshow.
+ */
 function enterEditMode() {
     editMode = true;
     if (slideInterval) clearInterval(slideInterval);
@@ -449,6 +547,9 @@ function enterEditMode() {
     renderAllSlides();
 }
 
+/**
+ * Exits edit mode for the slideshow.
+ */
 function exitEditMode() {
     editMode = false;
     
@@ -467,6 +568,13 @@ function exitEditMode() {
 
 let currentlyEditing = null;
 
+/**
+ * Starts an inline edit session for a specific field on a slide.
+ *
+ * @param {HTMLElement} container - The container element for the field.
+ * @param {number|string} slideId - The ID of the slide being edited.
+ * @param {string} field - The field being edited (e.g. 'title', 'body', 'image').
+ */
 function startEdit(container, slideId, field) {
     if (currentlyEditing) return; // Only edit one thing at a time
     
@@ -518,6 +626,11 @@ function startEdit(container, slideId, field) {
     }
 }
 
+/**
+ * Saves the current inline edit session to the API.
+ *
+ * @param {Event} e - The DOM event triggering the save.
+ */
 async function saveEdit(e) {
     e.stopPropagation();
     let newValue;
@@ -535,12 +648,23 @@ async function saveEdit(e) {
     currentlyEditing = null;
 }
 
+/**
+ * Cancels the current inline edit session.
+ *
+ * @param {Event} e - The DOM event triggering the cancel.
+ */
 function cancelEdit(e) {
     e.stopPropagation();
     currentlyEditing = null;
     renderAllSlides();
 }
 
+/**
+ * Creates a new slide via the API.
+ *
+ * @param {string} type - The slide type ('text', 'image', 'programme', 'qr').
+ * @param {Object} data - The initial configuration data for the slide.
+ */
 async function createSlide(type, data) {
     if (!currentSetId) return;
     const res = await apiFetch('api/slides.php?action=create_slide', 'POST', { slide_set_id: currentSetId, type: type, ...data });
@@ -548,12 +672,24 @@ async function createSlide(type, data) {
     closeAllModals();
 }
 
+/**
+ * Updates an existing slide via the API.
+ *
+ * @param {number|string} id - The ID of the slide.
+ * @param {string} type - The slide type.
+ * @param {Object} contentObj - The new configuration data for the slide.
+ */
 async function updateSlide(id, type, contentObj) {
     await apiFetch('api/slides.php?action=update_slide', 'POST', { slide_id: id, type: type, ...contentObj });
     await loadActiveSet();
     closeAllModals();
 }
 
+/**
+ * Deletes a slide via the API after confirmation.
+ *
+ * @param {number|string} id - The ID of the slide to delete.
+ */
 async function deleteSlide(id) {
     if (!confirm('Are you sure you want to delete this slide?')) return;
     await apiFetch(`api/slides.php?action=delete_slide&id=${id}`, 'DELETE');
@@ -562,6 +698,9 @@ async function deleteSlide(id) {
 
 // --- Reorder Modal ---
 
+/**
+ * Opens the slide reordering modal.
+ */
 function openReorderModal() {
     const list = document.getElementById('reorder-list');
     list.innerHTML = currentSlides.map(s => {
@@ -595,6 +734,11 @@ document.getElementById('btn-save-reorder').addEventListener('click', async func
 let galleryPage = 1;
 let galleryTargetSlideId = null;
 
+/**
+ * Opens the image gallery modal for selecting an image for a slide.
+ *
+ * @param {number|string} slideId - The ID of the slide requesting the image.
+ */
 async function openGalleryForSlide(slideId) {
     if (!editMode) return;
     if (currentlyEditing) return; // block
@@ -610,6 +754,9 @@ const galleryPagination = new Pagination('gallery-pagination', (page) => {
 });
 
 let galleryImagesCache = [];
+/**
+ * Fetches and renders a page of the image gallery.
+ */
 async function fetchGallery() {
     const data = await apiFetch(`api/images.php?action=list&page=${galleryPage}`);
     
@@ -654,6 +801,9 @@ let touchEndX = 0;
 viewer.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
 viewer.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); }, {passive: true});
 
+/**
+ * Handles swipe gestures to navigate slides when not in edit mode.
+ */
 function handleSwipe() {
     if (editMode) return; // Disable swipe in edit mode
     const threshold = 50; 
@@ -664,6 +814,11 @@ function handleSwipe() {
 // Initial load
 
 
+/**
+ * Opens the image editor to allow focusing/editing an image from the gallery.
+ *
+ * @param {number|string} imgId - The ID of the image to edit.
+ */
 function openFocusSelector(imgId) {
     const img = galleryImagesCache.find(i => i.id == imgId);
     if (!img) return;
@@ -682,6 +837,13 @@ function openFocusSelector(imgId) {
     }
 }
 
+/**
+ * Selects an image from the gallery and applies it to the target slide.
+ *
+ * @param {string} url - The URL of the selected image.
+ * @param {number} [focusX=50] - The X coordinate percentage for object-position focus.
+ * @param {number} [focusY=50] - The Y coordinate percentage for object-position focus.
+ */
 async function selectGalleryImage(url, focusX = 50, focusY = 50) {
     if (!galleryTargetSlideId) return;
     const slide = currentSlides.find(s => s.id == galleryTargetSlideId);
@@ -697,6 +859,12 @@ async function selectGalleryImage(url, focusX = 50, focusY = 50) {
 // --- Global Config ---
 let PROGRAMME_CONFIG = null;
 
+/**
+ * Determines if a given hex color is light (returns true) or dark (returns false) based on luma.
+ *
+ * @param {string} hex - The hex color string (e.g. '#ffffff').
+ * @returns {boolean}
+ */
 function isLight(hex) {
     if (!hex) return true;
     let c = hex.substring(1);
@@ -708,6 +876,9 @@ function isLight(hex) {
     return luma > 128;
 }
 
+/**
+ * Loads the global configuration settings (e.g. slide speed) and programme configuration.
+ */
 async function loadGlobalConfig() {
     try {
         const data = await apiFetch('api/settings.php?action=global_config');
@@ -735,6 +906,9 @@ async function loadGlobalConfig() {
 loadGlobalConfig();
 
 // --- Programme Slide Logic ---
+/**
+ * Loads and renders data for all active programme slides.
+ */
 async function loadProgrammeSlidesData() {
     const containers = document.querySelectorAll('.programme-slide-container');
     if (containers.length === 0) return;
@@ -762,7 +936,13 @@ async function loadProgrammeSlidesData() {
     }
 }
 
-// Function to change the displayed date dynamically without saving to db
+/**
+ * Changes the displayed date of a programme slide dynamically without saving to the database.
+ * Auto-pauses the slideshow and reverts back after a timeout.
+ *
+ * @param {HTMLElement} btn - The button element triggered to shift the date.
+ * @param {string} targetDate - The target ISO date string.
+ */
 const shiftProgrammeSlideDate = function(btn, targetDate) {
     const c = btn.closest('.programme-slide-container');
     if (c) {
@@ -791,6 +971,12 @@ const shiftProgrammeSlideDate = function(btn, targetDate) {
     }
 };
 
+/**
+ * Renders the UI for a single programme night into a container.
+ *
+ * @param {HTMLElement} container - The programme slide container element.
+ * @param {Object} data - The data object containing night details, adjacent dates, and month notes.
+ */
 function renderProgrammeNight(container, data) {
     const night = data.night;
     const dateStr = data.date;

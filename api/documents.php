@@ -42,6 +42,15 @@ if ($method === 'GET') {
 
 requirePermission($pdo, 'manage_settings'); // Reusing existing admin permission
 
+/**
+ * Generates a unique slug for a document.
+ * If the slug exists, it appends a number until it finds a unique one.
+ *
+ * @param PDO    $pdo       The database connection.
+ * @param string $slug      The initial slug string.
+ * @param int    $excludeId Optional document ID to exclude from the check (for updates).
+ * @return string The unique slug string.
+ */
 function generateUniqueSlug($pdo, $slug, $excludeId = null) {
     if (empty($slug)) $slug = 'doc';
     $originalSlug = $slug;

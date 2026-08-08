@@ -6,6 +6,14 @@ require_once 'utils.php';
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? '';
 
+/**
+ * Injects image focus coordinates into the slide content data.
+ * Modifies the provided slides array in-place.
+ *
+ * @param PDO   $pdo    The database connection.
+ * @param array $slides Array of slide records passed by reference.
+ * @return void
+ */
 function injectFocusCoordinates($pdo, &$slides) {
     if (!$slides) return;
     $stmtImg = $pdo->prepare("SELECT focus_x, focus_y FROM images WHERE filename = ?");
