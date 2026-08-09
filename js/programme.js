@@ -71,7 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
         setupDragAndDrop: window.setupDragAndDrop // will be defined in editor.js
     };
 
-    // Init
+    /**
+     * Initializes the programme page, sets up navigation event listeners, and loads configuration.
+     */
     async function init() {
         window.addEventListener('popstate', (event) => {
             if (event.state && event.state.year && event.state.month) {
@@ -129,6 +131,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    /**
+     * Sets up the classifications table header columns based on the configuration.
+     */
     function setupClassificationsHeader() {
         classHeader.colSpan = config.classifications.length;
         classSubheader.innerHTML = '';
@@ -139,6 +144,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    /**
+     * Sets up uniform and activity type popover grids based on the configuration.
+     */
     function setupPopovers() {
         const unifGrid = document.getElementById('unif-grid');
         if (unifGrid) {
@@ -213,6 +221,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    /**
+     * Changes the currently viewed month by a given delta (+1 or -1) and updates the URL.
+     *
+     * @param {number} delta - Month increment or decrement.
+     */
     function changeMonth(delta) {
         currentMonth += delta;
         if (currentMonth > 12) { currentMonth = 1; currentYear++; }
@@ -223,6 +236,14 @@ document.addEventListener('DOMContentLoaded', () => {
         loadMonth(currentYear, currentMonth);
     }
     
+    /**
+     * Calculates all dates in a specific month that fall on the allowed parade nights.
+     *
+     * @param {number} year - The four-digit year.
+     * @param {number} month - The month (1-12).
+     * @param {Array<string>} allowedDays - Array of day names (e.g. ['Monday', 'Wednesday']).
+     * @returns {Array<Date>} An array of Date objects matching the criteria.
+     */
     function getDatesForMonth(year, month, allowedDays) {
         let dates = [];
         let d = new Date(year, month - 1, 1);
@@ -238,6 +259,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return dates;
     }
     
+    /**
+     * Formats a Date object into a short HTML string representing the day and date (e.g. "Mon<br>1st").
+     *
+     * @param {Date} dateObj - The date to format.
+     * @returns {string} The HTML formatted date string.
+     */
     function formatDateShort(dateObj) {
         const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
         let d = dateObj.getDate();
@@ -248,6 +275,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return `<span class="text-sm line-height-tight font-normal">${days[dateObj.getDay()]}</span><br><span class="text-lg">${d}<sup class="date-superscript">${ext}</sup></span>`;
     }
     
+    /**
+     * Converts a Date object to an ISO date string (YYYY-MM-DD).
+     *
+     * @param {Date} d - The date object.
+     * @returns {string} The ISO date string.
+     */
     function isoDate(d) {
         return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     }
@@ -267,6 +300,12 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePopularButtons();
     }
 
+    /**
+     * Loads programme data for a given month and year, auto-generates any missing dates, and renders the UI.
+     *
+     * @param {number} year - The four-digit year.
+     * @param {number} month - The month (1-12).
+     */
     async function loadMonth(year, month) {
         const monthName = new Date(year, month-1).toLocaleString('default', {month:'long'});
         const pageTitle = `Training Programme - ${monthName} ${year}`;
@@ -356,6 +395,10 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePopularButtons();
     }
     
+    /**
+     * Calculates the most frequently used activities from the current and previous month,
+     * and updates the popular activity buttons UI.
+     */
     function updatePopularButtons() {
         let actTally = {};
         let staffTally = {};
@@ -438,6 +481,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    /**
+     * Renders the programme table grid including previous, current, and next month rows.
+     *
+     * @param {Array} prevRows - Padding rows from the previous month.
+     * @param {Array} currRows - Rows for the current month.
+     * @param {Array} nextRows - Padding rows from the next month.
+     */
     function renderGrid(prevRows, currRows, nextRows) {
         tableBody.innerHTML = '';
         
@@ -452,6 +502,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    /**
+     * Scrolls the view to the next upcoming parade night (used on mobile devices).
+     */
     function scrollToNextParadeNight() {
         const today = isoDate(new Date());
         const rows = document.querySelectorAll('#prog-body tr');
@@ -469,6 +522,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    /**
+     * Creates an HTML table row element for a parade night.
+     *
+     * @param {Object} rowData - The data object for the row.
+     * @param {string} classes - CSS classes to apply to the row.
+     * @param {number} [currentIndex=-1] - The index of the row in the current month's array (for editing).
+     * @returns {HTMLElement} The constructed table row element.
+     */
     function createRow(rowData, classes, currentIndex = -1) {
         const tr = document.createElement('tr');
         tr.className = classes;
@@ -600,7 +661,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return tr;
     }
     
-    // Quick helper to reconstruct mock data for padding rows during re-renders
+    /**
+     * Helper to reconstruct mock data for padding rows during re-renders.
+     *
+     * @param {HTMLElement} tr - The table row element.
+     * @returns {Object} A mock row data object.
+     */
     function getMockData(tr) {
         return {
             date: tr.dataset.date,
@@ -610,6 +676,12 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
     
+    /**
+     * Determines if a given hex color is light (returns true) or dark (returns false) based on luma.
+     *
+     * @param {string} hex - The hex color string (e.g. '#ffffff').
+     * @returns {boolean}
+     */
     function isLight(hex) {
         if (!hex) return true;
         let c = hex.substring(1);
@@ -622,6 +694,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Edit Mode Toggle
+    /**
+     * Toggles the edit mode state, updates the UI button, and re-renders the grid.
+     */
     function toggleEditMode() {
         isEditMode = !isEditMode;
         document.body.classList.toggle('edit-mode', isEditMode);
@@ -633,6 +708,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Popover Logic
     
+    /**
+     * Re-renders a single row in the table, preserving its original classes and data bindings.
+     *
+     * @param {HTMLElement} tr - The existing table row element to replace.
+     * @param {Object} rowData - The new data for the row.
+     */
     function refreshRow(tr, rowData) {
         let isCurrent = tr.classList.contains('current-month');
         let newTr = createRow(rowData, tr.className, tr.dataset.index);
@@ -647,6 +728,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Auto Save
     let saveTimeout = null;
     
+    /**
+     * Automatically saves the programme data for a given month to the API, using a debounce mechanism.
+     *
+     * @param {string} monthType - Which month data to save ('curr', 'prev', 'next').
+     */
     async function autoSave(monthType) {
         let year, month, data;
         

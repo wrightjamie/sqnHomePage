@@ -2,7 +2,13 @@
 // api/utils.php
 
 /**
- * Generates a thumbnail for an image using PHP GD
+ * Generates a thumbnail for an image using PHP GD.
+ *
+ * @param string $source    Path to the source image.
+ * @param string $dest      Path to save the generated thumbnail.
+ * @param int    $maxWidth  Maximum width of the thumbnail (default 300).
+ * @param int    $maxHeight Maximum height of the thumbnail (default 300).
+ * @return bool True on success, false on failure.
  */
 function generateThumbnail($source, $dest, $maxWidth = 300, $maxHeight = 300) {
     if (!extension_loaded('gd')) return false;
@@ -71,7 +77,13 @@ function generateThumbnail($source, $dest, $maxWidth = 300, $maxHeight = 300) {
 
 /**
  * Handles image upload, saves to disk, generates thumbnail, and inserts into DB.
- * Returns the URL of the uploaded image on success, or null on failure.
+ *
+ * @param PDO    $pdo         The database connection.
+ * @param string $fileField   The name of the file input field (default 'image_file').
+ * @param string $title       The title of the image.
+ * @param string $description The description of the image.
+ * @param string $tags        JSON encoded array of tags.
+ * @return string|null The URL of the uploaded image on success, or null on failure.
  */
 function handleImageUpload($pdo, $fileField = 'image_file', $title = '', $description = '', $tags = '[]') {
     if (isset($_FILES[$fileField]) && $_FILES[$fileField]['error'] === UPLOAD_ERR_OK) {
@@ -94,7 +106,10 @@ function handleImageUpload($pdo, $fileField = 'image_file', $title = '', $descri
 }
 /**
  * Checks if the currently logged in user (or Guest) has a specific permission.
- * Returns true/false.
+ *
+ * @param PDO    $pdo            The database connection.
+ * @param string $permissionName The name of the permission to check.
+ * @return bool True if the user has the permission, false otherwise.
  */
 function hasPermission($pdo, $permissionName) {
     if (!isset($_SESSION['user_id'])) {
@@ -124,7 +139,11 @@ function hasPermission($pdo, $permissionName) {
 
 /**
  * Checks if the user has permission to view a page.
- * If not, redirects to a login prompt.
+ * If not, redirects to a login prompt or displays a 403 Forbidden message.
+ *
+ * @param PDO    $pdo            The database connection.
+ * @param string $permissionName The required permission.
+ * @return void
  */
 function requirePagePermission($pdo, $permissionName) {
     if (!hasPermission($pdo, $permissionName)) {
@@ -144,7 +163,11 @@ function requirePagePermission($pdo, $permissionName) {
 
 /**
  * Checks if the currently logged in user has a specific permission.
- * If not, sends a 403 JSON error and exits.
+ * If not, sends a 403 JSON error and exits execution.
+ *
+ * @param PDO    $pdo            The database connection.
+ * @param string $permissionName The required permission.
+ * @return void
  */
 function requirePermission($pdo, $permissionName) {
     if (!hasPermission($pdo, $permissionName)) {
@@ -153,7 +176,13 @@ function requirePermission($pdo, $permissionName) {
 }
 
 /**
- * Standard JSON Success Response
+ * Standard JSON Success Response.
+ * Outputs a JSON object containing `{success: true, data: ...}`.
+ *
+ * @param mixed $data       The data payload to include in the response.
+ * @param int   $statusCode HTTP status code (default 200).
+ * @param bool  $exit       Whether to exit the script after sending the response (default true).
+ * @return void
  */
 function jsonResponse($data, $statusCode = 200, $exit = true) {
     http_response_code($statusCode);
@@ -166,7 +195,13 @@ function jsonResponse($data, $statusCode = 200, $exit = true) {
 }
 
 /**
- * Standard JSON Error Response
+ * Standard JSON Error Response.
+ * Outputs a JSON object containing `{success: false, error: ...}`.
+ *
+ * @param string $message    The error message.
+ * @param int    $statusCode HTTP status code (default 400).
+ * @param bool   $exit       Whether to exit the script after sending the response (default true).
+ * @return void
  */
 function jsonError($message, $statusCode = 400, $exit = true) {
     http_response_code($statusCode);
