@@ -252,6 +252,21 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     }
     
+    let historicalData = [];
+
+    async function loadHistoricalData(year, month) {
+        let promises = [];
+        for (let i = 2; i <= 10; i++) {
+            let m = month - i;
+            let y = year;
+            while (m < 1) { m += 12; y--; }
+            promises.push(apiFetch(`api/programme.php?action=month&year=${y}&month=${m}`).catch(() => ({})));
+        }
+        let results = await Promise.all(promises);
+        historicalData = results.flatMap(res => res.parade_nights || []);
+        updatePopularButtons();
+    }
+
     async function loadMonth(year, month) {
         const monthName = new Date(year, month-1).toLocaleString('default', {month:'long'});
         const pageTitle = `Training Programme - ${monthName} ${year}`;
@@ -288,6 +303,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         currData.parade_nights = mergedCurrent;
         programmeData = currData; 
+        
+        loadHistoricalData(year, month); // Fire and forget background load for extended memory
         
         // Calculate padding rows
         let prevExpected = getDatesForMonth(prevY, prevM, config.parade_nights);
@@ -343,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let actTally = {};
         let staffTally = {};
         let noteTally = {};
-        const allRows = [...prevMonthData, ...programmeData.parade_nights, ...nextMonthData];
+        const allRows = [...historicalData, ...prevMonthData, ...programmeData.parade_nights, ...nextMonthData];
         
         allRows.forEach(r => {
             if (r.activities) {
