@@ -272,7 +272,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (d % 10 === 1 && d !== 11) ext = 'st';
         else if (d % 10 === 2 && d !== 12) ext = 'nd';
         else if (d % 10 === 3 && d !== 13) ext = 'rd';
-        return `<span class="text-sm line-height-tight font-normal">${days[dateObj.getDay()]}</span><br><span class="text-lg">${d}<sup class="date-superscript">${ext}</sup></span>`;
+        const mShort = dateObj.toLocaleString('default', { month: 'short' });
+        const mLong = dateObj.toLocaleString('default', { month: 'long' });
+        return `<span class="date-day text-sm line-height-tight font-normal">${days[dateObj.getDay()]}</span><br class="date-break"><span class="date-num text-lg">${d}<sup class="date-superscript">${ext}</sup></span> <span class="date-month"><span class="month-short">${mShort}</span><span class="month-long">${mLong}</span></span>`;
     }
     
     /**
@@ -309,15 +311,15 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadMonth(year, month) {
         const monthName = new Date(year, month-1).toLocaleString('default', {month:'long'});
         const pageTitle = `Training Programme - ${monthName} ${year}`;
-        title.textContent = pageTitle;
+        title.innerHTML = `Training Programme <span class="title-date-sep">-</span> <span class="title-month-year">${monthName} ${year}</span>`;
         document.title = pageTitle;
         
         currY = year; currM = month;
         prevM = month - 1; prevY = year; if(prevM < 1) { prevM = 12; prevY--; }
         nextM = month + 1; nextY = year; if(nextM > 12) { nextM = 1; nextY++; }
         
-        document.getElementById('lbl-prev-month').textContent = new Date(prevY, prevM-1).toLocaleString('default', {month:'short'});
-        document.getElementById('lbl-next-month').textContent = new Date(nextY, nextM-1).toLocaleString('default', {month:'short'});
+        document.getElementById('lbl-prev-month').textContent = new Date(prevY, prevM-1).toLocaleString('default', {month:'long'});
+        document.getElementById('lbl-next-month').textContent = new Date(nextY, nextM-1).toLocaleString('default', {month:'long'});
         
         const [currData, prevData, nextData] = await Promise.all([
             apiFetch(`api/programme.php?action=month&year=${year}&month=${month}`),

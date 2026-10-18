@@ -27,17 +27,10 @@ requirePagePermission($pdo, 'view_programme');
 <body>
     <div class="programme-container">
         <div class="month-header">
-            <div class="logos">
-                <img src="images/rafac-logo-dark.svg" alt="ATC Crest" class="header-logo" id="logo-left">
-            </div>
-            <div>
-                <div class="no-print flex-center gap-sm mb-xs">
-                    <button class="btn btn-secondary btn-sm flex-center" id="btn-prev-month"><span class="material-symbols-outlined btn-icon-md mr-xs">chevron_left</span> <span id="lbl-prev-month">Prev Month</span></button>
-                    <button class="btn btn-secondary btn-sm flex-center" id="btn-next-month"><span id="lbl-next-month">Next Month</span> <span class="material-symbols-outlined btn-icon-md ml-xs">chevron_right</span></button>
-                </div>
+            <div class="month-header-content">
                 <h1 id="month-title">Training Programme</h1>
             </div>
-            <div class="logos">
+            <div class="logos logo-right">
                 <img src="images/rafac-logo-dark.svg" alt="RAFAC Logo" class="header-logo">
             </div>
         </div>
@@ -60,6 +53,13 @@ requirePagePermission($pdo, 'view_programme');
                     <!-- Rows populated by JS -->
                 </tbody>
             </table>
+        </div>
+
+        <div class="no-print month-nav flex-center mt-md">
+            <div class="btn-group">
+                <button class="btn btn-sm" id="btn-prev-month"><span class="material-symbols-outlined icon-sm">chevron_left</span> <span id="lbl-prev-month">Previous Month</span></button>
+                <button class="btn btn-sm" id="btn-next-month"><span id="lbl-next-month">Next Month</span> <span class="material-symbols-outlined icon-sm">chevron_right</span></button>
+            </div>
         </div>
         
         <div class="mt-lg">
