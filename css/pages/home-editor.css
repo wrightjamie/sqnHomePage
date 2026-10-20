@@ -11,7 +11,8 @@ body.edit-mode-active .container {
 }
 
 body.edit-mode-active .row {
-  margin-top: 2.5rem; /* Extra vertical space above rows so toolbars aren't hidden */
+  margin-top: 1.5rem;
+  padding-bottom: 2.2rem; /* Clearance for bottom-right row toolbar */
 }
 
 .edit-toggle-btn {
@@ -174,7 +175,15 @@ body.edit-mode-active .row {
 .toolbar-btn-group button:hover { background: var(--raf-light-blue); color: #00247D; }
 
 /* Modern CSS Anchor Positioning */
+/* 1. Row Menu: bottom right, horizontal */
 .edit-toolbar.toolbar-row {
+  bottom: calc(anchor(bottom) + 0.4rem);
+  right: calc(anchor(right) + 0.4rem);
+  position-try-fallbacks: flip-block, flip-inline;
+}
+
+/* 2. Column Menu: rotated 90deg, down the left border */
+.edit-toolbar.toolbar-column {
   top: anchor(center);
   left: anchor(left);
   transform: translate(-50%, -50%) rotate(90deg);
@@ -182,20 +191,15 @@ body.edit-mode-active .row {
   position-try-fallbacks: flip-inline, flip-block;
 }
 
-.edit-toolbar.toolbar-row button i {
+.edit-toolbar.toolbar-column button i {
   transform: rotate(-90deg);
   display: inline-block;
 }
 
-.edit-toolbar.toolbar-column {
-  top: calc(anchor(top) + 0.35rem);
-  left: calc(anchor(left) + 0.35rem);
-  position-try-fallbacks: flip-block, flip-inline;
-}
-
+/* 3. Widget Menu: top left, horizontal */
 .edit-toolbar.toolbar-widget {
   top: calc(anchor(top) + 0.35rem);
-  right: calc(anchor(right) + 0.35rem);
+  left: calc(anchor(left) + 0.35rem);
   position-try-fallbacks: flip-block, flip-inline;
 }
 
@@ -207,20 +211,25 @@ body.edit-mode-active .row {
   }
 
   .edit-toolbar.toolbar-row {
+    bottom: 0.4rem;
+    right: 0.4rem;
+  }
+
+  .edit-toolbar.toolbar-column {
     top: 50%;
     left: 0;
     transform: translate(-50%, -50%) rotate(90deg);
     transform-origin: center center;
   }
 
-  .edit-toolbar.toolbar-column {
-    top: 0.25rem;
-    left: 0.25rem;
+  .edit-toolbar.toolbar-column button i {
+    transform: rotate(-90deg);
+    display: inline-block;
   }
 
   .edit-toolbar.toolbar-widget {
     top: 0.25rem;
-    right: 0.25rem;
+    left: 0.25rem;
   }
 }
 .add-row-btn {
