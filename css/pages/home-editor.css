@@ -108,8 +108,7 @@ body.edit-mode-active .row {
   outline-offset: 0.25rem;
 }
 
-.edit-toolbar,
-.edit-toolbar[popover] {
+.edit-toolbar {
   position: fixed;
   inset: auto;
   margin: 0;
@@ -143,8 +142,7 @@ body.edit-mode-active .row {
 }
 
 @media (hover: none) {
-  .edit-toolbar,
-  .edit-toolbar[popover] {
+  .edit-toolbar {
     opacity: 0.9;
     pointer-events: auto;
   }
@@ -167,19 +165,19 @@ body.edit-mode-active .row {
 .toolbar-btn-group button:hover { background: var(--raf-light-blue); color: #00247D; }
 
 /* Modern CSS Anchor Positioning */
-.toolbar-row {
+.edit-toolbar.toolbar-row {
   bottom: calc(anchor(top) + 0.35rem);
   left: anchor(left);
   position-try-fallbacks: flip-block, flip-inline;
 }
 
-.toolbar-column {
+.edit-toolbar.toolbar-column {
   top: calc(anchor(top) + 0.35rem);
   left: calc(anchor(left) + 0.35rem);
   position-try-fallbacks: flip-block, flip-inline;
 }
 
-.toolbar-widget {
+.edit-toolbar.toolbar-widget {
   top: calc(anchor(top) + 0.35rem);
   right: calc(anchor(right) + 0.35rem);
   position-try-fallbacks: flip-block, flip-inline;
@@ -187,24 +185,23 @@ body.edit-mode-active .row {
 
 /* Fallback for browsers that do not yet support CSS Anchor Positioning */
 @supports not (position-anchor: --test) {
-  .edit-toolbar,
-  .edit-toolbar[popover] {
+  .edit-toolbar {
     position: absolute;
     inset: auto;
   }
 
-  .toolbar-row {
+  .edit-toolbar.toolbar-row {
     top: -1.75rem;
     left: 0.25rem;
     bottom: auto;
   }
 
-  .toolbar-column {
+  .edit-toolbar.toolbar-column {
     top: 0.25rem;
     left: 0.25rem;
   }
 
-  .toolbar-widget {
+  .edit-toolbar.toolbar-widget {
     top: 0.25rem;
     right: 0.25rem;
   }
