@@ -85,7 +85,7 @@
     background: #f0f0f0;
 }
 
-.btn-primary, .btn-secondary {
+.btn-primary, .btn-secondary, .btn-danger, .btn-error {
     padding: var(--space-sm) var(--space-md);
     border: none;
     border-radius: var(--space-xs);
@@ -95,6 +95,14 @@
 }
 .btn-primary { background: var(--color-secondary); color: white; }
 .btn-primary:hover { background: #d90429; }
+
+.btn-danger, .btn-error {
+    background: var(--raf-red);
+    color: var(--raf-white);
+}
+.btn-danger:hover, .btn-error:hover {
+    background: #a00a26;
+}
 
 .btn-icon {
     width: auto !important;

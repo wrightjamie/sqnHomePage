@@ -1,13 +1,10 @@
 :root {
-  --editor-width: clamp(400px, calc(100vw - 1400px - 4rem), 800px);
+  --editor-width: clamp(min(400px, 100%), calc(100vw - 1400px - 4rem), 800px);
 }
 
 body.edit-mode-active {
-  padding-right: var(--editor-width); /* Space for sidebar */
-}
-
-body.edit-mode-active .container {
-  padding-left: 1rem;
+  /* Overlay slide-out panel - canvas retains normal spacing */
+  padding-right: 0;
 }
 
 body.edit-mode-active .row {
@@ -60,21 +57,95 @@ body.edit-mode-active .row {
   color: white; 
 }
 
-.editor-sidebar {
+/* Sidebar Wrapper & Slide-out Transition */
+.editor-sidebar-wrapper {
   position: fixed;
   top: 0;
   right: 0;
   width: var(--editor-width);
+  min-width: min(400px, 100%);
+  max-width: 100%;
   height: 100vh;
-  z-index: 900;
+  z-index: 950;
+  pointer-events: none;
+  transform: translateX(0);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.editor-sidebar-wrapper.collapsed {
+  transform: translateX(100%);
+}
+
+/* Slide toggle button docked to left edge of sidebar */
+.sidebar-toggle-btn {
+  position: absolute;
+  top: 5rem;
+  right: 100%;
+  width: 44px;
+  height: 48px;
+  background: rgba(0, 20, 45, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-border);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  color: var(--raf-light-blue);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.3);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  z-index: 10;
+}
+
+.sidebar-toggle-btn:hover {
+  background: rgba(0, 36, 125, 0.95);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.sidebar-toggle-btn span {
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.editor-sidebar {
+  width: 100%;
+  min-width: min(400px, 100%);
+  max-width: 100%;
+  height: 100vh;
   border-radius: 0;
   border: none;
   border-left: 1px solid var(--glass-border);
   background: rgba(0, 20, 45, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   display: flex;
   flex-direction: column;
   padding: 2rem;
   overflow-y: auto;
+  box-sizing: border-box;
+  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
+}
+
+.btn-close-editor {
+  transition: color 0.2s ease;
+}
+.btn-close-editor:hover {
+  color: var(--raf-light-blue);
+}
+
+@media (max-width: 480px) {
+  .editor-sidebar-wrapper:not(.collapsed) .sidebar-toggle-btn {
+    display: none;
+  }
 }
 .editor-sidebar h3 { color: var(--raf-light-blue); margin-bottom: 0.5rem; }
 .editor-sidebar textarea {
@@ -101,6 +172,12 @@ body.edit-mode-active .row {
   flex: 1;
 }
 #copy-config-btn:hover, #dl-config-btn:hover { background: var(--raf-light-blue); }
+
+.editor-sidebar #close-editor-btn,
+.editor-sidebar #save-config-btn {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
 
 /* On-Canvas Edit Controls */
 .edit-outline {

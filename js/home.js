@@ -7,6 +7,7 @@ import { Pagination } from "./components/Pagination.js";
 let isEditMode = false;
 let sidebarEl = null;
 let CONFIG = {};
+let originalConfigSnapshot = null;
 
 function parseSimpleMarkdown(text) {
   if (!text) return '';
@@ -859,6 +860,7 @@ function toggleEditMode(show) {
   const hasMultipleBgs = CONFIG.backgrounds && CONFIG.backgrounds.length > 1;
 
   if (show) {
+    originalConfigSnapshot = JSON.parse(JSON.stringify(CONFIG));
     if(toggleBtn) toggleBtn.style.display = 'none';
     if(loginTrigger) loginTrigger.style.display = 'none';
     if(logoutBtn) logoutBtn.style.display = 'none';
@@ -886,9 +888,9 @@ function buildEditorDOM() {
   sidebarEl = document.createElement('div');
   sidebarEl.className = 'editor-sidebar glass-panel';
   sidebarEl.innerHTML = `
-    <div class="flex-space-between-center mb-xs">
+    <div class="mb-xs">
       <h3 class="m-0">Dashboard Settings</h3>
-      <button id="close-editor-btn" class="btn-close-editor" title="Close Editor"><i class="ph ph-x"></i></button>
+
     </div>
 
     <div id="tab-settings" class="sidebar-tab-content active">
@@ -918,14 +920,18 @@ function buildEditorDOM() {
         </div>
       </div>
 
-      <div class="mt-sm">
-        <button id="save-config-btn" class="btn btn-primary w-100" type="button"><span class="material-symbols-outlined">save</span> Save Configuration</button>
+      <div class="mt-sm flex-row gap-sm">
+        <button id="close-editor-btn" class="btn btn-danger flex-1" type="button"><span class="material-symbols-outlined icon-sm">close</span> Cancel</button>
+        <button id="save-config-btn" class="btn btn-primary flex-1" type="button"><span class="material-symbols-outlined icon-sm">save</span> Save Configuration</button>
       </div>
     </div>
   `;
   document.body.appendChild(sidebarEl);
 
   document.getElementById('close-editor-btn').onclick = () => {
+    if (originalConfigSnapshot) {
+      CONFIG = JSON.parse(JSON.stringify(originalConfigSnapshot));
+    }
     isEditMode = false;
     document.body.classList.remove('edit-mode-active');
     toggleEditMode(false);
@@ -996,6 +1002,7 @@ function bindEditorSettings() {
     try {
         await apiFetch('api/home.php?action=config', 'POST', CONFIG);
         btn.innerHTML = '<i class="ph ph-check"></i> Saved!';
+        originalConfigSnapshot = JSON.parse(JSON.stringify(CONFIG));
         btn.style.background = 'rgba(0, 200, 100, 0.6)';
     } catch (err) {
         btn.innerHTML = '<i class="ph ph-warning"></i> Error';
@@ -1005,7 +1012,7 @@ function bindEditorSettings() {
 
     setTimeout(() => {
         btn.innerHTML = origHtml;
-        btn.style.background = 'rgba(0, 100, 200, 0.6)';
+        btn.style.background = '';
     }, 3000);
   };
 }
