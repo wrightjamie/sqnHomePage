@@ -6,6 +6,7 @@ vendor/
 .env
 .env.test
 .env.production
+api/config.local.php
 
 # Build artifacts and directories
 dist/
@@ -32,6 +33,9 @@ lerna-debug.log*
 # Local databases and uploads (based on repo architecture)
 data/*.sqlite
 data/*.sqlite3
+data/*.sqlite-wal
+data/*.sqlite-shm
+data/*.db
 uploads/*
 !uploads/.gitkeep
 data/sessions/

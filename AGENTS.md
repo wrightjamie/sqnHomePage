@@ -27,10 +27,14 @@ Welcome! If you are an AI agent (such as Jules or Antigravity) working on this c
 * **Modern CSS:** Utilize modern CSS features (e.g., CSS Grid, Flexbox, Custom Properties) for clean, maintainable, and responsive designs.
 * **Native UI Elements:** Prefer native HTML elements (e.g., `<dialog>` for modals and popovers) over custom `<div>` overlays to ensure better accessibility, semantic correctness, and built-in functionality (like the `::backdrop` pseudo-element and `showModal()`).
 
-## 5. Workflow & Directives
+## 5. Workflow, Git Strategy & Directives
+* **Branching & Deployment Strategy (CRITICAL):**
+  * **`master` (Production Branch):** The `master` branch represents the live production code. The Synology NAS pulls from `origin/master` automatically on a daily schedule via Task Scheduler. **Never commit untested or work-in-progress code directly to `master`.**
+  * **`dev` (Development Branch):** All ongoing development, bug fixes, and feature implementations must take place on the `dev` branch (or feature branches branched off `dev`).
+  * **Promoting to Live (`dev` -> `master`):** When changes on `dev` are tested and ready for the live NAS, merge `dev` into `master` (`git checkout master && git merge dev && git push origin master`), then switch back to `dev` (`git checkout dev`). Use a standard **merge** (not rebase) when promoting to `master` so the production branch always fast-forwards cleanly on the Synology NAS (`git pull`).
 * **Feature Tracking:** Task progress, to-do items, and future feature requests are tracked in `task.md`, `todo.md`, and individual markdown files within the `todo/` directory.
 * **Feature Requests (CRITICAL):** When asked to add or document a feature request, **strictly update the project tracking documentation** (e.g., `todo.md` or a file in `todo/`). **Do not implement the code changes** for the feature unless explicitly instructed to do so.
-* **Implementation Strategy:** When implementing multiple features, prioritize minimizing rework and avoiding technical debt. Use a 'commit per feature' strategy.
+* **Implementation Strategy:** When implementing multiple features, prioritize minimizing rework and avoiding technical debt. Use a 'commit per feature' strategy on the development branch.
 
 ## 6. Code Documentation
 * **Self-Documenting Code & Comments:** Write readable, self-documenting code. Add clear, concise comments for complex logic.
