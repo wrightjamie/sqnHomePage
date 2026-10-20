@@ -16,7 +16,7 @@ $menuOrder = $_SESSION['menu_order'];
 ?>
 <div id="bottom-right-controls">
     <div class="hamburger-menu" tabindex="0">
-        <div class="hamburger-trigger" title="Menu">
+        <div class="hamburger-trigger flex-center" title="Menu">
             <span class="material-symbols-outlined">menu</span>
         </div>
         <div class="hamburger-items">
