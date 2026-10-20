@@ -105,6 +105,15 @@ function initApp(config) {
       updateApp();
     };
     appRoot.appendChild(addRowBtn);
+
+    // Show popover toolbars in top-layer
+    document.querySelectorAll('.edit-toolbar[popover]').forEach(tb => {
+      try {
+        if (tb.showPopover) tb.showPopover();
+      } catch (err) {
+        console.warn('Failed to show popover toolbar:', err);
+      }
+    });
   }
 }
 
@@ -140,7 +149,7 @@ function renderRow(node, parentArray, index) {
       if(!node.children) node.children = [];
       node.children.push({ type: 'column', children: [] });
       updateApp();
-    }, moveUp, moveDown));
+    }, moveUp, moveDown, false, el));
   }
 
   if (node.children) {
@@ -204,7 +213,7 @@ function renderColumn(node, parentArray, index) {
         node.children.push({ type: 'widget', widgetType: 'search' });
         updateApp();
       }
-    }, moveUp, moveDown, true);
+    }, moveUp, moveDown, true, el);
     
     const widthBtn = document.createElement('button');
     widthBtn.innerHTML = '<i class="ph ph-arrows-out-line-horizontal"></i>';
@@ -237,7 +246,7 @@ function renderGrid(node, parentArray, index) {
     section.classList.add('edit-outline');
     section.appendChild(createToolbar('Widget', () => {
       if(confirm('Delete links section?')) { parentArray.splice(index, 1); updateApp(); }
-    }));
+    }, null, null, null, false, section));
   }
 
   if (node.title || isEditMode) {
@@ -397,7 +406,7 @@ function renderWidget(node, parentArray, index) {
     panel.classList.add('edit-outline');
     const tb = createToolbar('Widget', () => {
       if(confirm('Delete widget?')) { parentArray.splice(index, 1); updateApp(); }
-    });
+    }, null, null, null, false, panel);
     panel.appendChild(tb);
   }
 
@@ -1068,10 +1077,21 @@ function bindGalleryModal() {
   };
 }
 
-function createToolbar(label, onDelete, onAdd, onMoveUp, onMoveDown, isCol = false) {
+let toolbarCounter = 0;
+
+function createToolbar(label, onDelete, onAdd, onMoveUp, onMoveDown, isCol = false, anchorEl = null) {
+  toolbarCounter++;
   const tb = document.createElement('div');
   const classNameSuffix = label.toLowerCase().replace(' ', '-');
   tb.className = `edit-toolbar toolbar-${classNameSuffix}`;
+  tb.setAttribute('popover', 'manual');
+
+  if (anchorEl) {
+    const anchorName = `--toolbar-anchor-${toolbarCounter}`;
+    anchorEl.style.setProperty('anchor-name', anchorName);
+    tb.style.setProperty('position-anchor', anchorName);
+  }
+
   tb.innerHTML = `<span>${label}</span>`;
 
   const btnGroup = document.createElement('div');
