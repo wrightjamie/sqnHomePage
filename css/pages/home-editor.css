@@ -199,7 +199,7 @@ body.edit-mode-active .row {
 /* 3. Widget Menu: top left, horizontal */
 .edit-toolbar.toolbar-widget {
   top: calc(anchor(top) + 0.35rem);
-  left: calc(anchor(left) + 0.35rem);
+  left: calc(anchor(left) + 1.35rem);
   position-try-fallbacks: flip-block, flip-inline;
 }
 
@@ -229,7 +229,7 @@ body.edit-mode-active .row {
 
   .edit-toolbar.toolbar-widget {
     top: 0.25rem;
-    left: 0.25rem;
+    left: 1.25rem;
   }
 }
 .add-row-btn {
