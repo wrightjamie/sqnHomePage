@@ -15,11 +15,18 @@ body {
     position: relative;
 }
 
+#top-right-controls {
+    top: var(--space-sm);
+    right: var(--space-sm);
+}
+
 /* Month Header */
 .month-header {
     display: flex;
-    justify-content: space-between;
+    flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
+    gap: var(--space-xs) var(--space-md);
     margin-bottom: var(--space-sm);
 }
 
@@ -27,8 +34,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    flex: 1;
-    min-width: 0;
+    flex: 1 1 auto;
+    min-width: fit-content;
 }
 
 .date-col .date-month {
@@ -60,18 +67,18 @@ body {
 .month-header .logos {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 100px;
+    justify-content: flex-start;
     flex-shrink: 0;
 }
 
 .header-logo {
-    height: 60px;
+    height: 48px;
+    width: auto;
 }
 
 @media screen and (max-width: 1360px) {
-    .month-header .logo-right {
-        margin-right: calc(var(--space-lg) + 50px); /* Prevent overlap with the fixed top-right login button */
+    .month-header {
+        padding-right: calc(50px + var(--space-sm)); /* Prevent overlap with the fixed top-right login button */
     }
 }
 
@@ -189,8 +196,8 @@ body {
         -webkit-print-color-adjust: exact;
     }
 
-    .month-header .logo-right {
-        margin-right: 0 !important;
+    .month-header {
+        padding-right: 0 !important;
     }
 }
 
@@ -450,23 +457,29 @@ body:not(.edit-mode) .padding-row {
     margin-bottom: 0 !important;
 }
 
-/* --- Mobile CSS Carousel --- */
+/* --- Mobile CSS Carousel & Header Layout --- */
 @media screen and (max-width: 768px) {
-    .month-header h1 {
-        font-size: 1.25rem;
+    .header-logo {
+        height: 40px;
     }
 
-    .month-header h1 .title-date-sep,
-    .month-header h1 .title-month-year {
+    .month-header h1 {
+        font-size: 1.35rem;
+        text-align: left;
+        line-height: 1.2;
+    }
+
+    .month-header h1 .title-date-sep {
         display: none;
     }
 
-    .header-logo {
-        height: 48px;
-    }
-
-    .month-header .logos {
-        width: 85px;
+    .month-header h1 .title-month-year {
+        display: block;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--color-muted);
+        margin-top: 2px;
+        text-align: left;
     }
 
     .date-col .date-break {

@@ -15,9 +15,9 @@ requirePagePermission($pdo, 'view_programme');
     <title>Training Programme</title>
     <link rel="icon" href="uploads/roundel.svg" type="image/svg+xml">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-    <link rel="stylesheet" href="css/core.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/pages/programme.css">
+    <link rel="stylesheet" href="css/core.css?v=<?= file_exists(__DIR__ . '/../css/core.css') ? filemtime(__DIR__ . '/../css/core.css') : '1' ?>">
+    <link rel="stylesheet" href="css/components.css?v=<?= file_exists(__DIR__ . '/../css/components.css') ? filemtime(__DIR__ . '/../css/components.css') : '1' ?>">
+    <link rel="stylesheet" href="css/pages/programme.css?v=<?= file_exists(__DIR__ . '/../css/pages/programme.css') ? filemtime(__DIR__ . '/../css/pages/programme.css') : '1' ?>">
     <script>
         window.HasEditProgramme = <?php echo hasPermission($pdo, 'edit_programme') ? 'true' : 'false'; ?>;
         window.HasManageSettings = <?php echo hasPermission($pdo, 'manage_settings') ? 'true' : 'false'; ?>;
@@ -27,11 +27,11 @@ requirePagePermission($pdo, 'view_programme');
 <body>
     <div class="programme-container">
         <div class="month-header">
+            <div class="logos logo-left">
+                <img src="images/rafac-logo-dark.svg" alt="RAFAC Logo" class="header-logo">
+            </div>
             <div class="month-header-content">
                 <h1 id="month-title">Training Programme</h1>
-            </div>
-            <div class="logos logo-right">
-                <img src="images/rafac-logo-dark.svg" alt="RAFAC Logo" class="header-logo">
             </div>
         </div>
         
