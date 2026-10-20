@@ -1100,12 +1100,14 @@ function createToolbar(label, onDelete, onAdd, onMoveUp, onMoveDown, isCol = fal
   if (onMoveUp) {
     const btn = document.createElement('button');
     btn.innerHTML = isCol ? '<i class="ph ph-caret-left"></i>' : '<i class="ph ph-caret-up"></i>';
+    btn.title = isCol ? 'Move Column Left' : 'Move Row Up';
     btn.onclick = (e) => { e.stopPropagation(); onMoveUp(); };
     btnGroup.appendChild(btn);
   }
   if (onMoveDown) {
     const btn = document.createElement('button');
     btn.innerHTML = isCol ? '<i class="ph ph-caret-right"></i>' : '<i class="ph ph-caret-down"></i>';
+    btn.title = isCol ? 'Move Column Right' : 'Move Row Down';
     btn.onclick = (e) => { e.stopPropagation(); onMoveDown(); };
     btnGroup.appendChild(btn);
   }

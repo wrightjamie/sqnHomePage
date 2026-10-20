@@ -126,10 +126,18 @@ body.edit-mode-active .row {
   z-index: 50;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.2s ease 0.15s, transform 0.2s ease;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
   width: max-content;
   overflow: visible;
+}
+
+/* Invisible hover bridge to prevent disappearing when crossing border gap */
+.edit-toolbar::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  z-index: -1;
 }
 
 .edit-outline:hover > .edit-toolbar,
@@ -139,6 +147,7 @@ body.edit-mode-active .row {
   opacity: 1;
   pointer-events: auto;
   z-index: 60;
+  transition: opacity 0.15s ease 0s, transform 0.15s ease;
 }
 
 @media (hover: none) {
@@ -166,9 +175,16 @@ body.edit-mode-active .row {
 
 /* Modern CSS Anchor Positioning */
 .edit-toolbar.toolbar-row {
-  bottom: calc(anchor(top) + 0.35rem);
+  top: anchor(center);
   left: anchor(left);
-  position-try-fallbacks: flip-block, flip-inline;
+  transform: translate(-50%, -50%) rotate(90deg);
+  transform-origin: center center;
+  position-try-fallbacks: flip-inline, flip-block;
+}
+
+.edit-toolbar.toolbar-row button i {
+  transform: rotate(-90deg);
+  display: inline-block;
 }
 
 .edit-toolbar.toolbar-column {
@@ -191,9 +207,10 @@ body.edit-mode-active .row {
   }
 
   .edit-toolbar.toolbar-row {
-    top: -1.75rem;
-    left: 0.25rem;
-    bottom: auto;
+    top: 50%;
+    left: 0;
+    transform: translate(-50%, -50%) rotate(90deg);
+    transform-origin: center center;
   }
 
   .edit-toolbar.toolbar-column {
