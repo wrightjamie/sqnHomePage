@@ -6,6 +6,7 @@ import { Pagination } from "./components/Pagination.js";
 
 let isEditMode = false;
 let sidebarEl = null;
+let sidebarWrapperEl = null;
 let CONFIG = {};
 let originalConfigSnapshot = null;
 
@@ -822,13 +823,36 @@ function initEditorUI() {
   const toggleBtn = document.getElementById('btn-edit-mode');
   if (toggleBtn) {
       toggleBtn.onclick = () => {
-          isEditMode = true;
-          document.body.classList.add('edit-mode-active');
-          updateApp();
-          toggleEditMode(true);
+          if (!isEditMode) {
+              isEditMode = true;
+              document.body.classList.add('edit-mode-active');
+              updateApp();
+              toggleEditMode(true);
+          } else {
+              isEditMode = false;
+              document.body.classList.remove('edit-mode-active');
+              toggleEditMode(false);
+              updateApp();
+          }
           toggleBtn.blur();
       };
   }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isEditMode && sidebarWrapperEl && !sidebarWrapperEl.classList.contains('collapsed')) {
+      const galleryModal = document.getElementById('gallery-modal');
+      if (galleryModal && !galleryModal.classList.contains('hidden') && galleryModal.style.display !== 'none') {
+        return;
+      }
+      const sideToggleBtn = document.getElementById('sidebar-toggle-btn');
+      sidebarWrapperEl.classList.add('collapsed');
+      if (sideToggleBtn) {
+        sideToggleBtn.innerHTML = '<span class="material-symbols-outlined">tune</span>';
+        sideToggleBtn.title = 'Open Dashboard Settings';
+        sideToggleBtn.setAttribute('aria-label', 'Open Dashboard Settings');
+      }
+    }
+  });
 
   Auth.onLogout(() => window.location.reload());
   Auth.onLogin(() => window.location.reload());
@@ -861,7 +885,10 @@ function toggleEditMode(show) {
 
   if (show) {
     originalConfigSnapshot = JSON.parse(JSON.stringify(CONFIG));
-    if(toggleBtn) toggleBtn.style.display = 'none';
+    if(toggleBtn) {
+      toggleBtn.innerHTML = '<span class="material-symbols-outlined">edit_off</span> Exit Edit Mode';
+      toggleBtn.title = 'Exit Edit Mode';
+    }
     if(loginTrigger) loginTrigger.style.display = 'none';
     if(logoutBtn) logoutBtn.style.display = 'none';
     if(adminBtn) adminBtn.style.display = 'none';
@@ -872,25 +899,50 @@ function toggleEditMode(show) {
     bindGalleryModal();
     renderBgList();
 
-  } else if (sidebarEl) {
-    if(toggleBtn) toggleBtn.style.display = '';
+  } else if (sidebarWrapperEl || sidebarEl) {
+    if(toggleBtn) {
+      toggleBtn.innerHTML = '<span class="material-symbols-outlined">edit</span> Edit';
+      toggleBtn.title = 'Edit Mode';
+    }
     if(loginTrigger) loginTrigger.style.display = '';
     if(logoutBtn) logoutBtn.style.display = '';
     if(adminBtn) adminBtn.style.display = '';
 
     if(nextBgBtn && hasMultipleBgs) nextBgBtn.style.display = 'flex';
-    sidebarEl.remove();
+    if (sidebarWrapperEl) {
+      sidebarWrapperEl.remove();
+      sidebarWrapperEl = null;
+    } else if (sidebarEl) {
+      sidebarEl.remove();
+    }
     sidebarEl = null;
   }
 }
 
 function buildEditorDOM() {
+  if (sidebarWrapperEl) {
+    sidebarWrapperEl.remove();
+    sidebarWrapperEl = null;
+  }
+
+  sidebarWrapperEl = document.createElement('div');
+  sidebarWrapperEl.id = 'editor-sidebar-wrapper';
+  sidebarWrapperEl.className = 'editor-sidebar-wrapper collapsed';
+
+  const toggleBtn = document.createElement('button');
+  toggleBtn.id = 'sidebar-toggle-btn';
+  toggleBtn.className = 'sidebar-toggle-btn';
+  toggleBtn.type = 'button';
+  toggleBtn.title = 'Open Dashboard Settings';
+  toggleBtn.setAttribute('aria-label', 'Toggle Dashboard Settings');
+  toggleBtn.innerHTML = '<span class="material-symbols-outlined">tune</span>';
+
   sidebarEl = document.createElement('div');
   sidebarEl.className = 'editor-sidebar glass-panel';
   sidebarEl.innerHTML = `
-    <div class="mb-xs">
+    <div class="flex-space-between-center mb-xs">
       <h3 class="m-0">Dashboard Settings</h3>
-
+      <button id="slide-close-editor-btn" class="btn-close-editor" title="Slide In Settings (Hide)" type="button"><i class="ph ph-x"></i></button>
     </div>
 
     <div id="tab-settings" class="sidebar-tab-content active">
@@ -926,7 +978,35 @@ function buildEditorDOM() {
       </div>
     </div>
   `;
-  document.body.appendChild(sidebarEl);
+
+  sidebarWrapperEl.appendChild(toggleBtn);
+  sidebarWrapperEl.appendChild(sidebarEl);
+  document.body.appendChild(sidebarWrapperEl);
+
+  const toggleSettingsPanel = (forceOpen) => {
+    if (!sidebarWrapperEl) return;
+    const isCollapsed = sidebarWrapperEl.classList.contains('collapsed');
+    const shouldOpen = (forceOpen !== undefined) ? forceOpen : isCollapsed;
+
+    if (shouldOpen) {
+      sidebarWrapperEl.classList.remove('collapsed');
+      toggleBtn.innerHTML = '<span class="material-symbols-outlined">chevron_right</span>';
+      toggleBtn.title = 'Close Dashboard Settings';
+      toggleBtn.setAttribute('aria-label', 'Close Dashboard Settings');
+    } else {
+      sidebarWrapperEl.classList.add('collapsed');
+      toggleBtn.innerHTML = '<span class="material-symbols-outlined">tune</span>';
+      toggleBtn.title = 'Open Dashboard Settings';
+      toggleBtn.setAttribute('aria-label', 'Open Dashboard Settings');
+    }
+  };
+
+  toggleBtn.onclick = () => toggleSettingsPanel();
+
+  const slideCloseBtn = document.getElementById('slide-close-editor-btn');
+  if (slideCloseBtn) {
+    slideCloseBtn.onclick = () => toggleSettingsPanel(false);
+  }
 
   document.getElementById('close-editor-btn').onclick = () => {
     if (originalConfigSnapshot) {
@@ -937,6 +1017,15 @@ function buildEditorDOM() {
     toggleEditMode(false);
     updateApp();
   };
+
+  // Animate slide-out on open
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (sidebarWrapperEl) {
+        toggleSettingsPanel(true);
+      }
+    });
+  });
 }
 
 function renderBgList() {
