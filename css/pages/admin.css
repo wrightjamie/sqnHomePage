@@ -334,13 +334,320 @@ input[type="color"]::-webkit-color-swatch-wrapper { cursor: pointer !important; 
     width: var(--space-lg);
     height: 30px;
     object-fit: contain;
-    margin-right: var(--space-sm);
 }
 
 .clickable-rank {
     font-weight: bold;
-    margin-right: var(--space-xs);
+}
+
+/* Programme Settings Direct Click-to-Edit Controls */
+.set-item.reorder-item {
+    cursor: default;
+    transition: background-color 150ms ease-out, border-color 150ms ease-out;
+}
+
+.set-item.reorder-item:hover {
+    background-color: #fafafa;
+    border-color: var(--color-secondary);
+}
+
+.set-item .editable-rank-btn,
+.set-item .editable-text-btn {
+    margin-left: 0;
+    background: transparent;
+    border: 1px dashed transparent;
+    border-radius: 0.375rem;
+    padding: 0.25rem 0.5rem;
+    color: var(--color-text);
+    font: inherit;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    text-align: left;
+    transition: background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out, box-shadow 150ms ease-out, scale 150ms ease-out;
+}
+
+.set-item .editable-text-btn {
+    min-width: 0;
+    flex: 0 1 auto;
+}
+
+.editable-text-value {
+    overflow-wrap: anywhere;
+}
+
+.edit-cue-icon,
+.rank-cue-icon {
+    font-size: 1rem;
+    color: var(--color-muted);
+    opacity: 0.4;
+    transition: opacity 150ms ease-out, color 150ms ease-out;
+}
+
+.set-item:hover .edit-cue-icon,
+.set-item:hover .rank-cue-icon {
+    opacity: 0.75;
+}
+
+.set-item .editable-rank-btn:hover,
+.set-item .editable-text-btn:hover,
+.set-item .editable-rank-btn.is-rank-picker-open {
+    background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
+    border-color: var(--color-secondary);
+    color: var(--color-primary);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.set-item .editable-rank-btn:hover .rank-cue-icon,
+.set-item .editable-rank-btn:focus-visible .rank-cue-icon,
+.set-item .editable-rank-btn.is-rank-picker-open .rank-cue-icon,
+.set-item .editable-text-btn:hover .edit-cue-icon,
+.set-item .editable-text-btn:focus-visible .edit-cue-icon {
+    opacity: 1;
+    color: var(--color-primary);
+}
+
+.set-item .editable-rank-btn:active,
+.set-item .editable-text-btn:active {
+    scale: 0.98;
+}
+
+.set-item .editable-rank-btn:focus-visible,
+.set-item .editable-text-btn:focus-visible,
+.rank-option-btn:focus-visible,
+.btn-inline-action:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+@media (hover: none) {
+    .edit-cue-icon,
+    .rank-cue-icon {
+        opacity: 0.8;
+    }
+
+    .set-item .editable-rank-btn,
+    .set-item .editable-text-btn {
+        border-color: rgba(0, 0, 0, 0.14);
+    }
+}
+
+/* Inline Rename Form */
+.inline-edit-form {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    flex: 1 1 12rem;
+    min-width: 0;
+    margin-bottom: 0;
+}
+
+.inline-edit-input {
+    margin-bottom: 0;
+    width: auto;
+    flex: 1 1 8rem;
+    min-width: 6rem;
+    padding: 0.35rem 0.5rem;
+    font-size: inherit;
+    font-family: inherit;
+    border: 1px solid var(--color-primary);
+    border-radius: 0.25rem;
+    background: var(--raf-white);
+    color: var(--color-text);
+}
+
+.inline-edit-input:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 1px;
+}
+
+.set-item .btn-inline-action {
+    margin-left: 0;
+    padding: 0.3rem;
+    min-width: 2rem;
+    min-height: 2rem;
+    border-radius: 0.25rem;
+    transition: background-color 150ms ease-out, color 150ms ease-out, scale 150ms ease-out;
+}
+
+.set-item .btn-inline-action:active {
+    scale: 0.95;
+}
+
+.set-item .btn-inline-save {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--raf-white);
+}
+
+.set-item .btn-inline-save:hover {
+    background: var(--color-secondary);
+    border-color: var(--color-secondary);
+    color: var(--raf-white);
+}
+
+.set-item .btn-inline-cancel {
+    background: var(--raf-white);
+    border-color: #ccc;
+    color: var(--color-muted);
+}
+
+.set-item .btn-inline-cancel:hover {
+    border-color: var(--color-error);
+    color: var(--color-error);
+    background: color-mix(in srgb, var(--color-error) 8%, var(--raf-white));
+}
+
+/* Graphical Rank Picker Grid */
+.rank-picker-title {
+    font-size: 0.95rem;
+    color: var(--color-primary);
+}
+
+.rank-picker-grid {
+    grid-template-columns: repeat(auto-fill, minmax(4.25rem, 1fr));
+    gap: var(--space-xs);
+}
+
+.rank-option-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    padding: var(--space-xs);
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+    font: inherit;
+    transition: background-color 150ms ease-out, border-color 150ms ease-out, box-shadow 150ms ease-out, scale 150ms ease-out;
+}
+
+.rank-option-btn:hover {
+    background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+    border-color: var(--color-secondary);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.rank-option-btn:active {
+    scale: 0.96;
+}
+
+.rank-option-btn.is-selected,
+.rank-option-btn[aria-pressed="true"] {
+    background: color-mix(in srgb, var(--color-primary) 14%, transparent);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: bold;
+}
+
+/* Native Programme Rename Confirmation Dialog */
+dialog.programme-rename-dialog {
+    padding: var(--space-lg);
+    border: 1px solid #d0d7de;
+    border-radius: var(--space-sm);
+    background: var(--raf-white);
+    color: var(--color-text);
+    box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.28);
+    width: min(28rem, calc(100vw - 2rem));
+    margin: auto;
+}
+
+dialog.programme-rename-dialog:modal {
+    overscroll-behavior: contain;
+}
+
+dialog.programme-rename-dialog::backdrop {
+    overflow: hidden;
+    overscroll-behavior: contain;
+    background: rgba(0, 0, 0, 0.45);
+    background: color-mix(in srgb, var(--color-primary) 45%, transparent);
+    backdrop-filter: blur(2px);
+}
+
+.programme-rename-form {
+    margin-bottom: 0;
+}
+
+dialog.programme-rename-dialog h2 {
+    font-size: 1.25rem;
+    color: var(--color-primary);
+}
+
+.rename-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+    background: var(--color-bg);
+    border-radius: 0.375rem;
+}
+
+.rename-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    background: var(--raf-white);
+    border: 1px solid #d0d7de;
+    font-weight: 600;
+}
+
+.rename-chip-rank-svg {
+    width: 1.125rem;
+    height: 1.5rem;
+    object-fit: contain;
+}
+
+.rename-chip-swatch {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 0.2rem;
+    border: 1px solid rgba(0, 0, 0, 0.35);
+    flex-shrink: 0;
+}
+
+.rename-arrow {
+    color: var(--color-secondary);
+    font-size: 1.25rem;
+}
+
+.rename-propagate-option {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+    border: 1px solid #d0d7de;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: border-color 150ms ease-out, background-color 150ms ease-out;
+}
+
+.rename-propagate-option:hover {
+    border-color: var(--color-secondary);
+    background: color-mix(in srgb, var(--color-primary) 4%, transparent);
+}
+
+.rename-propagate-option input[type="checkbox"] {
+    width: 1.125rem;
+    height: 1.125rem;
+    margin: 0.15rem 0 0 0;
+    padding: 0;
+    display: inline-block;
+    flex-shrink: 0;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+}
+
+.rename-propagate-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
 }
 
 /* Admin DRY Components */

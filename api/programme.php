@@ -1,6 +1,7 @@
 <?php
 require_once 'config.php';
 require_once 'utils.php';
+require_once 'programme_helpers.php';
 
 $action = $_GET['action'] ?? '';
 $method = $_SERVER['REQUEST_METHOD'];
@@ -143,6 +144,19 @@ if ($method === 'GET' && $action === 'autocomplete') {
     }
 }
 
+if ($method === 'GET' && $action === 'rename_preview') {
+    requirePermission($pdo, 'edit_programme');
+    $type = trim((string)($_GET['type'] ?? ''));
+    $oldValue = trim((string)($_GET['old_value'] ?? ''));
+
+    if (!isValidProgrammeRenameType($type) || $oldValue === '') {
+        jsonError('Valid type and old_value required.', 400);
+    }
+
+    $preview = propagateProgrammeRename($pdo, $type, $oldValue, $oldValue, false);
+    jsonResponse($preview);
+}
+
 // POST actions require authentication
 if ($method === 'POST') {
     $hasEditProg = hasPermission($pdo, 'edit_programme');
@@ -160,40 +174,60 @@ if ($method === 'POST' && $action === 'config') {
     jsonResponse(['success' => true, 'message' => 'Config saved']);
 }
 
+if ($method === 'POST' && $action === 'rename_references') {
+    if (!hasPermission($pdo, 'edit_programme')) jsonError("Permission denied.", 403);
+    $type = trim((string)($data['type'] ?? ''));
+    $oldValue = trim((string)($data['old_value'] ?? ''));
+    $newValue = trim((string)($data['new_value'] ?? ''));
+
+    if (!isValidProgrammeRenameType($type) || $oldValue === '' || $newValue === '') {
+        jsonError('Valid type, old_value, and new_value required.', 400);
+    }
+
+    try {
+        $result = propagateProgrammeRename($pdo, $type, $oldValue, $newValue, true);
+        jsonResponse([
+            'success' => true,
+            'updated_nights' => $result['matching_nights'],
+            'updated_occurrences' => $result['matching_occurrences'],
+            'updated_months' => $result['updated_months'],
+            'from_date' => $result['from_date']
+        ]);
+    } catch (Exception $e) {
+        jsonError('Failed to update upcoming parade nights.', 500);
+    }
+}
+
 if ($method === 'POST' && $action === 'month') {
-    $year = $data['year'] ?? '';
-    $month = $data['month'] ?? '';
+    $year = filter_var($data['year'] ?? null, FILTER_VALIDATE_INT);
+    $month = filter_var($data['month'] ?? null, FILTER_VALIDATE_INT);
     $programme = $data['programme'] ?? [];
     
-    if (!$year || !$month) {
-        jsonError('Year and month required', 400);
+    if ($year === false || $month === false || $year < 1970 || $year > 2100 || $month < 1 || $month > 12) {
+        jsonError('Valid year and month required', 400);
     }
     
     $key = "programme_{$year}_{$month}";
 
     if (!hasPermission($pdo, 'edit_programme') && hasPermission($pdo, 'edit_duties')) {
-        // Restricted duties-only edit mode
+        // Restricted duties-only edit mode: allow creating/updating a month skeleton with duties only
         $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = ?");
         $stmt->execute([$key]);
         $existingResult = $stmt->fetchColumn();
-        
-        if ($existingResult) {
-            $existingData = json_decode($existingResult, true);
-            // We only take duty_nco and duty_cadet from the incoming payload for existing parade nights
-            if (isset($programme['parade_nights']) && is_array($programme['parade_nights']) && isset($existingData['parade_nights'])) {
-                foreach ($existingData['parade_nights'] as &$existingNight) {
-                    foreach ($programme['parade_nights'] as $incomingNight) {
-                        if ($existingNight['date'] === $incomingNight['date']) {
-                            $existingNight['duty_nco'] = $incomingNight['duty_nco'] ?? '';
-                            $existingNight['duty_cadet'] = $incomingNight['duty_cadet'] ?? '';
-                        }
-                    }
-                }
-            }
-            $programme = $existingData;
-        } else {
-            jsonError("Cannot create a new month programme with only duties permission.", 403);
-        }
+        $existingData = $existingResult ? json_decode($existingResult, true) : null;
+
+        $configStmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'programme_config'");
+        $configStmt->execute();
+        $configResult = $configStmt->fetchColumn();
+        $programmeConfig = $configResult ? (json_decode($configResult, true) ?: []) : [];
+
+        $programme = mergeDutiesOnlyProgramme(
+            $programmeConfig,
+            is_array($existingData) ? $existingData : null,
+            is_array($programme) ? $programme : [],
+            (int)$year,
+            (int)$month
+        );
     }
     
     $jsonProgramme = json_encode($programme);

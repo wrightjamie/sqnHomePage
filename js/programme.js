@@ -422,7 +422,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         const topActs = Object.entries(actTally).sort((a,b)=>b[1]-a[1]).slice(0,5).map(x=>x[0]);
-        const topStaff = Object.entries(staffTally).sort((a,b)=>b[1]-a[1]).slice(0,5).map(x=>x[0]);
+        const validStaffNames = new Set((config.staff || []).map(s => s.rank ? `${s.rank} ${s.name}` : s.name));
+        const topStaff = Object.entries(staffTally)
+            .filter(([name]) => validStaffNames.size === 0 || validStaffNames.has(name))
+            .sort((a,b)=>b[1]-a[1])
+            .slice(0,5)
+            .map(x=>x[0]);
         const topNotes = Object.entries(noteTally).sort((a,b)=>b[1]-a[1]).slice(0,5).map(x=>x[0]);
         
         const actContainer = document.getElementById('act-popular-btns');
@@ -542,7 +547,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Controls
         let controlsHtml = '';
-        if (isEditMode) {
+        if (isEditMode && window.HasEditProgramme) {
             controlsHtml = `
                 <div class="row-controls">
                     <button class="btn-swap-row" title="Swap"><span class="material-symbols-outlined btn-icon-md">swap_vert</span></button>
@@ -895,15 +900,23 @@ window.openDutyPopover = function(e, cell, rowData, tr, monthType) {
 
     const select = document.getElementById('duty-nco-select');
 
-    // Fetch NCOs and populate the dropdown if empty
+    // Fetch NCOs and populate the dropdown
     apiFetch('api/ncos.php').then(ncos => {
         select.innerHTML = '<option value="">None</option>';
         ncos.forEach(nco => {
             const opt = document.createElement('option');
-            opt.value = `${nco.rank} ${nco.name}`;
-            opt.textContent = `${nco.rank} ${nco.name}`;
+            const label = nco.rank ? `${nco.rank} ${nco.name}` : nco.name;
+            opt.value = label;
+            opt.textContent = label;
             select.appendChild(opt);
         });
+        if (rowData.duty_nco && !Array.from(select.options).some(o => o.value === rowData.duty_nco)) {
+            const legacyOpt = document.createElement('option');
+            legacyOpt.value = rowData.duty_nco;
+            legacyOpt.textContent = `${rowData.duty_nco} (previous)`;
+            legacyOpt.dataset.legacy = 'true';
+            select.appendChild(legacyOpt);
+        }
         select.value = rowData.duty_nco || '';
     }).catch(e => console.error("Failed to fetch NCOs", e));
 
@@ -949,7 +962,18 @@ window.openActivityPopover = function(e, cell, rowData, tr, monthType) {
         const checked = document.querySelector('input[name="act-type-radio"]:checked');
         if (checked) checked.checked = false;
     }
-    document.getElementById('act-instructor').value = act.instructor || '';
+    const instSelect = document.getElementById('act-instructor');
+    if (instSelect) {
+        instSelect.querySelectorAll('option[data-legacy="true"]').forEach(o => o.remove());
+        if (act.instructor && !Array.from(instSelect.options).some(o => o.value === act.instructor)) {
+            const legacyOpt = document.createElement('option');
+            legacyOpt.value = act.instructor;
+            legacyOpt.textContent = `${act.instructor} (previous)`;
+            legacyOpt.dataset.legacy = 'true';
+            instSelect.appendChild(legacyOpt);
+        }
+        instSelect.value = act.instructor || '';
+    }
     const actAdminLink = document.getElementById('act-admin-link-container');
     if (actAdminLink) actAdminLink.classList.toggle('hidden', !window.HasManageSettings);
     const staffAdminLink = document.getElementById('staff-admin-link-container');
@@ -1191,7 +1215,7 @@ window.setupDragAndDrop = function() {
     });
 
     rows.forEach(row => {
-        if (document.body.classList.contains('edit-mode')) {
+        if (document.body.classList.contains('edit-mode') && window.HasEditProgramme) {
             row.draggable = true;
             row.addEventListener('dragstart', (e) => {
                 if (['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'].includes(e.target.tagName)) {

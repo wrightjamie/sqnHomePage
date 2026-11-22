@@ -12,9 +12,9 @@ require_once 'api/config.php';
     <link rel="icon" href="uploads/roundel.svg" type="image/svg+xml">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/core.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/pages/admin.css">
+    <link rel="stylesheet" href="css/core.css?v=<?= file_exists(__DIR__ . '/../css/core.css') ? filemtime(__DIR__ . '/../css/core.css') : '1' ?>">
+    <link rel="stylesheet" href="css/components.css?v=<?= file_exists(__DIR__ . '/../css/components.css') ? filemtime(__DIR__ . '/../css/components.css') : '1' ?>">
+    <link rel="stylesheet" href="css/pages/admin.css?v=<?= file_exists(__DIR__ . '/../css/pages/admin.css') ? filemtime(__DIR__ . '/../css/pages/admin.css') : '1' ?>">
 </head>
 <body>
     <?php
@@ -356,6 +356,25 @@ require_once 'api/config.php';
             </form>
         </div>
     </div>
+
+    <!-- Programme Item Rename Confirmation Dialog -->
+    <dialog id="programme-rename-dialog" class="programme-rename-dialog" aria-labelledby="programme-rename-dialog-title" closedby="any">
+        <form method="dialog" id="programme-rename-form" class="programme-rename-form">
+            <h2 id="programme-rename-dialog-title" class="m-0 mb-sm">Save Change</h2>
+            <div id="programme-rename-summary" class="rename-summary mb-md"></div>
+            <label class="rename-propagate-option mb-md" for="programme-rename-update-upcoming">
+                <input type="checkbox" id="programme-rename-update-upcoming" name="update_upcoming">
+                <span class="rename-propagate-copy">
+                    <strong>Also update upcoming parade nights</strong>
+                    <span id="programme-rename-upcoming-hint" class="text-sm text-muted d-block">Checking upcoming parade nights...</span>
+                </span>
+            </label>
+            <div class="flex-row justify-end gap-sm">
+                <button class="btn btn-secondary" type="submit" value="cancel">Cancel</button>
+                <button class="btn btn-primary" type="submit" value="save" id="btn-confirm-programme-rename" autofocus>Save Change</button>
+            </div>
+        </form>
+    </dialog>
 
     <?php include 'components/menu.php'; ?>
 

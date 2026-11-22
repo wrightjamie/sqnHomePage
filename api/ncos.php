@@ -1,6 +1,7 @@
 <?php
 require_once 'config.php';
 require_once 'utils.php';
+require_once 'programme_helpers.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -44,24 +45,65 @@ if ($method === 'POST') {
         }
     }
 
-    if (!isset($data['name']) || !isset($data['rank'])) {
+    $name = trim((string)($data['name'] ?? ''));
+    $rank = trim((string)($data['rank'] ?? ''));
+    if ($name === '' || $rank === '') {
         jsonError('Name and rank required');
     }
 
     $stmt = $pdo->prepare("INSERT INTO ncos (name, rank) VALUES (?, ?)");
-    $stmt->execute([trim($data['name']), trim($data['rank'])]);
+    $stmt->execute([$name, $rank]);
     jsonResponse(['id' => $pdo->lastInsertId()]);
 }
 
 if ($method === 'PUT') {
     $data = json_decode(file_get_contents('php://input'), true);
-    if (!isset($data['id']) || !isset($data['name']) || !isset($data['rank'])) {
+    $id = $data['id'] ?? null;
+    $name = trim((string)($data['name'] ?? ''));
+    $rank = trim((string)($data['rank'] ?? ''));
+    $updateUpcoming = !empty($data['update_upcoming']);
+
+    if (!$id || $name === '' || $rank === '') {
         jsonError('ID, name, and rank required');
     }
 
-    $stmt = $pdo->prepare("UPDATE ncos SET name = ?, rank = ? WHERE id = ?");
-    $stmt->execute([trim($data['name']), trim($data['rank']), $data['id']]);
-    jsonResponse(['success' => true]);
+    $pdo->beginTransaction();
+    try {
+        $existingStmt = $pdo->prepare("SELECT name, rank FROM ncos WHERE id = ?");
+        $existingStmt->execute([$id]);
+        $existing = $existingStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$existing) {
+            $pdo->rollBack();
+            jsonError('NCO not found', 404);
+        }
+
+        $oldDisplay = formatPersonnelName((string)$existing['rank'], (string)$existing['name']);
+        $newDisplay = formatPersonnelName($rank, $name);
+
+        $stmt = $pdo->prepare("UPDATE ncos SET name = ?, rank = ? WHERE id = ?");
+        $stmt->execute([$name, $rank, $id]);
+
+        $updatedNights = 0;
+        $updatedMonths = 0;
+        if ($updateUpcoming && $oldDisplay !== $newDisplay) {
+            $propResult = propagateProgrammeRename($pdo, 'nco', $oldDisplay, $newDisplay, true);
+            $updatedNights = $propResult['matching_nights'];
+            $updatedMonths = $propResult['updated_months'];
+        }
+
+        $pdo->commit();
+        jsonResponse([
+            'success' => true,
+            'updated_nights' => $updatedNights,
+            'updated_months' => $updatedMonths
+        ]);
+    } catch (Exception $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        jsonError('Database error', 500);
+    }
 }
 
 if ($method === 'DELETE') {

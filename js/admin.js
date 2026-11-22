@@ -3,6 +3,15 @@ import { Auth } from "./auth.js";
 import { Toast } from "./components/Toast.js";
 import { Pagination } from "./components/Pagination.js";
 import { setupDragAndDrop } from "./utils/dragDrop.js";
+import {
+    DEFAULT_STAFF_RANKS,
+    escapeHtml,
+    formatPersonnelName,
+    renderEditableTextButton,
+    bindEditableTextButton,
+    createProgrammeRenameDialog,
+    PersonnelManager
+} from "./utils/programme-settings-editor.js";
 
 
 // js/admin.js
@@ -18,18 +27,17 @@ function renderList(containerId, items, config) {
         div.className = 'set-item reorder-item';
         div.draggable = true;
         div.dataset.id = i;
-        div.style.cursor = 'grab';
 
         // Start common HTML
         let html = `<div class="flex-row align-center flex-1 gap-sm">
-                    <span class="material-symbols-outlined drag-handle">drag_indicator</span>`;
+                    <span class="material-symbols-outlined drag-handle" title="Drag to reorder">drag_indicator</span>`;
 
         html += config.renderInner(item, i);
 
         html += `</div>`;
 
         if (!config.hideRemove) {
-            html += `<button class="btn btn-remove btn-remove-item" data-index="${i}" title="Remove"><span class="material-symbols-outlined">delete</span></button>`;
+            html += `<button type="button" class="btn btn-remove btn-remove-item" data-index="${i}" title="Remove" aria-label="Remove"><span class="material-symbols-outlined">delete</span></button>`;
         }
 
         div.innerHTML = html;
@@ -47,37 +55,6 @@ function renderList(containerId, items, config) {
 
     setupDragAndDrop(container, (newOrder) => {
         config.onReorder(newOrder.map(oldIdx => items[oldIdx]));
-    });
-}
-
-function editableTextBinding(el, selector, onSave) {
-    const span = el.querySelector(selector);
-    if(!span) return;
-    span.style.cursor = 'pointer';
-    span.title = 'Click to edit';
-    span.addEventListener('click', () => {
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = span.textContent;
-        input.style.padding = '2px 5px';
-        input.style.fontSize = 'inherit';
-        input.style.fontFamily = 'inherit';
-
-        const save = () => {
-            if (input.value.trim() && input.value !== span.textContent) {
-                onSave(input.value.trim());
-            } else {
-                span.style.display = '';
-                input.remove();
-            }
-        };
-
-        input.addEventListener('blur', save);
-        input.addEventListener('keypress', (e) => { if(e.key === 'Enter') input.blur(); });
-
-        span.style.display = 'none';
-        span.parentNode.insertBefore(input, span.nextSibling);
-        input.focus();
     });
 }
 
@@ -997,32 +974,118 @@ document.head.appendChild(style);
 document.addEventListener('DOMContentLoaded', () => {
     let progConfig = { uniforms: [], activity_types: [], classifications: [], parade_nights: [], ranks: [], staff: [] };
 
-    // Rank SVGs mapping
-    const rankSvgMap = {
-        'Cdt': 'cdt.svg', 'Cpl': 'cpl.svg', 'Sgt': 'sgt.svg', 'FSgt': 'fsgt.svg',
-        'FS': 'fsgt.svg', 'CWO': 'cwo.svg', 'CI': 'ci.svg', 'Plt Off': 'plt_off.svg',
-        'Fg Off': 'fg_off.svg', 'Flt Lt': 'flt_lt.svg', 'Sqn Ldr': 'sqn_ldr.svg',
-        'Wg Cdr': 'wg_cdr.svg', 'WO': 'wo.svg'
-    };
-    function getRankSvg(rank) {
-        return rankSvgMap[rank] ? `images/ranks/${rankSvgMap[rank]}` : `images/ranks/cdt.svg`;
+    const btnSave = document.getElementById('btn-save-programme');
+    const renameDialog = createProgrammeRenameDialog({
+        dialogEl: document.getElementById('programme-rename-dialog'),
+        apiFetchFn: apiFetch
+    });
+
+    /**
+     * Persists the current programme configuration to the backend.
+     */
+    async function saveConfig() {
+        await apiFetch('api/programme.php?action=config', 'POST', progConfig);
     }
 
-    const btnSave = document.getElementById('btn-save-programme');
+    /**
+     * Formats and displays a success Toast after saving a rename/promotion.
+     *
+     * @param {string} label - The new display label.
+     * @param {boolean} updateUpcoming - Whether upcoming parade nights were requested to update.
+     * @param {number} updatedNights - Count of updated upcoming parade nights.
+     */
+    function showRenameSuccessToast(label, updateUpcoming, updatedNights) {
+        if (updateUpcoming && updatedNights > 0) {
+            const nightWord = updatedNights === 1 ? 'night' : 'nights';
+            Toast.show(`Updated to "${label}" and updated ${updatedNights} upcoming parade ${nightWord}.`, 'success');
+        } else {
+            Toast.show(`Updated to "${label}".`, 'success');
+        }
+    }
 
+    /**
+     * Confirms a config-backed item rename via dialog, saves programme_config, and optionally
+     * propagates the rename to upcoming parade nights. Reverts local state if saving fails.
+     *
+     * @param {Object} params
+     * @returns {Promise<boolean>} True if saved, false if cancelled or failed.
+     */
+    async function confirmAndApplyConfigRename({
+        title,
+        entityType,
+        oldDisplay,
+        newDisplay,
+        oldRank = '',
+        newRank = '',
+        swatchColor = '',
+        applyLocal,
+        revertLocal,
+        rerender
+    }) {
+        const { confirmed, updateUpcoming } = await renameDialog.confirmRename({
+            title,
+            entityType,
+            oldDisplay,
+            newDisplay,
+            oldRank,
+            newRank,
+            swatchColor
+        });
 
+        if (!confirmed) return false;
 
+        applyLocal();
+        if (rerender) rerender();
 
+        try {
+            await saveConfig();
+            let updatedNights = 0;
+            if (updateUpcoming) {
+                const prop = await apiFetch('api/programme.php?action=rename_references', 'POST', {
+                    type: entityType,
+                    old_value: oldDisplay,
+                    new_value: newDisplay
+                });
+                updatedNights = Number(prop?.updated_nights || 0);
+            }
+            showRenameSuccessToast(newDisplay, updateUpcoming, updatedNights);
+            return true;
+        } catch (e) {
+            console.error('Failed to save programme edit', e);
+            revertLocal();
+            if (rerender) rerender();
+            return false;
+        }
+    }
 
     // --- Uniforms ---
     function renderUniforms() {
         renderList('uniforms-list', progConfig.uniforms, {
-            renderInner: (u, i) => `
-                <div class="edit-color color-swatch" style="background-color: ${u.color};"></div>
-                <span class="edit-text">${u.name}</span>
+            renderInner: (u) => `
+                <div class="edit-color color-swatch" style="background-color: ${escapeHtml(u.color)};"></div>
+                ${renderEditableTextButton(u.name, {
+                    className: 'edit-text',
+                    title: 'Click to rename uniform',
+                    ariaLabel: `Rename uniform ${u.name}`
+                })}
             `,
-            bindEvents: (div, u, i) => {
-                editableTextBinding(div, '.edit-text', (newVal) => { u.name = newVal; renderUniforms(); });
+            bindEvents: (div, u) => {
+                bindEditableTextButton(div, '.edit-text', {
+                    inputLabel: `Rename uniform ${u.name}`,
+                    onCommit: async (newVal) => {
+                        const oldName = u.name;
+                        await confirmAndApplyConfigRename({
+                            title: 'Rename Uniform',
+                            entityType: 'uniform',
+                            oldDisplay: oldName,
+                            newDisplay: newVal,
+                            swatchColor: u.color,
+                            applyLocal: () => { u.name = newVal; },
+                            revertLocal: () => { u.name = oldName; },
+                            rerender: renderUniforms
+                        });
+                    }
+                });
                 editableColorBinding(div, '.edit-color', (newVal) => { u.color = newVal; renderUniforms(); });
             },
             onRemove: (i) => { progConfig.uniforms.splice(i, 1); renderUniforms(); },
@@ -1033,9 +1096,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-add-uniform').addEventListener('click', () => {
         const name = document.getElementById('new-uniform-name').value.trim();
         const color = document.getElementById('new-uniform-color').value;
-        if(name) {
-            if(!progConfig.uniforms) progConfig.uniforms = [];
-            progConfig.uniforms.push({name, color});
+        if (name) {
+            if (!progConfig.uniforms) progConfig.uniforms = [];
+            progConfig.uniforms.push({ name, color });
             document.getElementById('new-uniform-name').value = '';
             renderUniforms();
         }
@@ -1044,12 +1107,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Activities ---
     function renderActivityTypes() {
         renderList('activity-list', progConfig.activity_types, {
-            renderInner: (a, i) => `
-                <div class="edit-color color-swatch" style="background-color: ${a.color};"></div>
-                <span class="edit-text">${a.name}</span>
+            renderInner: (a) => `
+                <div class="edit-color color-swatch" style="background-color: ${escapeHtml(a.color)};"></div>
+                ${renderEditableTextButton(a.name, {
+                    className: 'edit-text',
+                    title: 'Click to rename activity type',
+                    ariaLabel: `Rename activity type ${a.name}`
+                })}
             `,
-            bindEvents: (div, a, i) => {
-                editableTextBinding(div, '.edit-text', (newVal) => { a.name = newVal; renderActivityTypes(); });
+            bindEvents: (div, a) => {
+                bindEditableTextButton(div, '.edit-text', {
+                    inputLabel: `Rename activity type ${a.name}`,
+                    onCommit: async (newVal) => {
+                        const oldName = a.name;
+                        await confirmAndApplyConfigRename({
+                            title: 'Rename Activity Type',
+                            entityType: 'activity_type',
+                            oldDisplay: oldName,
+                            newDisplay: newVal,
+                            swatchColor: a.color,
+                            applyLocal: () => { a.name = newVal; },
+                            revertLocal: () => { a.name = oldName; },
+                            rerender: renderActivityTypes
+                        });
+                    }
+                });
                 editableColorBinding(div, '.edit-color', (newVal) => { a.color = newVal; renderActivityTypes(); });
             },
             onRemove: (i) => { progConfig.activity_types.splice(i, 1); renderActivityTypes(); },
@@ -1060,9 +1142,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-add-activity').addEventListener('click', () => {
         const name = document.getElementById('new-activity-name').value.trim();
         const color = document.getElementById('new-activity-color').value;
-        if(name) {
-            if(!progConfig.activity_types) progConfig.activity_types = [];
-            progConfig.activity_types.push({name, color});
+        if (name) {
+            if (!progConfig.activity_types) progConfig.activity_types = [];
+            progConfig.activity_types.push({ name, color });
             document.getElementById('new-activity-name').value = '';
             renderActivityTypes();
         }
@@ -1071,9 +1153,32 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Classifications ---
     function renderClassifications() {
         renderList('classifications-list', progConfig.classifications, {
-            renderInner: (c, i) => `<span class="edit-text">${c}</span>`,
+            renderInner: (c) => renderEditableTextButton(c, {
+                className: 'edit-text',
+                title: 'Click to rename classification',
+                ariaLabel: `Rename classification ${c}`
+            }),
             bindEvents: (div, c, i) => {
-                editableTextBinding(div, '.edit-text', (newVal) => { progConfig.classifications[i] = newVal; renderClassifications(); });
+                bindEditableTextButton(div, '.edit-text', {
+                    inputLabel: `Rename classification ${c}`,
+                    onCommit: async (newVal) => {
+                        const duplicate = progConfig.classifications.some((existing, idx) => idx !== i && existing === newVal);
+                        if (duplicate) {
+                            Toast.show(`Classification "${newVal}" already exists.`, 'error');
+                            return;
+                        }
+                        const oldName = progConfig.classifications[i];
+                        await confirmAndApplyConfigRename({
+                            title: 'Rename Classification',
+                            entityType: 'classification',
+                            oldDisplay: oldName,
+                            newDisplay: newVal,
+                            applyLocal: () => { progConfig.classifications[i] = newVal; },
+                            revertLocal: () => { progConfig.classifications[i] = oldName; },
+                            rerender: renderClassifications
+                        });
+                    }
+                });
             },
             onRemove: (i) => { progConfig.classifications.splice(i, 1); renderClassifications(); },
             onReorder: (newArr) => { progConfig.classifications = newArr; renderClassifications(); }
@@ -1082,8 +1187,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('btn-add-classification').addEventListener('click', () => {
         const cls = document.getElementById('new-classification-name').value.trim();
-        if(cls) {
-            if(!progConfig.classifications) progConfig.classifications = [];
+        if (cls) {
+            if (!progConfig.classifications) progConfig.classifications = [];
             progConfig.classifications.push(cls);
             document.getElementById('new-classification-name').value = '';
             renderClassifications();
@@ -1122,7 +1227,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             btn.innerHTML = `<span style="font-weight: 500;">${day}</span>`;
 
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
+                const previousDays = [...progConfig.parade_nights];
                 if (progConfig.parade_nights.includes(day)) {
                     progConfig.parade_nights = progConfig.parade_nights.filter(d => d !== day);
                 } else {
@@ -1131,165 +1237,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Sort array to keep chronological order
                 progConfig.parade_nights.sort((a, b) => days.indexOf(a) - days.indexOf(b));
-
-                saveConfig();
                 renderParadeNights();
+
+                try {
+                    await saveConfig();
+                } catch (e) {
+                    progConfig.parade_nights = previousDays;
+                    renderParadeNights();
+                }
             });
 
             container.appendChild(btn);
         });
     }
 
-    // --- Staff ---
-    class PersonnelManager {
-        constructor(config) {
-            this.containerId = config.containerId;
-            this.title = config.title;
-            this.ranks = config.ranks || [];
-            this.loadFn = config.loadFn;
-            this.addFn = config.addFn;
-            this.editFn = config.editFn;
-            this.deleteFn = config.deleteFn;
-            this.reorderFn = config.reorderFn;
-            this.items = [];
-
-            // Unique IDs for popover and inputs
-            this.managerId = this.containerId.replace('-container', '');
-            this.popoverId = `rank-picker-${this.managerId}`;
-            this.btnId = `btn-rank-${this.managerId}`;
-
-            this.renderShell();
-            this.load();
-        }
-
-        renderShell() {
-            const container = document.getElementById(this.containerId);
-            if (!container) return;
-
-            container.innerHTML = `
-                <h4 class="mb-sm text-muted">${this.title}</h4>
-                <div id="${this.managerId}-list" class="flex-col gap-xs mb-md admin-list-container"></div>
-                <div class="input-group input-group-adjacent" style="position: relative;">
-                    <button class="btn admin-input-btn-h w-auto" type="button" id="${this.btnId}" popovertarget="${this.popoverId}" style="anchor-name: --${this.btnId};">
-                        <img src="" id="${this.managerId}-rank-display" class="admin-rank-preview hidden">
-                        <span id="${this.managerId}-rank-text">Select Rank</span>
-                    </button>
-                    <input type="hidden" id="${this.managerId}-new-rank">
-
-                    <div id="${this.popoverId}" popover class="rank-picker-popover" style="position-anchor: --${this.btnId};">
-                        <h4 class="mt-0">Select Rank</h4>
-                        <div class="icon-grid" id="${this.managerId}-rank-grid">
-                            <!-- Populated dynamically -->
-                        </div>
-                    </div>
-
-                    <input type="text" id="${this.managerId}-new-name" placeholder="Name (e.g. Smith)" class="flex-grow-1">
-                    <button class="btn btn-icon w-auto" type="button" id="${this.managerId}-btn-add"><span class="material-symbols-outlined">add</span></button>
-                </div>
-            `;
-
-            this.populateRankPicker();
-
-            const btnAdd = document.getElementById(`${this.managerId}-btn-add`);
-            const nameInput = document.getElementById(`${this.managerId}-new-name`);
-
-            const handleAdd = async () => {
-                const name = nameInput.value.trim();
-                const rank = document.getElementById(`${this.managerId}-new-rank`).value;
-                if (name && rank) {
-                    await this.addFn(name, rank);
-                    nameInput.value = '';
-                    document.getElementById(`${this.managerId}-new-rank`).value = '';
-                    document.getElementById(`${this.managerId}-rank-text`).style.display = 'inline';
-                    document.getElementById(`${this.managerId}-rank-display`).style.display = 'none';
-                    this.load();
-                } else {
-                    if (typeof Toast !== 'undefined') Toast.show('Please select a rank and enter a name.', 'error');
-                }
-            };
-
-            btnAdd.addEventListener('click', handleAdd);
-            nameInput.addEventListener('keyup', (e) => {
-                if (e.key === 'Enter') handleAdd();
-            });
-        }
-
-        populateRankPicker() {
-            const grid = document.getElementById(`${this.managerId}-rank-grid`);
-            grid.innerHTML = '';
-            this.ranks.forEach(r => {
-                const label = document.createElement('label');
-                label.style.display = 'flex';
-                label.style.flexDirection = 'column';
-                label.style.alignItems = 'center';
-                label.style.cursor = 'pointer';
-                label.style.padding = '5px';
-                label.style.border = '1px solid transparent';
-                label.style.borderRadius = '4px';
-
-                label.innerHTML = `
-                    <input type="radio" name="${this.managerId}_rank_select" value="${r}" class="hidden">
-                    <img src="${getRankSvg(r)}" class="rank-svg-lg">
-                    <span class="text-sm text-center">${r}</span>
-                `;
-
-                label.querySelector('input').addEventListener('change', () => {
-                    document.getElementById(`${this.managerId}-new-rank`).value = r;
-                    document.getElementById(`${this.managerId}-rank-text`).style.display = 'none';
-                    const img = document.getElementById(`${this.managerId}-rank-display`);
-                    img.src = getRankSvg(r);
-                    img.style.display = 'block';
-                    document.getElementById(this.popoverId).hidePopover();
-                });
-
-                grid.appendChild(label);
-            });
-        }
-
-        async load() {
-            this.items = await this.loadFn();
-            this.renderList();
-        }
-
-        renderList() {
-            renderList(`${this.managerId}-list`, this.items, {
-                renderInner: (item, i) => `
-                    <img src="${getRankSvg(item.rank)}" class="rank-svg-sm">
-                    <span class="edit-text-rank clickable-rank" title="Click to change rank">${item.rank}</span>
-                    <span class="edit-text-name">${item.name}</span>
-                `,
-                bindEvents: (div, item, i) => {
-                    editableTextBinding(div, '.edit-text-name', async (newVal) => {
-                        await this.editFn(item, newVal, item.rank);
-                        this.load();
-                    });
-                    editableTextBinding(div, '.edit-text-rank', async (newVal) => {
-                        await this.editFn(item, item.name, newVal);
-                        this.load();
-                    });
-                },
-                onRemove: async (i) => {
-                    const item = this.items[i];
-                    if(confirm(`Remove ${item.rank} ${item.name}?`)) {
-                        await this.deleteFn(item, i);
-                        this.load();
-                        if(typeof Toast !== 'undefined') Toast.show('Removed', 'success');
-                    }
-                },
-                onReorder: async (newArr) => {
-                    await this.reorderFn(newArr);
-                    this.load();
-                }
-            });
-        }
-    }
-
     // --- Main ---
     async function loadConfig() {
         try {
             const data = await apiFetch('api/programme.php?action=config');
-            if(data) progConfig = data;
-        } catch(e) {
+            if (data) progConfig = data;
+        } catch (e) {
             console.error('Failed to load programme config');
         }
         renderUniforms();
@@ -1301,15 +1268,36 @@ document.addEventListener('DOMContentLoaded', () => {
         new PersonnelManager({
             containerId: 'staff-manager-container',
             title: 'Manage Staff',
-            ranks: progConfig.ranks || [],
+            ranks: (progConfig.ranks && progConfig.ranks.length > 0) ? progConfig.ranks : DEFAULT_STAFF_RANKS,
+            renderListFn: renderList,
             loadFn: async () => progConfig.staff || [],
             addFn: async (name, rank) => {
-                if(!progConfig.staff) progConfig.staff = [];
-                progConfig.staff.push({name, rank});
+                if (!progConfig.staff) progConfig.staff = [];
+                progConfig.staff.push({ name, rank });
             },
             editFn: async (item, name, rank) => {
-                item.name = name;
-                item.rank = rank;
+                const oldName = item.name;
+                const oldRank = item.rank;
+                const oldDisplay = formatPersonnelName(oldRank, oldName);
+                const newDisplay = formatPersonnelName(rank, name);
+                if (oldDisplay === newDisplay) return false;
+
+                return confirmAndApplyConfigRename({
+                    title: 'Update Staff Member',
+                    entityType: 'staff',
+                    oldDisplay,
+                    newDisplay,
+                    oldRank,
+                    newRank: rank,
+                    applyLocal: () => {
+                        item.name = name;
+                        item.rank = rank;
+                    },
+                    revertLocal: () => {
+                        item.name = oldName;
+                        item.rank = oldRank;
+                    }
+                });
             },
             deleteFn: async (item, i) => {
                 progConfig.staff.splice(i, 1);
@@ -1324,15 +1312,38 @@ document.addEventListener('DOMContentLoaded', () => {
             containerId: 'nco-manager-container',
             title: 'Manage Duty NCOs',
             ranks: ['Cpl', 'Sgt', 'FS', 'CWO'],
+            renderListFn: renderList,
             loadFn: async () => await apiFetch('api/ncos.php'),
             addFn: async (name, rank) => {
                 await apiFetch('api/ncos.php', 'POST', { name, rank });
             },
             editFn: async (item, name, rank) => {
-                await apiFetch('api/ncos.php', 'PUT', { id: item.id, name, rank });
+                const oldDisplay = formatPersonnelName(item.rank, item.name);
+                const newDisplay = formatPersonnelName(rank, name);
+                if (oldDisplay === newDisplay) return false;
+
+                const { confirmed, updateUpcoming } = await renameDialog.confirmRename({
+                    title: 'Update NCO',
+                    entityType: 'nco',
+                    oldDisplay,
+                    newDisplay,
+                    oldRank: item.rank,
+                    newRank: rank
+                });
+
+                if (!confirmed) return false;
+
+                const res = await apiFetch('api/ncos.php', 'PUT', {
+                    id: item.id,
+                    name,
+                    rank,
+                    update_upcoming: updateUpcoming
+                });
+                showRenameSuccessToast(newDisplay, updateUpcoming, Number(res?.updated_nights || 0));
+                return true;
             },
-            deleteFn: async (item, i) => {
-                await apiFetch('api/ncos.php', 'DELETE', {id: item.id});
+            deleteFn: async (item) => {
+                await apiFetch('api/ncos.php', 'DELETE', { id: item.id });
             },
             reorderFn: async (newArr) => {
                 const orderedIds = newArr.map(nco => nco.id);
@@ -1347,7 +1358,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSave.disabled = true;
 
         try {
-            await apiFetch('api/programme.php?action=config', 'POST', progConfig);
+            await saveConfig();
 
             btnSave.innerHTML = '<span class="material-symbols-outlined mr-sm">check</span> Saved!';
             btnSave.style.background = 'rgba(0, 200, 100, 0.6)';
@@ -1356,7 +1367,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnSave.style.background = '';
                 btnSave.disabled = false;
             }, 2000);
-        } catch(e) {
+        } catch (e) {
             console.error(e);
             btnSave.innerHTML = 'Error saving';
             setTimeout(() => {

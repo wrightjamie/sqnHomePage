@@ -5,12 +5,17 @@ export function setupDragAndDrop(container, onReorder) {
 
     container.querySelectorAll('.reorder-item').forEach(item => {
         item.addEventListener('dragstart', (e) => {
+            if (item.classList.contains('is-editing') || (e.target instanceof Element && e.target.closest('input, textarea, select, button, .inline-edit-form'))) {
+                e.preventDefault();
+                return;
+            }
             draggedItem = item;
             item.classList.add('dragging');
             setTimeout(() => item.style.opacity = '0.5', 0);
         });
 
         item.addEventListener('dragend', () => {
+            if (!draggedItem) return;
             item.classList.remove('dragging');
             item.style.opacity = '1';
             draggedItem = null;
