@@ -940,9 +940,8 @@ function buildEditorDOM() {
   sidebarEl = document.createElement('div');
   sidebarEl.className = 'editor-sidebar glass-panel';
   sidebarEl.innerHTML = `
-    <div class="flex-space-between-center mb-xs">
+    <div class="mb-xs">
       <h3 class="m-0">Dashboard Settings</h3>
-      <button id="slide-close-editor-btn" class="btn-close-editor" title="Slide In Settings (Hide)" type="button"><i class="ph ph-x"></i></button>
     </div>
 
     <div id="tab-settings" class="sidebar-tab-content active">
@@ -973,8 +972,8 @@ function buildEditorDOM() {
       </div>
 
       <div class="mt-sm flex-row gap-sm">
-        <button id="close-editor-btn" class="btn btn-danger flex-1" type="button"><span class="material-symbols-outlined icon-sm">close</span> Cancel</button>
         <button id="save-config-btn" class="btn btn-primary flex-1" type="button"><span class="material-symbols-outlined icon-sm">save</span> Save Configuration</button>
+        <button id="close-editor-btn" class="btn btn-danger" type="button" title="Cancel" aria-label="Cancel"><span class="material-symbols-outlined icon-sm">close</span><span class="btn-label">Cancel</span></button>
       </div>
     </div>
   `;
@@ -1002,11 +1001,6 @@ function buildEditorDOM() {
   };
 
   toggleBtn.onclick = () => toggleSettingsPanel();
-
-  const slideCloseBtn = document.getElementById('slide-close-editor-btn');
-  if (slideCloseBtn) {
-    slideCloseBtn.onclick = () => toggleSettingsPanel(false);
-  }
 
   document.getElementById('close-editor-btn').onclick = () => {
     if (originalConfigSnapshot) {

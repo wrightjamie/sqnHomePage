@@ -129,10 +129,12 @@ body.edit-mode-active .row {
   display: flex;
   flex-direction: column;
   padding: 2rem;
+  padding-bottom: calc(var(--space-lg, 1.25rem) + 50px + 1.5rem);
   overflow-y: auto;
   box-sizing: border-box;
   box-shadow: -5px 0 25px rgba(0, 0, 0, 0.5);
   pointer-events: auto;
+  container-type: inline-size;
 }
 
 .btn-close-editor {
@@ -173,10 +175,42 @@ body.edit-mode-active .row {
 }
 #copy-config-btn:hover, #dl-config-btn:hover { background: var(--raf-light-blue); }
 
-.editor-sidebar #close-editor-btn,
 .editor-sidebar #save-config-btn {
+  flex: 1;
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.editor-sidebar #close-editor-btn {
+  flex: 0 0 auto;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+@container (max-width: 380px) {
+  .editor-sidebar #close-editor-btn .btn-label {
+    display: none;
+  }
+  .editor-sidebar #close-editor-btn {
+    padding: 0.5rem;
+    min-width: 2.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .editor-sidebar #close-editor-btn .btn-label {
+    display: none;
+  }
+  .editor-sidebar #close-editor-btn {
+    padding: 0.5rem;
+    min-width: 2.25rem;
+  }
 }
 
 /* On-Canvas Edit Controls */

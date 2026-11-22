@@ -26,10 +26,23 @@ describe('Home Page Dashboard Settings Sidebar', () => {
     it('should not hardcode body padding-right in edit mode to allow full responsive width', () => {
       expect(css).toContain('padding-right: 0');
     });
+
+    it('should define bottom padding on .editor-sidebar to clear floating menu controls', () => {
+      expect(css).toContain('padding-bottom: calc(var(--space-lg, 1.25rem) + 50px');
+    });
+
+    it('should style action buttons with save taking remaining space and cancel collapsing on narrow screens', () => {
+      expect(css).toContain('.editor-sidebar #save-config-btn');
+      expect(css).toContain('flex: 1');
+      expect(css).toContain('.editor-sidebar #close-editor-btn');
+      expect(css).toContain('flex: 0 0 auto');
+      expect(css).toContain('.editor-sidebar #close-editor-btn .btn-label');
+      expect(css).toContain('display: none');
+    });
   });
 
-  describe('DOM Sliding Interaction', () => {
-    let wrapper, toggleBtn, sidebar, slideCloseBtn;
+  describe('DOM Interaction & Action Buttons', () => {
+    let wrapper, toggleBtn, sidebar;
 
     beforeEach(() => {
       document.body.innerHTML = `
@@ -38,11 +51,14 @@ describe('Home Page Dashboard Settings Sidebar', () => {
             <span class="material-symbols-outlined">tune</span>
           </button>
           <div class="editor-sidebar glass-panel">
-            <div class="flex-space-between-center mb-xs">
+            <div class="mb-xs">
               <h3 class="m-0">Dashboard Settings</h3>
-              <button id="slide-close-editor-btn" class="btn-close-editor" title="Slide In Settings (Hide)" type="button">
-                <i class="ph ph-x"></i>
-              </button>
+            </div>
+            <div id="tab-settings" class="sidebar-tab-content active">
+              <div class="mt-sm flex-row gap-sm">
+                <button id="save-config-btn" class="btn btn-primary flex-1" type="button"><span class="material-symbols-outlined icon-sm">save</span> Save Configuration</button>
+                <button id="close-editor-btn" class="btn btn-danger" type="button" title="Cancel" aria-label="Cancel"><span class="material-symbols-outlined icon-sm">close</span><span class="btn-label">Cancel</span></button>
+              </div>
             </div>
           </div>
         </div>
@@ -51,7 +67,6 @@ describe('Home Page Dashboard Settings Sidebar', () => {
       wrapper = document.getElementById('editor-sidebar-wrapper');
       toggleBtn = document.getElementById('sidebar-toggle-btn');
       sidebar = wrapper.querySelector('.editor-sidebar');
-      slideCloseBtn = document.getElementById('slide-close-editor-btn');
 
       // Mimic toggle function from home.js
       const toggleSettingsPanel = (forceOpen) => {
@@ -73,7 +88,36 @@ describe('Home Page Dashboard Settings Sidebar', () => {
       };
 
       toggleBtn.onclick = () => toggleSettingsPanel();
-      slideCloseBtn.onclick = () => toggleSettingsPanel(false);
+    });
+
+    it('should not render a close button in the top right of dashboard settings header', () => {
+      const headerCloseBtn = sidebar.querySelector('.btn-close-editor, #slide-close-editor-btn');
+      expect(headerCloseBtn).toBeNull();
+    });
+
+    it('should render Save button before Cancel button', () => {
+      const saveBtn = sidebar.querySelector('#save-config-btn');
+      const cancelBtn = sidebar.querySelector('#close-editor-btn');
+
+      expect(saveBtn).not.toBeNull();
+      expect(cancelBtn).not.toBeNull();
+
+      // Ensure save button precedes cancel button in the DOM
+      expect(saveBtn.compareDocumentPosition(cancelBtn) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it('should have Cancel button configured with accessible label and .btn-label wrapper', () => {
+      const cancelBtn = sidebar.querySelector('#close-editor-btn');
+      expect(cancelBtn.getAttribute('aria-label')).toBe('Cancel');
+      expect(cancelBtn.getAttribute('title')).toBe('Cancel');
+
+      const labelSpan = cancelBtn.querySelector('.btn-label');
+      expect(labelSpan).not.toBeNull();
+      expect(labelSpan.textContent.trim()).toBe('Cancel');
+
+      const iconSpan = cancelBtn.querySelector('.material-symbols-outlined');
+      expect(iconSpan).not.toBeNull();
+      expect(iconSpan.textContent.trim()).toBe('close');
     });
 
     it('should slide open when toggle button is clicked while collapsed', () => {
@@ -92,17 +136,6 @@ describe('Home Page Dashboard Settings Sidebar', () => {
       toggleBtn.title = 'Close Dashboard Settings';
 
       toggleBtn.click();
-
-      expect(wrapper.classList.contains('collapsed')).toBe(true);
-      expect(toggleBtn.title).toBe('Open Dashboard Settings');
-      expect(toggleBtn.innerHTML).toContain('tune');
-    });
-
-    it('should slide closed when the header close button is clicked', () => {
-      wrapper.classList.remove('collapsed');
-      toggleBtn.innerHTML = '<span class="material-symbols-outlined">chevron_right</span>';
-
-      slideCloseBtn.click();
 
       expect(wrapper.classList.contains('collapsed')).toBe(true);
       expect(toggleBtn.title).toBe('Open Dashboard Settings');
