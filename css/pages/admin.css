@@ -352,7 +352,8 @@ input[type="color"]::-webkit-color-swatch-wrapper { cursor: pointer !important; 
 }
 
 .set-item .editable-rank-btn,
-.set-item .editable-text-btn {
+.set-item .editable-text-btn,
+.role-name-cell .editable-text-btn {
     margin-left: 0;
     background: transparent;
     border: 1px dashed transparent;
@@ -366,6 +367,10 @@ input[type="color"]::-webkit-color-swatch-wrapper { cursor: pointer !important; 
     gap: var(--space-xs);
     text-align: left;
     transition: background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out, box-shadow 150ms ease-out, scale 150ms ease-out;
+}
+
+.role-name-cell .editable-text-btn {
+    font-weight: bold;
 }
 
 .set-item .editable-text-btn {
@@ -386,13 +391,15 @@ input[type="color"]::-webkit-color-swatch-wrapper { cursor: pointer !important; 
 }
 
 .set-item:hover .edit-cue-icon,
-.set-item:hover .rank-cue-icon {
+.set-item:hover .rank-cue-icon,
+.roles-capabilities-table tr:hover .edit-cue-icon {
     opacity: 0.75;
 }
 
 .set-item .editable-rank-btn:hover,
 .set-item .editable-text-btn:hover,
-.set-item .editable-rank-btn.is-rank-picker-open {
+.set-item .editable-rank-btn.is-rank-picker-open,
+.role-name-cell .editable-text-btn:hover {
     background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
     border-color: var(--color-secondary);
     color: var(--color-primary);
@@ -403,18 +410,22 @@ input[type="color"]::-webkit-color-swatch-wrapper { cursor: pointer !important; 
 .set-item .editable-rank-btn:focus-visible .rank-cue-icon,
 .set-item .editable-rank-btn.is-rank-picker-open .rank-cue-icon,
 .set-item .editable-text-btn:hover .edit-cue-icon,
-.set-item .editable-text-btn:focus-visible .edit-cue-icon {
+.set-item .editable-text-btn:focus-visible .edit-cue-icon,
+.role-name-cell .editable-text-btn:hover .edit-cue-icon,
+.role-name-cell .editable-text-btn:focus-visible .edit-cue-icon {
     opacity: 1;
     color: var(--color-primary);
 }
 
 .set-item .editable-rank-btn:active,
-.set-item .editable-text-btn:active {
+.set-item .editable-text-btn:active,
+.role-name-cell .editable-text-btn:active {
     scale: 0.98;
 }
 
 .set-item .editable-rank-btn:focus-visible,
 .set-item .editable-text-btn:focus-visible,
+.role-name-cell .editable-text-btn:focus-visible,
 .rank-option-btn:focus-visible,
 .btn-inline-action:focus-visible {
     outline: 2px solid var(--color-primary);
@@ -428,7 +439,8 @@ input[type="color"]::-webkit-color-swatch-wrapper { cursor: pointer !important; 
     }
 
     .set-item .editable-rank-btn,
-    .set-item .editable-text-btn {
+    .set-item .editable-text-btn,
+    .role-name-cell .editable-text-btn {
         border-color: rgba(0, 0, 0, 0.14);
     }
 }
@@ -462,7 +474,8 @@ input[type="color"]::-webkit-color-swatch-wrapper { cursor: pointer !important; 
     outline-offset: 1px;
 }
 
-.set-item .btn-inline-action {
+.set-item .btn-inline-action,
+.role-name-cell .btn-inline-action {
     margin-left: 0;
     padding: 0.3rem;
     min-width: 2rem;
@@ -471,29 +484,34 @@ input[type="color"]::-webkit-color-swatch-wrapper { cursor: pointer !important; 
     transition: background-color 150ms ease-out, color 150ms ease-out, scale 150ms ease-out;
 }
 
-.set-item .btn-inline-action:active {
+.set-item .btn-inline-action:active,
+.role-name-cell .btn-inline-action:active {
     scale: 0.95;
 }
 
-.set-item .btn-inline-save {
+.set-item .btn-inline-save,
+.role-name-cell .btn-inline-save {
     background: var(--color-primary);
     border-color: var(--color-primary);
     color: var(--raf-white);
 }
 
-.set-item .btn-inline-save:hover {
+.set-item .btn-inline-save:hover,
+.role-name-cell .btn-inline-save:hover {
     background: var(--color-secondary);
     border-color: var(--color-secondary);
     color: var(--raf-white);
 }
 
-.set-item .btn-inline-cancel {
+.set-item .btn-inline-cancel,
+.role-name-cell .btn-inline-cancel {
     background: var(--raf-white);
     border-color: #ccc;
     color: var(--color-muted);
 }
 
-.set-item .btn-inline-cancel:hover {
+.set-item .btn-inline-cancel:hover,
+.role-name-cell .btn-inline-cancel:hover {
     border-color: var(--color-error);
     color: var(--color-error);
     background: color-mix(in srgb, var(--color-error) 8%, var(--raf-white));
@@ -707,6 +725,73 @@ dialog.programme-rename-dialog h2 {
 }
 .admin-table th.center, .admin-table td.center {
     text-align: center;
+}
+
+/* Role Capabilities Matrix Table */
+.roles-capabilities-table .role-name-cell {
+    min-width: 11rem;
+    white-space: nowrap;
+}
+
+.roles-capabilities-table .role-name-locked {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+}
+
+.roles-capabilities-table .new-role-row {
+    background-color: color-mix(in srgb, var(--color-primary) 4%, var(--raf-white));
+}
+
+.roles-capabilities-table .new-role-name-input {
+    margin-bottom: 0;
+    width: 100%;
+    min-width: 9rem;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+    background: var(--raf-white);
+    color: var(--color-text);
+}
+
+.roles-capabilities-table .new-role-name-input:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+    border-color: var(--color-primary);
+}
+
+.roles-capabilities-table .role-actions-cell {
+    white-space: nowrap;
+    width: 6.5rem;
+}
+
+.roles-capabilities-table .btn-delete-role {
+    margin: 0 auto;
+    padding: 0.35rem;
+    background: transparent;
+}
+
+.roles-capabilities-table .btn-delete-role:hover {
+    background: color-mix(in srgb, var(--color-error) 12%, transparent);
+    color: var(--color-error);
+}
+
+.roles-capabilities-table .btn-add-role {
+    margin: 0;
+    padding: 0.4rem 0.75rem;
+    width: auto;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.roles-capabilities-table .role-protected-badge {
+    display: inline-block;
+    padding: 0.15rem 0.45rem;
+    border-radius: 0.25rem;
+    background: rgba(0, 0, 0, 0.05);
+    font-size: 0.75rem;
 }
 
 .tag-autocomplete-dropdown {

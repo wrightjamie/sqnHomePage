@@ -269,15 +269,15 @@ require_once 'api/config.php';
 
                 <div id="subtab-role-list" class="sub-tab-content hidden">
                     <div class="flex-row justify-between align-center mb-md">
-                        <h3 class="m-0">Role Capabilities</h3>
+                        <h3 id="roles-table-heading" class="m-0">Role Capabilities</h3>
                         <button class="btn btn-primary w-auto m-0" id="btn-save-roles" title="Save Roles">
                             <span class="material-symbols-outlined">save</span> Save Roles
                         </button>
                     </div>
-                    <div class="admin-table-container">
-                        <table class="w-100 admin-table">
+                    <div class="admin-table-container" tabindex="0" role="region" aria-labelledby="roles-table-heading">
+                        <table class="w-100 admin-table roles-capabilities-table">
                             <thead>
-                                <tr id="roles-table-head"  >
+                                <tr id="roles-table-head">
                                     <!-- Dynamic headers -->
                                 </tr>
                             </thead>
@@ -372,6 +372,18 @@ require_once 'api/config.php';
             <div class="flex-row justify-end gap-sm">
                 <button class="btn btn-secondary" type="submit" value="cancel">Cancel</button>
                 <button class="btn btn-primary" type="submit" value="save" id="btn-confirm-programme-rename" autofocus>Save Change</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- Role Deletion Confirmation Dialog -->
+    <dialog id="role-delete-dialog" class="programme-rename-dialog role-delete-dialog" aria-labelledby="role-delete-dialog-title" closedby="any">
+        <form method="dialog" id="role-delete-form" class="programme-rename-form">
+            <h2 id="role-delete-dialog-title" class="m-0 mb-sm">Delete Role</h2>
+            <p id="role-delete-message" class="mb-md"></p>
+            <div class="flex-row justify-end gap-sm">
+                <button class="btn btn-secondary" type="submit" value="cancel" autofocus>Cancel</button>
+                <button class="btn btn-primary btn-danger" type="submit" value="delete" id="btn-confirm-role-delete">Delete Role</button>
             </div>
         </form>
     </dialog>

@@ -6,6 +6,290 @@ export const DEFAULT_STAFF_RANKS = [
     'WO', 'FSgt', 'Sgt', 'CI', 'CWO', 'FS', 'Cpl', 'Cdt'
 ];
 
+export const PROTECTED_SYSTEM_ROLES = ['Admin', 'Guest'];
+export const DEFAULT_ROLE_VIEW_PERMISSIONS = [
+    'view_home',
+    'view_displayboard',
+    'view_programme',
+    'view_documents'
+];
+
+/**
+ * Checks whether a role is a built-in system role that cannot be renamed or deleted.
+ *
+ * @param {Object} role - Role object containing at least a `name` or `is_protected` flag.
+ * @returns {boolean} True if protected (`Admin` or `Guest`).
+ */
+export function isProtectedRole(role) {
+    if (!role) return false;
+    if (typeof role.is_protected === 'boolean') {
+        return role.is_protected;
+    }
+    return PROTECTED_SYSTEM_ROLES.includes(String(role.name || '').trim());
+}
+
+/**
+ * Creates a controller around the native <dialog id="role-delete-dialog"> confirmation modal.
+ *
+ * @param {Object} config
+ * @param {HTMLDialogElement|null} config.dialogEl - The native dialog element.
+ * @returns {{ confirmDeleteRole: Function }} Dialog controller.
+ */
+export function createRoleDeleteDialog({ dialogEl }) {
+    if (dialogEl && typeof HTMLDialogElement !== 'undefined' && !('closedBy' in HTMLDialogElement.prototype)) {
+        const isOutside = (e) => {
+            const rect = dialogEl.getBoundingClientRect();
+            return e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom;
+        };
+        let pressedOutside = false;
+        dialogEl.addEventListener('pointerdown', (e) => {
+            pressedOutside = isOutside(e);
+        });
+        dialogEl.addEventListener('pointerup', (e) => {
+            if (pressedOutside && isOutside(e)) {
+                dialogEl.close('');
+            }
+            pressedOutside = false;
+        });
+    }
+
+    /**
+     * Opens the modal dialog to confirm deleting a custom role.
+     *
+     * @param {Object} role - Role to delete (`id`, `name`, `user_count`).
+     * @returns {Promise<boolean>} True if confirmed, false if cancelled.
+     */
+    function confirmDeleteRole(role) {
+        const roleName = String(role?.name || '').trim();
+        const userCount = Number(role?.user_count || 0);
+
+        if (!dialogEl) {
+            const fallbackMsg = userCount > 0
+                ? `Delete role "${roleName}"? ${userCount} assigned user(s) will be set to (No Role).`
+                : `Are you sure you want to delete the "${roleName}" role?`;
+            return Promise.resolve(typeof confirm === 'function' ? confirm(fallbackMsg) : true);
+        }
+
+        const titleEl = dialogEl.querySelector('#role-delete-dialog-title');
+        const msgEl = dialogEl.querySelector('#role-delete-message');
+
+        if (titleEl) {
+            titleEl.textContent = `Delete Role "${roleName}"?`;
+        }
+        if (msgEl) {
+            if (userCount > 0) {
+                const userWord = userCount === 1 ? 'user is' : 'users are';
+                msgEl.textContent = `${userCount} ${userWord} currently assigned to "${roleName}". Deleting this role will unassign them to (No Role).`;
+            } else {
+                msgEl.textContent = `Are you sure you want to delete the "${roleName}" role? This action cannot be undone.`;
+            }
+        }
+
+        return new Promise((resolve) => {
+            const handleClose = () => {
+                const returnValue = dialogEl.returnValue;
+                dialogEl.returnValue = '';
+                resolve(returnValue === 'delete');
+            };
+
+            dialogEl.addEventListener('close', handleClose, { once: true });
+
+            if (typeof dialogEl.showModal === 'function') {
+                dialogEl.showModal();
+            } else {
+                dialogEl.setAttribute('open', '');
+            }
+        });
+    }
+
+    return { confirmDeleteRole };
+}
+
+/**
+ * Renders the Role Capabilities matrix table (existing roles with inline rename + delete,
+ * and a blank bottom row with a role name input, pre-checked default view permissions, and an 'Add +' button).
+ *
+ * @param {Object} params
+ * @param {HTMLElement} params.thead - The `<tr id="roles-table-head">` element.
+ * @param {HTMLElement} params.tbody - The `<tbody id="roles-table-body">` element.
+ * @param {Array<Object>} params.roles - Array of role objects (`{ id, name, is_protected, user_count }`).
+ * @param {Array<Object>} params.permissions - Array of permission objects (`{ id, name }`).
+ * @param {Object} params.rolePermissions - Map of `role_id -> Array<permission_id>`.
+ * @param {Function} params.onCreateRole - Async callback `({ name, permission_ids }) => Promise<void>`.
+ * @param {Function} params.onRenameRole - Async callback `(role, newName) => Promise<void>`.
+ * @param {Function} params.onDeleteRole - Async callback `(role) => Promise<void>`.
+ * @param {Function} [params.onError] - Error toast callback `(message) => void`.
+ */
+export function renderRolesMatrixTable({
+    thead,
+    tbody,
+    roles = [],
+    permissions = [],
+    rolePermissions = {},
+    onCreateRole,
+    onRenameRole,
+    onDeleteRole,
+    onError = (msg) => Toast.show(msg, 'error')
+}) {
+    if (!thead || !tbody) return;
+
+    let headHtml = '<th class="p-sm" scope="col">Role</th>';
+    permissions.forEach((p) => {
+        headHtml += `<th class="p-sm center" scope="col">${escapeHtml(p.name)}</th>`;
+    });
+    headHtml += '<th class="p-sm center" scope="col">Actions</th>';
+    thead.innerHTML = headHtml;
+
+    tbody.innerHTML = '';
+
+    roles.forEach((role) => {
+        const tr = document.createElement('tr');
+        tr.dataset.roleId = String(role.id);
+        const protectedRole = isProtectedRole(role);
+        const rolePerms = rolePermissions[role.id] || [];
+
+        const nameCellHtml = protectedRole
+            ? `<strong class="role-name-locked">${escapeHtml(role.name)}</strong>`
+            : renderEditableTextButton(role.name, {
+                className: 'edit-role-name-btn',
+                title: `Click to rename role ${role.name}`,
+                ariaLabel: `Rename role ${role.name}`
+            });
+
+        let cellsHtml = `<th class="p-sm role-name-cell" scope="row">${nameCellHtml}</th>`;
+
+        permissions.forEach((p) => {
+            const isChecked = rolePerms.includes(p.id) ? 'checked' : '';
+            const disabled = (role.name === 'Admin' && p.name === 'manage_roles') ? 'disabled' : '';
+
+            cellsHtml += `<td class="p-sm center">
+                <input type="checkbox" class="role-perm-checkbox" data-role-id="${escapeHtml(role.id)}" data-perm-id="${escapeHtml(p.id)}" aria-label="${escapeHtml(role.name)} — ${escapeHtml(p.name)}" ${isChecked} ${disabled}>
+            </td>`;
+        });
+
+        const actionCellHtml = protectedRole
+            ? `<span class="text-sm text-muted role-protected-badge" title="System role cannot be deleted">System</span>`
+            : `<button type="button" class="btn btn-icon btn-remove-item btn-delete-role" data-role-id="${escapeHtml(role.id)}" title="Delete role ${escapeHtml(role.name)}" aria-label="Delete role ${escapeHtml(role.name)}">
+                <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+            </button>`;
+
+        cellsHtml += `<td class="p-sm center role-actions-cell">${actionCellHtml}</td>`;
+        tr.innerHTML = cellsHtml;
+        tbody.appendChild(tr);
+
+        if (!protectedRole) {
+            bindEditableTextButton(tr, '.edit-role-name-btn', {
+                inputLabel: `Rename role ${role.name}`,
+                emptyErrorMessage: 'Role name cannot be empty.',
+                onError,
+                onCommit: async (newName) => {
+                    const duplicate = roles.some(
+                        (r) => r.id !== role.id && String(r.name).toLowerCase() === newName.toLowerCase()
+                    );
+                    if (duplicate) {
+                        onError(`Role "${newName}" already exists.`);
+                        return;
+                    }
+                    if (typeof onRenameRole === 'function') {
+                        await onRenameRole(role, newName);
+                    }
+                }
+            });
+
+            const deleteBtn = tr.querySelector('.btn-delete-role');
+            if (deleteBtn && typeof onDeleteRole === 'function') {
+                deleteBtn.addEventListener('click', () => {
+                    onDeleteRole(role);
+                });
+            }
+        }
+    });
+
+    // Blank creation row at the bottom of the table
+    const addRow = document.createElement('tr');
+    addRow.className = 'new-role-row';
+
+    let addRowHtml = `
+        <th class="p-sm role-name-cell" scope="row">
+            <input type="text" id="new-role-name-input" class="new-role-name-input" placeholder="New role name..." aria-label="New role name">
+        </th>
+    `;
+
+    permissions.forEach((p) => {
+        const isDefaultView = DEFAULT_ROLE_VIEW_PERMISSIONS.includes(p.name) ? 'checked' : '';
+        addRowHtml += `<td class="p-sm center">
+            <input type="checkbox" class="new-role-perm-checkbox" data-perm-id="${escapeHtml(p.id)}" aria-label="New role — ${escapeHtml(p.name)}" ${isDefaultView}>
+        </td>`;
+    });
+
+    addRowHtml += `
+        <td class="p-sm center role-actions-cell">
+            <button type="button" id="btn-add-new-role" class="btn btn-primary btn-add-role" title="Add new role" aria-label="Add new role">
+                Add +
+            </button>
+        </td>
+    `;
+
+    addRow.innerHTML = addRowHtml;
+    tbody.appendChild(addRow);
+
+    const nameInput = addRow.querySelector('#new-role-name-input');
+    const addBtn = addRow.querySelector('#btn-add-new-role');
+
+    const submitNewRole = async () => {
+        const trimmedName = (nameInput?.value || '').trim();
+        if (!trimmedName) {
+            onError('Please enter a role name.');
+            if (nameInput) nameInput.focus();
+            return;
+        }
+
+        const duplicate = roles.some(
+            (r) => String(r.name).toLowerCase() === trimmedName.toLowerCase()
+        );
+        if (duplicate) {
+            onError(`Role "${trimmedName}" already exists.`);
+            if (nameInput) nameInput.focus();
+            return;
+        }
+
+        const selectedPermIds = [];
+        addRow.querySelectorAll('.new-role-perm-checkbox').forEach((cb) => {
+            if (cb.checked) {
+                selectedPermIds.push(parseInt(cb.getAttribute('data-perm-id'), 10));
+            }
+        });
+
+        if (addBtn) addBtn.disabled = true;
+        try {
+            if (typeof onCreateRole === 'function') {
+                await onCreateRole({
+                    name: trimmedName,
+                    permission_ids: selectedPermIds
+                });
+            }
+        } finally {
+            if (addBtn) addBtn.disabled = false;
+        }
+    };
+
+    if (addBtn) {
+        addBtn.addEventListener('click', submitNewRole);
+    }
+
+    if (nameInput) {
+        nameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (e.isComposing || e.keyCode === 229) {
+                    return;
+                }
+                submitNewRole();
+            }
+        });
+    }
+}
+
 export const RANK_SVG_MAP = {
     'Cdt': 'cdt.svg',
     'Cpl': 'cpl.svg',

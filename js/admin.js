@@ -10,6 +10,8 @@ import {
     renderEditableTextButton,
     bindEditableTextButton,
     createProgrammeRenameDialog,
+    createRoleDeleteDialog,
+    renderRolesMatrixTable,
     PersonnelManager
 } from "./utils/programme-settings-editor.js";
 
@@ -791,44 +793,74 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Roles Management ---
     const btnSaveRoles = document.getElementById('btn-save-roles');
-    
+    const roleDeleteDialog = createRoleDeleteDialog({
+        dialogEl: document.getElementById('role-delete-dialog')
+    });
+
+    async function refreshUserRolesIfPermitted() {
+        if (currentUserPermissions.includes('manage_users')) {
+            await loadUsers();
+        }
+    }
+
     async function loadRolesMatrix() {
         if (!currentUserPermissions.includes('manage_roles')) return;
         const rolesTab = document.getElementById('subtab-btn-roles');
         if (rolesTab) rolesTab.style.display = 'inline-block';
-        
+
         try {
             const data = await apiFetch('api/roles.php?action=list');
             if (data.roles && data.permissions) {
+                rolesData = data.roles;
                 const thead = document.getElementById('roles-table-head');
                 const tbody = document.getElementById('roles-table-body');
-                
-                // Build headers
-                let headHtml = '<th class="p-sm">Role</th>';
-                data.permissions.forEach(p => {
-                    headHtml += `<th class="p-sm center">${p.name}</th>`;
-                });
-                thead.innerHTML = headHtml;
-                
-                // Build body
-                tbody.innerHTML = '';
-                data.roles.forEach(role => {
-                    let rowHtml = `<tr><td class="p-sm"><strong>${role.name}</strong></td>`;
-                    const rolePerms = data.role_permissions[role.id] || [];
-                    
-                    data.permissions.forEach(p => {
-                        const isChecked = rolePerms.includes(p.id) ? 'checked' : '';
-                        const disabled = (role.name === 'Admin' && p.name === 'manage_roles') ? 'disabled' : ''; 
-                        
-                        rowHtml += `<td class="p-sm center">
-                            <input type="checkbox" class="role-perm-checkbox" data-role-id="${role.id}" data-perm-id="${p.id}" ${isChecked} ${disabled}>
-                        </td>`;
-                    });
-                    rowHtml += '</tr>';
-                    tbody.insertAdjacentHTML('beforeend', rowHtml);
+
+                renderRolesMatrixTable({
+                    thead,
+                    tbody,
+                    roles: data.roles,
+                    permissions: data.permissions,
+                    rolePermissions: data.role_permissions || {},
+                    onCreateRole: async ({ name, permission_ids }) => {
+                        try {
+                            await apiFetch('api/roles.php?action=create', 'POST', { name, permission_ids });
+                            Toast.show(`Role "${name}" added`, 'success');
+                            await loadRolesMatrix();
+                            await refreshUserRolesIfPermitted();
+                        } catch (err) {
+                            console.error('Failed to create role', err);
+                        }
+                    },
+                    onRenameRole: async (role, newName) => {
+                        try {
+                            await apiFetch('api/roles.php?action=rename', 'POST', {
+                                role_id: role.id,
+                                name: newName
+                            });
+                            Toast.show(`Renamed role to "${newName}"`, 'success');
+                            await loadRolesMatrix();
+                            await refreshUserRolesIfPermitted();
+                        } catch (err) {
+                            console.error('Failed to rename role', err);
+                            await loadRolesMatrix();
+                        }
+                    },
+                    onDeleteRole: async (role) => {
+                        const confirmed = await roleDeleteDialog.confirmDeleteRole(role);
+                        if (!confirmed) return;
+
+                        try {
+                            await apiFetch('api/roles.php?action=delete', 'POST', { role_id: role.id });
+                            Toast.show(`Role "${role.name}" deleted`, 'success');
+                            await loadRolesMatrix();
+                            await refreshUserRolesIfPermitted();
+                        } catch (err) {
+                            console.error('Failed to delete role', err);
+                        }
+                    }
                 });
             }
-        } catch(e) {
+        } catch (e) {
             console.error("Error loading roles", e);
         }
     }

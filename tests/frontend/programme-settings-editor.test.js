@@ -8,6 +8,9 @@ import {
   renderEditableTextButton,
   bindEditableTextButton,
   createProgrammeRenameDialog,
+  createRoleDeleteDialog,
+  renderRolesMatrixTable,
+  isProtectedRole,
   PersonnelManager
 } from '../../js/utils/programme-settings-editor.js';
 import { Toast } from '../../js/components/Toast.js';
@@ -338,6 +341,202 @@ describe('Programme Settings Editor', () => {
       expect(adminCss).toContain('overscroll-behavior: contain;');
       expect(adminCss).toContain('overflow: hidden;');
       expect(adminCss).toContain('@media (hover: none)');
+    });
+  });
+
+  describe('Role Capabilities Matrix (renderRolesMatrixTable & createRoleDeleteDialog)', () => {
+    const samplePermissions = [
+      { id: 1, name: 'manage_roles' },
+      { id: 2, name: 'edit_duties' },
+      { id: 3, name: 'view_home' },
+      { id: 4, name: 'view_displayboard' },
+      { id: 5, name: 'view_programme' },
+      { id: 6, name: 'view_documents' }
+    ];
+
+    const sampleRoles = [
+      { id: 1, name: 'Admin', is_protected: true, user_count: 1 },
+      { id: 2, name: 'Staff', is_protected: false, user_count: 2 },
+      { id: 3, name: 'NCO', is_protected: false, user_count: 0 },
+      { id: 4, name: 'Guest', is_protected: true, user_count: 0 }
+    ];
+
+    const sampleRolePerms = {
+      1: [1, 2, 3, 4, 5, 6],
+      2: [2, 3, 4, 5, 6],
+      3: [2, 3, 4, 5, 6],
+      4: [3, 4, 5, 6]
+    };
+
+    function setupRolesTable(overrides = {}) {
+      document.body.innerHTML = `
+        <table>
+          <thead><tr id="roles-table-head"></tr></thead>
+          <tbody id="roles-table-body"></tbody>
+        </table>
+      `;
+      const thead = document.getElementById('roles-table-head');
+      const tbody = document.getElementById('roles-table-body');
+      const onCreateRole = overrides.onCreateRole || jest.fn();
+      const onRenameRole = overrides.onRenameRole || jest.fn();
+      const onDeleteRole = overrides.onDeleteRole || jest.fn();
+      const onError = overrides.onError || jest.fn();
+
+      renderRolesMatrixTable({
+        thead,
+        tbody,
+        roles: overrides.roles || sampleRoles,
+        permissions: overrides.permissions || samplePermissions,
+        rolePermissions: overrides.rolePermissions || sampleRolePerms,
+        onCreateRole,
+        onRenameRole,
+        onDeleteRole,
+        onError
+      });
+
+      return { thead, tbody, onCreateRole, onRenameRole, onDeleteRole, onError };
+    }
+
+    it('identifies Admin and Guest as protected roles', () => {
+      expect(isProtectedRole({ name: 'Admin' })).toBe(true);
+      expect(isProtectedRole({ name: 'Guest' })).toBe(true);
+      expect(isProtectedRole({ name: 'Staff' })).toBe(false);
+      expect(isProtectedRole({ name: 'Media Team' })).toBe(false);
+    });
+
+    it('renders existing roles, locks Admin/Guest, enables inline rename/delete on custom roles, and appends a blank creation row', () => {
+      const { thead, tbody } = setupRolesTable();
+
+      // Header has Role + 6 permissions + Actions
+      const headers = thead.querySelectorAll('th');
+      expect(headers.length).toBe(8);
+      expect(headers[0].textContent).toBe('Role');
+      expect(headers[7].textContent).toBe('Actions');
+
+      // Body has 4 existing role rows + 1 blank new-role row
+      const rows = tbody.querySelectorAll('tr');
+      expect(rows.length).toBe(5);
+
+      // Admin row is locked (no editable button, no delete button) and manage_roles checkbox is disabled
+      const adminRow = tbody.querySelector('tr[data-role-id="1"]');
+      expect(adminRow.querySelector('.edit-role-name-btn')).toBeNull();
+      expect(adminRow.querySelector('.btn-delete-role')).toBeNull();
+      expect(adminRow.querySelector('.role-perm-checkbox[data-perm-id="1"]').disabled).toBe(true);
+
+      // Staff row has inline rename button and delete button
+      const staffRow = tbody.querySelector('tr[data-role-id="2"]');
+      expect(staffRow.querySelector('.edit-role-name-btn')).not.toBeNull();
+      expect(staffRow.querySelector('.btn-delete-role')).not.toBeNull();
+
+      // Blank creation row at bottom has text input, default view_* permissions pre-checked, and 'Add +' button
+      const addRow = tbody.querySelector('tr.new-role-row');
+      expect(addRow).not.toBeNull();
+      const input = addRow.querySelector('#new-role-name-input');
+      const addBtn = addRow.querySelector('#btn-add-new-role');
+      expect(input).not.toBeNull();
+      expect(addBtn.textContent.trim()).toBe('Add +');
+
+      // view_* permissions (ids 3, 4, 5, 6) are checked by default, manage_roles (1) & edit_duties (2) are unchecked
+      expect(addRow.querySelector('.new-role-perm-checkbox[data-perm-id="1"]').checked).toBe(false);
+      expect(addRow.querySelector('.new-role-perm-checkbox[data-perm-id="2"]').checked).toBe(false);
+      expect(addRow.querySelector('.new-role-perm-checkbox[data-perm-id="3"]').checked).toBe(true);
+      expect(addRow.querySelector('.new-role-perm-checkbox[data-perm-id="6"]').checked).toBe(true);
+    });
+
+    it('creates a new role from the bottom blank row with selected permissions on Add + click or Enter', async () => {
+      const { tbody, onCreateRole } = setupRolesTable();
+      const addRow = tbody.querySelector('tr.new-role-row');
+      const input = addRow.querySelector('#new-role-name-input');
+      const addBtn = addRow.querySelector('#btn-add-new-role');
+
+      // Toggle edit_duties on for the new role
+      addRow.querySelector('.new-role-perm-checkbox[data-perm-id="2"]').checked = true;
+      input.value = '  Cadet Media  ';
+
+      addBtn.click();
+      await Promise.resolve();
+
+      expect(onCreateRole).toHaveBeenCalledWith({
+        name: 'Cadet Media',
+        permission_ids: [2, 3, 4, 5, 6]
+      });
+    });
+
+    it('prevents creating a duplicate or empty role name and blocks Enter during IME composition', () => {
+      const { tbody, onCreateRole, onError } = setupRolesTable();
+      const addRow = tbody.querySelector('tr.new-role-row');
+      const input = addRow.querySelector('#new-role-name-input');
+      const addBtn = addRow.querySelector('#btn-add-new-role');
+
+      // Empty name
+      input.value = '   ';
+      addBtn.click();
+      expect(onCreateRole).not.toHaveBeenCalled();
+      expect(onError).toHaveBeenCalledWith('Please enter a role name.');
+
+      // Duplicate name (case-insensitive)
+      input.value = 'staff';
+      addBtn.click();
+      expect(onCreateRole).not.toHaveBeenCalled();
+      expect(onError).toHaveBeenCalledWith('Role "staff" already exists.');
+
+      // IME composition Enter must not submit
+      input.value = 'Adjutant';
+      const imeEvent = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true });
+      Object.defineProperty(imeEvent, 'isComposing', { value: true });
+      input.dispatchEvent(imeEvent);
+      expect(onCreateRole).not.toHaveBeenCalled();
+    });
+
+    it('renames a non-protected role inline and blocks duplicate names', () => {
+      const { tbody, onRenameRole, onError } = setupRolesTable();
+      const ncoRow = tbody.querySelector('tr[data-role-id="3"]');
+      const editBtn = ncoRow.querySelector('.edit-role-name-btn');
+
+      editBtn.click();
+      const input = ncoRow.querySelector('.inline-edit-input');
+      expect(input).not.toBeNull();
+
+      // Attempt duplicate name
+      input.value = 'Admin';
+      ncoRow.querySelector('.inline-edit-form').dispatchEvent(new Event('submit', { cancelable: true }));
+      expect(onRenameRole).not.toHaveBeenCalled();
+      expect(onError).toHaveBeenCalledWith('Role "Admin" already exists.');
+
+      // Valid rename
+      editBtn.click();
+      const input2 = ncoRow.querySelector('.inline-edit-input');
+      input2.value = 'Senior NCO';
+      ncoRow.querySelector('.inline-edit-form').dispatchEvent(new Event('submit', { cancelable: true }));
+      expect(onRenameRole).toHaveBeenCalledWith(sampleRoles[2], 'Senior NCO');
+    });
+
+    it('confirms role deletion via native <dialog> and resets returnValue on close', async () => {
+      document.body.innerHTML = `
+        <dialog id="role-delete-dialog">
+          <form method="dialog">
+            <h2 id="role-delete-dialog-title"></h2>
+            <p id="role-delete-message"></p>
+            <button type="submit" value="cancel">Cancel</button>
+            <button type="submit" value="delete">Delete Role</button>
+          </form>
+        </dialog>
+      `;
+      const dialogEl = document.getElementById('role-delete-dialog');
+      dialogEl.showModal = jest.fn(() => dialogEl.setAttribute('open', ''));
+
+      const dialog = createRoleDeleteDialog({ dialogEl });
+      const promise = dialog.confirmDeleteRole({ id: 2, name: 'Staff', user_count: 2 });
+
+      expect(dialogEl.showModal).toHaveBeenCalled();
+      expect(document.getElementById('role-delete-message').textContent).toContain('2 users are currently assigned to "Staff"');
+
+      dialogEl.returnValue = 'delete';
+      dialogEl.dispatchEvent(new Event('close'));
+
+      const confirmed = await promise;
+      expect(confirmed).toBe(true);
+      expect(dialogEl.returnValue).toBe('');
     });
   });
 });
